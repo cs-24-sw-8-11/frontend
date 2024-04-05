@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-import 'main.dart';
-import 'custom_input_field.dart';
+import '../main.dart';
+import '../custom_widgets/custom_input_field.dart';
 import 'animation_route.dart';
+import '../custom_widgets/global_color.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,10 +19,10 @@ class LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 30, 30, 30),
-          title: const Center(child: Text('Stress Handler', style: TextStyle(color: Colors.white))),
+          backgroundColor: globalAppBarColor,
+          title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
         ),
-      backgroundColor: const Color.fromARGB(255, 55, 55, 55),
+      backgroundColor: globalScaffoldBackgroundColor,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -46,15 +47,15 @@ class LoginScreenState extends State<LoginScreen> {
               child: ElevatedButton(
                 onPressed: () { Provider.of<AuthProvider>(context, listen: false).login(); },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white38,
-                  disabledBackgroundColor: Colors.white10,
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5.0),
                   ),
                 ),
                 child: const Text(
                   'Login',
-                  style: TextStyle(color: Colors.white)
+                  style: TextStyle(color: globalTextColor)
                 ),
               ),
             ), 
@@ -67,7 +68,7 @@ class LoginScreenState extends State<LoginScreen> {
                   children: <TextSpan>[
                     TextSpan(
                       text: 'Register',
-                      style: const TextStyle(decoration: TextDecoration.underline, color: Colors.white54),
+                      style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
                       recognizer: TapGestureRecognizer()
                       ..onTap = () {
                         Navigator.of(context).push(createRoute());

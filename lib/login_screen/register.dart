@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
 import 'dart:async';
-import 'custom_input_field.dart';
+import '../custom_widgets/custom_input_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -17,14 +18,14 @@ class RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 30, 30, 30),
+          backgroundColor: globalAppBarColor,
           iconTheme: const IconThemeData(
-            color: Colors.white,
+            color: globalnavigatorArrowColor,
           ),
-          title: const Text('Stress Handler', style: TextStyle(color: Colors.white)),
+          title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
           centerTitle: true,
         ),
-      backgroundColor: const Color.fromARGB(255, 55, 55, 55),
+      backgroundColor: globalScaffoldBackgroundColor,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -59,8 +60,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                 width: 110,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white38,
-                    disabledBackgroundColor: Colors.white10,
+                    backgroundColor: globalButtonBackgroundColor,
+                    disabledBackgroundColor: globalButtonDisabledBackgroundColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -68,10 +69,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                   child: !isLoading ?
                     const Text(
                       'Register',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: globalTextColor),
                     )
                     : const SpinKitSquareCircle(
-                      color: Colors.white,
+                      color: globalAnimationColor,
                       size: 20,
                     ),
                   onPressed: () async {

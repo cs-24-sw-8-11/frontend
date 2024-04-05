@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:frontend/custom_input_field.dart';
+import 'package:frontend/custom_widgets/custom_input_field.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
