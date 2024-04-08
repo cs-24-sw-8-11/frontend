@@ -23,64 +23,70 @@ class LoginScreenState extends State<LoginScreen> {
           title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
         ),
       backgroundColor: globalScaffoldBackgroundColor,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 200),
-            child: CustomInputField(
-              labeltext: 'Username',
-              icondata: Icon(Icons.person_rounded, size: 18)
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            const Padding(
+              padding: EdgeInsets.only(left: 50, right: 50, top: 200),
+              child: CustomInputField(
+                labeltext: 'Username',
+                icondata: Icon(Icons.person_rounded, size: 18)
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 30),
-            child: CustomInputField(
-              labeltext: 'Password',
-              icondata: Icon(Icons.lock_rounded, size: 18),
-              hiddentext: true,
+            const Padding(
+              padding: EdgeInsets.only(left: 50, right: 50, top: 30),
+              child: CustomInputField(
+                labeltext: 'Password',
+                icondata: Icon(Icons.lock_rounded, size: 18),
+                hiddentext: true,
+              ),
             ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
-              child: ElevatedButton(
-                onPressed: () { Provider.of<AuthProvider>(context, listen: false).login(); },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: globalButtonBackgroundColor,
-                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
+                child: ElevatedButton(
+                  onPressed: () { Provider.of<AuthProvider>(context, listen: false).login(); },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: globalButtonBackgroundColor,
+                    disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                  ),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(color: globalTextColor)
                   ),
                 ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(color: globalTextColor)
-                ),
-              ),
-            ), 
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 10),
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Register',
-                      style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
-                      recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.of(context).push(createRoute());
-                      },
-                    ),
-                  ],
+              ), 
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 50, right: 50, top: 10),
+                child: RichText(
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: 'Register',
+                        style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
+                        recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.of(context).push(createRoute());
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ]
-      )
+            const Padding(
+              padding: EdgeInsets.only(top: 30)
+            ),
+          ]
+        ),
+      ),
     );
   }
 }
