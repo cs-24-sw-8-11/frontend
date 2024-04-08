@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:frontend/custom_widgets/custom_input_field.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/main.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,112 +17,46 @@ class HomeScreenState extends State<HomeScreen> {
   final List<Widget> _widgets = [
     Container(
       key: const ValueKey<int>(1),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 200),
-            child: CustomInputField(
-              labeltext: 'Username',
-              icondata: Icon(Icons.person_rounded, size: 18)
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 30),
-            child: CustomInputField(
-              labeltext: 'Password',
-              icondata: Icon(Icons.lock_rounded, size: 18),
-              hiddentext: true,
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
-              child: ElevatedButton(
-                onPressed: () {}, //Verify login and change active UI
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white38,
-                  disabledBackgroundColor: Colors.white10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(color: Colors.white)
-                ),
-              ),
-            ), 
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 10),
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Register',
-                      style: const TextStyle(decoration: TextDecoration.underline, color: Colors.white54),
-                      recognizer: TapGestureRecognizer()
-                      ..onTap = () {}, //Register user to DB here
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ]
-      )
+      child: const Center(
+        child: Text('Page 1', style: TextStyle(color: globalTextColor))
+      ),
     ),
     Container (
       key: const ValueKey<int>(2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 170),
-            child: CustomInputField(
-              labeltext: 'Username',
-              icondata: Icon(Icons.person_rounded, size: 18)
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 30),
-            child: CustomInputField(
-              labeltext: 'Password',
-              icondata: Icon(Icons.lock_rounded, size: 18),
-              hiddentext: true,
-            ),
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 50, right: 50, top: 30),
-            child: CustomInputField(
-              labeltext: 'Repeat Password',
-              icondata: Icon(Icons.lock_rounded, size: 18),
-              hiddentext: true,
-            ),
-          ),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white38,
-                  disabledBackgroundColor: Colors.white10,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                ),
-                child: const Text(
-                  'Register',
-                  style: TextStyle(color: Colors.white)
+      child: const Center(
+        child: Text('Page 2', style: TextStyle(color: globalTextColor))
+      ),
+    ),
+    Container (
+      key: const ValueKey<int>(3),
+      child: const Center(
+        child: Text('Page 3', style: TextStyle(color: globalTextColor))
+      ),
+    ),
+    Container(
+      key: const ValueKey<int>(4),
+      child: Center(
+        child: Builder(
+          builder: (BuildContext context) {
+            return ElevatedButton(
+              onPressed: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
                 ),
               ),
-            ), 
-          ),
-        ]
-      )
+              child: const Text(
+                'Logout',
+                style: TextStyle(color: globalTextColor),
+              ),
+            );
+          },
+        ),
+      ),
     ),
   ];
 
@@ -129,24 +64,19 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: const Color.fromARGB(179, 85, 85, 85),
-          title: const Center(child: Text('Stress Handler', style: TextStyle(color: Colors.white))),
-          actions: [
-            ElevatedButton(
-              onPressed: () {Navigator.pop(context); },
-              child: null,
-            ),
-          ],
+          backgroundColor: globalAppBarColor,
+          title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
       ),
-      backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+      backgroundColor: globalScaffoldBackgroundColor,
       body: _widgets.elementAt(_pageIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _pageIndex,
-        onTap: _toggleDisplayedUI,
+        onTap: changePage,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+            backgroundColor: globalNavbarColor,
             ),
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_note_sharp),
@@ -165,7 +95,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _toggleDisplayedUI(int index) {
+  void changePage(int index) {
     setState(() {
       _pageIndex = index;
     });

@@ -17,3 +17,6 @@ const globalUnderlineColor = Colors.white54;
 
 // Animation
 const globalAnimationColor = Colors.white;
+
+// Navbar
+const globalNavbarColor = Color.fromARGB(255, 85, 85, 85);
