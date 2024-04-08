@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-import '../main.dart';
-import '../custom_widgets/custom_input_field.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'animation_route.dart';
+import '../custom_widgets/custom_input_field.dart';
 import '../custom_widgets/global_color.dart';
+import '../scripts/login_handler.dart';
+import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +16,18 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
+
+  bool isLoading = false;
+  
+  final loginUsernameController = TextEditingController();
+  final loginPasswordController = TextEditingController();
+
+  // @override
+  // void dispose() {
+  //   loginUsernameController.dispose();
+  //   loginPasswordController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -28,37 +42,64 @@ class LoginScreenState extends State<LoginScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(left: 50, right: 50, top: 200),
+            Padding(
+              padding: const EdgeInsets.only(left: 50, right: 50, top: 200),
               child: CustomInputField(
                 labeltext: 'Username',
-                icondata: Icon(Icons.person_rounded, size: 18)
+                icondata: const Icon(Icons.person_rounded, size: 18),
+                txtcontroller: loginUsernameController,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 50, right: 50, top: 30),
+            Padding(
+              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
               child: CustomInputField(
                 labeltext: 'Password',
-                icondata: Icon(Icons.lock_rounded, size: 18),
+                icondata: const Icon(Icons.lock_rounded, size: 18),
+                txtcontroller: loginPasswordController,
                 hiddentext: true,
               ),
             ),
             Center(
               child: Padding(
                 padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
-                child: ElevatedButton(
-                  onPressed: () { Provider.of<AuthProvider>(context, listen: false).login(); },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: globalButtonBackgroundColor,
-                    disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0),
+                child: SizedBox(
+                  height: 34,
+                  width: 110,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: globalButtonBackgroundColor,
+                      disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Login',
-                    style: TextStyle(color: globalTextColor)
-                  ),
+                    child: !isLoading ?
+                    const Text(
+                      'Log In',
+                      style: TextStyle(color: globalTextColor)
+                    )
+                    : const SpinKitSquareCircle(
+                      color: globalAnimationColor,
+                      size: 20,
+                    ),
+                    onPressed: () async { //Make this shit into its own function
+                      if (!isLoading) {
+                        dynamic login;
+                        setState (() => isLoading = true);
+                        await Future.delayed(const Duration(milliseconds: 1000));
+                        if (context.mounted) {
+                          login = await executeLogin(context);
+                        }
+                        if (login == true) {
+                          setState (() => isLoading = false);
+                          await Future.delayed(const Duration(milliseconds: 250));
+                          if (context.mounted) {
+                            Provider.of<AuthProvider>(context, listen: false).login();
+                          }
+                        }
+                      }
+                    },
+                  ), 
                 ),
               ), 
             ),

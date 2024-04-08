@@ -14,6 +14,19 @@ class RegisterScreen extends StatefulWidget {
 class RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
   bool isTapped = false;
+
+  final registerUsernameController = TextEditingController();
+  final registerPasswordController = TextEditingController();
+  final registerRepeatPasswordController = TextEditingController();
+
+  // @override
+  // void dispose() {
+  //   registerUsernameController.dispose();
+  //   registerPasswordController.dispose();
+  //   registerRepeatPasswordController.dispose();
+  //   super.dispose();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,26 +44,29 @@ class RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(left: 50, right: 50, top: 170),
+            Padding(
+              padding: const EdgeInsets.only(left: 50, right: 50, top: 170),
               child: CustomInputField(
                 labeltext: 'Username',
-                icondata: Icon(Icons.person_rounded, size: 18)
+                icondata: const Icon(Icons.person_rounded, size: 18),
+                txtcontroller: registerUsernameController,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 50, right: 50, top: 30),
+            Padding(
+              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
               child: CustomInputField(
                 labeltext: 'Password',
-                icondata: Icon(Icons.lock_rounded, size: 18),
+                icondata: const Icon(Icons.lock_rounded, size: 18),
+                txtcontroller: registerPasswordController,
                 hiddentext: true,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 50, right: 50, top: 30),
+            Padding(
+              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
               child: CustomInputField(
                 labeltext: 'Repeat Password',
-                icondata: Icon(Icons.lock_rounded, size: 18),
+                icondata: const Icon(Icons.lock_rounded, size: 18),
+                txtcontroller: registerRepeatPasswordController,
                 hiddentext: true,
               ),
             ),
