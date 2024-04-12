@@ -5,8 +5,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'animation_route.dart';
 import '../custom_widgets/custom_input_field.dart';
 import '../custom_widgets/global_color.dart';
-import '../scripts/login_handler.dart';
+import '../scripts/api_handler.dart';
 import '../main.dart';
+import '../custom_widgets/custom_diag.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,16 +19,10 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
+  bool isTapped = false;
   
   final loginUsernameController = TextEditingController();
   final loginPasswordController = TextEditingController();
-
-  // @override
-  // void dispose() {
-  //   loginUsernameController.dispose();
-  //   loginPasswordController.dispose();
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -83,20 +78,28 @@ class LoginScreenState extends State<LoginScreen> {
                       size: 20,
                     ),
                     onPressed: () async { //Make this shit into its own function
-                      if (!isLoading) {
-                        dynamic login;
+                      if (!isLoading && !isTapped) {
+                        isTapped = true;
+                        dynamic httpResponse;
                         setState (() => isLoading = true);
-                        await Future.delayed(const Duration(milliseconds: 1000));
                         if (context.mounted) {
-                          login = await executeLogin(context);
+                          httpResponse = await executeLogin(context, loginUsernameController.text, loginPasswordController.text);
                         }
-                        if (login == true) {
+                        if (httpResponse.statusCode == 200) {
+                          await Future.delayed(const Duration(milliseconds: 1000));
                           setState (() => isLoading = false);
-                          await Future.delayed(const Duration(milliseconds: 250));
+                          await Future.delayed(const Duration(milliseconds: 100));
                           if (context.mounted) {
-                            Provider.of<AuthProvider>(context, listen: false).login();
+                            Provider.of<AuthProvider>(context, listen: false).login(httpResponse.body);
                           }
                         }
+                        else {
+                          setState(() => isLoading = false);
+                          if (context.mounted) {
+                            dialogBuilder(context, 'Failed', httpResponse.body);
+                          }
+                        }
+                        isTapped = false;
                       }
                     },
                   ), 

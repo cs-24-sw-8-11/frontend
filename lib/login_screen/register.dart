@@ -1,8 +1,13 @@
+// Flutter / Dart libs
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:frontend/custom_widgets/global_color.dart';
 import 'dart:async';
+
+// Custom imports
+import '../custom_widgets/custom_diag.dart';
 import '../custom_widgets/custom_input_field.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/scripts/api_handler.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -14,18 +19,11 @@ class RegisterScreen extends StatefulWidget {
 class RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
   bool isTapped = false;
+  bool registerSuccess = false;
 
   final registerUsernameController = TextEditingController();
   final registerPasswordController = TextEditingController();
   final registerRepeatPasswordController = TextEditingController();
-
-  // @override
-  // void dispose() {
-  //   registerUsernameController.dispose();
-  //   registerPasswordController.dispose();
-  //   registerRepeatPasswordController.dispose();
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -94,24 +92,46 @@ class RegisterScreenState extends State<RegisterScreen> {
                         size: 20,
                       ),
                     onPressed: () async {
-                      if (!isLoading && !isTapped) {
+                      if (!isLoading && !isTapped && (registerPasswordController.text == registerRepeatPasswordController.text)) {
                         isTapped = true;
+                        dynamic httpResponse;
                         setState (() => isLoading = true);
-                        await Future.delayed(const Duration(milliseconds:1000));
-                        setState(() => isLoading = false);
-                        await Future.delayed(const Duration(milliseconds: 500));
                         if (context.mounted) {
-                          Navigator.pop(context);
+                          httpResponse = await executeRegister(context, registerUsernameController.text, registerPasswordController.text);
+                        }
+                        if (httpResponse.statusCode == 200) {
+                          await Future.delayed(const Duration(milliseconds:1000));
+                          setState(() => isLoading = false);
+                          registerSuccess = true;
+                          await Future.delayed(const Duration(milliseconds: 1000));
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
                           }
+                        }
+                        else {
+                          setState(() => isLoading = false);
+                          if (context.mounted) {
+                            dialogBuilder(context, 'Failed', httpResponse.body);
+                          }
+                        }
                         isTapped = false;
+                        registerSuccess = false;
+                      }
+                      else {
+                        dialogBuilder(context, 'Failed', 'Passwords does not match!');
                       }
                     },
                   ),
                 ) 
               ), 
             ),
-            const Padding(
-              padding: EdgeInsets.only(top: 30)
+            Center (
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: registerSuccess
+                ? const Text('Success!', style: TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
+                : const Text('') 
+              )
             ),
           ]
         ),
