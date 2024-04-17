@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import '../UserData.dart';
 import 'json_handler.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,4 +36,14 @@ Future<http.Response> handleLoginHttp(String json) async {
     body: json
    );
    return response;
+}
+Future<UserData?> getUserData(String token) async {
+  http.Response response = await http.post(
+    Uri.http('localhost:8080', '/user/get/$token')
+  );
+  if(response.body.isNotEmpty) {
+    final data = jsonDecode(response.body) as UserData;
+    return data;
+  }
+  return null;
 }
