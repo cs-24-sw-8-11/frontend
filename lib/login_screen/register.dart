@@ -21,6 +21,8 @@ class RegisterScreenState extends State<RegisterScreen> {
   bool isTapped = false;
   bool registerSuccess = false;
 
+  String responseString = "";
+
   final registerUsernameController = TextEditingController();
   final registerPasswordController = TextEditingController();
   final registerRepeatPasswordController = TextEditingController();
@@ -103,6 +105,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                           await Future.delayed(const Duration(milliseconds:1000));
                           setState(() => isLoading = false);
                           registerSuccess = true;
+                          responseString = httpResponse.body;
                           await Future.delayed(const Duration(milliseconds: 1000));
                           if (context.mounted) {
                             Navigator.of(context).pop();
@@ -129,7 +132,7 @@ class RegisterScreenState extends State<RegisterScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 20),
                 child: registerSuccess
-                ? const Text('Success!', style: TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
+                ? Text(responseString, style: const TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
                 : const Text('') 
               )
             ),
