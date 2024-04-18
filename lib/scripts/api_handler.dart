@@ -23,8 +23,9 @@ Future<http.Response> executeRegister(BuildContext context, String username, Str
 Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
   print(response.body);
-  final data = jsonDecode(response.body) as UserData;
-  return data;
+  final data = jsonDecode(response.body) as Map<String, dynamic>;
+  UserData userData = UserData(data['username'], data['agegroup'], data['occupation'], data['userId']);
+  return userData;
 }
 
 // Register API POST
