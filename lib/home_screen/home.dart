@@ -80,15 +80,18 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           BottomNavigationBarItem(
             icon: Icon(Icons.edit_note_sharp),
-            label: 'Journals'
+            label: 'Journals',
+            backgroundColor: globalNavbarColor,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.auto_graph_outlined),
-            label: 'Predictions'
+            label: 'Predictions',
+            backgroundColor: globalNavbarColor,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings_rounded),
-            label: 'Settings'
+            label: 'Settings',
+            backgroundColor: globalNavbarColor,
           ),
         ],
       ),
@@ -96,8 +99,10 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void changePage(int index) {
-    setState(() {
-      _pageIndex = index;
-    });
+    if (_pageIndex != index) {
+      setState(() {
+        _pageIndex = index;
+      });
+    }
   }
 }
