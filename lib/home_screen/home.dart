@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 import 'package:frontend/main.dart';
 import 'package:provider/provider.dart';
+import 'package:frontend/scripts/api_handler.dart';
+import 'package:frontend/data_structures/user_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,6 +11,8 @@ class HomeScreen extends StatefulWidget {
   @override
   HomeScreenState createState() => HomeScreenState();
 }
+
+dynamic data;
 
 class HomeScreenState extends State<HomeScreen> {
   int _pageIndex = 0;
@@ -29,8 +33,34 @@ class HomeScreenState extends State<HomeScreen> {
     ),
     Container (
       key: const ValueKey<int>(3),
-      child: const Center(
-        child: Text('Page 3', style: TextStyle(color: globalTextColor))
+      child: Center(
+        child: Builder(
+          builder: (BuildContext context) {
+            return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                const Padding(
+                  padding: EdgeInsets.only(top: 250),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    UserData userdata = await getUserData(Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                    data = userdata;
+                  },
+                  style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+                  child: const Text('Fetch', style: TextStyle(color: globalTextColor)),
+                ),
+                Text('$data.userName \n$data.ageGroup \n$data.occupation \n$data.userID', style: const TextStyle(color: globalTextColor),)
+              ]
+            );
+          },
+        ),
       ),
     ),
     Container(

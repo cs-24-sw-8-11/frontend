@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../data_structures/UserData.dart';
+import '../data_structures/user_data.dart';
 import 'json_handler.dart';
 
 
@@ -19,13 +19,12 @@ Future<http.Response> executeRegister(BuildContext context, String username, Str
   return Future.value(httpResponse);
 }
 
-Future<UserData?> getUserData(BuildContext context, String token) async {
+// Get User Data
+Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
-  if(response.body.isNotEmpty) {
-    final data = jsonDecode(response.body) as UserData;
-    return data;
-  }
-  return null;
+  print(response.body);
+  final data = jsonDecode(response.body) as UserData;
+  return data;
 }
 
 // Register API POST
