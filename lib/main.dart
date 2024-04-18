@@ -12,8 +12,11 @@ class AuthProvider extends ChangeNotifier {
 
   bool get isLoggedIn => _isLoggedIn;
 
+  String token = '';
+
   // Login Logic goes here
-  void login() {
+  void login(String userToken) {
+    token = userToken;
     _isLoggedIn = true;
     notifyListeners();
   }
@@ -22,6 +25,11 @@ class AuthProvider extends ChangeNotifier {
     _isLoggedIn = false;
     notifyListeners();
   }
+
+  String fetchToken() {
+    return token;
+  }
+
 }
 
 class MyApp extends StatelessWidget {
