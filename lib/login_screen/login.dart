@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import '../UserData.dart';
 import 'animation_route.dart';
 import '../custom_widgets/custom_input_field.dart';
 import '../custom_widgets/global_color.dart';
@@ -23,8 +20,6 @@ class LoginScreenState extends State<LoginScreen> {
 
   bool isLoading = false;
   bool isTapped = false;
-
-  UserData? userData;
   
   final loginUsernameController = TextEditingController();
   final loginPasswordController = TextEditingController();
