@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../data_structures/UserData.dart';
 import 'json_handler.dart';
-import '../UserData.dart';
 
 
 // Login
@@ -17,6 +17,15 @@ Future<http.Response> executeRegister(BuildContext context, String username, Str
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleRegisterHttp(jsonString);
   return Future.value(httpResponse);
+}
+
+Future<UserData?> getUserData(BuildContext context, String token) async {
+  var response = await handleUserDataHttp(token);
+  if(response.body.isNotEmpty) {
+    final data = jsonDecode(response.body) as UserData;
+    return data;
+  }
+  return null;
 }
 
 // Register API POST
@@ -36,13 +45,11 @@ Future<http.Response> handleLoginHttp(String json) async {
    );
    return response;
 }
-Future<UserData?> getUserData(String token) async {
-  http.Response response = await http.post(
+
+// UserData API GET
+Future<http.Response> handleUserDataHttp(String token) async {
+  http.Response response = await http.get(
     Uri.http('localhost:8080', '/user/get/$token')
   );
-  if(response.body.isNotEmpty) {
-    final data = jsonDecode(response.body) as UserData;
-    return data;
-  }
-  return null;
+  return response;
 }
