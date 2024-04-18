@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'json_handler.dart';
-import '../UserData.dart';
+import '../data_structures/UserData.dart';
 
 
 // Login
