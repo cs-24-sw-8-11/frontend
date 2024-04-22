@@ -53,3 +53,51 @@ Future<http.Response> handleUserDataHttp(String token) async {
   );
   return response;
 }
+
+// Answer API GET
+Future<http.Response> handleAnswerHttp(int answerId, String token) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/answers/get/$answerId/$token')
+  );
+  return response;
+}
+
+// Journal API GET
+Future<http.Response> handleJournalHttp(int journalId) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/journals/get/$journalId')
+  );
+  return response;
+}
+
+// Journals from user API GET
+Future<http.Response> handleJournalsHttp(String token) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/journals/ids/$token')
+  );
+  return response;
+}
+
+// Default Questions API GET
+Future<http.Response> handleDefaultQuestionsHttp() async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/questions/defaults')
+  );
+  return response;
+}
+
+// Question with Tags API GET
+Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/questions/get/$tag')
+  );
+  return response;
+}
+
+// Predictions API GET
+Future<http.Response> handlePredictionHttp(String token) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/predictions/get/$token')
+  );
+  return response;
+}
