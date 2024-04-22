@@ -26,6 +26,13 @@ Future<http.Response> executeRegister(BuildContext context, String username, Str
   return Future.value(httpResponse);
 }
 
+// New Journal
+Future<http.Response> executeNewJournal(BuildContext context, Journal journal) async {
+  final jsonString = jsonEncode(journal);
+  dynamic httpResponse = await handleNewJournalHttp(jsonString);
+  return Future.value(httpResponse);
+}
+
 // Get User Data
 Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
@@ -117,6 +124,24 @@ Future<http.Response> handleLoginHttp(String json) async {
     body: json
    );
    return response;
+}
+
+// New Journal API POST
+Future<http.Response> handleNewJournalHttp(String json) async {
+  http.Response response = await http.post(
+      Uri.http('localhost:8080', '/journals/new'),
+      body: json
+  );
+  return response;
+}
+
+// New Prediction API POST
+Future<http.Response> handleNewPredictionHttp(String json) async {
+  http.Response response = await http.post(
+      Uri.http('localhost:8080', '/predictions/new'),
+      body: json
+  );
+  return response;
 }
 
 // UserData API GET

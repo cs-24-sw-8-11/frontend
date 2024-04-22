@@ -8,5 +8,7 @@ class Journal{
 
   Journal(this.id, this.comment, this.userID, this.answers);
 
-
+  void addAnswer(Answer answer){
+    answers?.add(answer);
+  }
 }
