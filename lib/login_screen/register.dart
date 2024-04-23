@@ -94,34 +94,39 @@ class RegisterScreenState extends State<RegisterScreen> {
                         size: 20,
                       ),
                     onPressed: () async {
-                      if (!isLoading && !isTapped && (registerPasswordController.text == registerRepeatPasswordController.text)) {
-                        isTapped = true;
-                        dynamic httpResponse;
-                        setState (() => isLoading = true);
-                        if (context.mounted) {
-                          httpResponse = await executeRegister(context, registerUsernameController.text, registerPasswordController.text);
-                        }
-                        if (httpResponse.statusCode == 200) {
-                          await Future.delayed(const Duration(milliseconds:1000));
-                          setState(() => isLoading = false);
-                          registerSuccess = true;
-                          responseString = httpResponse.body;
-                          await Future.delayed(const Duration(milliseconds: 1000));
+                      if (registerUsernameController.text != "" && registerPasswordController.text != "" && registerRepeatPasswordController.text != "") {
+                        if (!isLoading && !isTapped && (registerPasswordController.text == registerRepeatPasswordController.text)) {
+                          isTapped = true;
+                          dynamic httpResponse;
+                          setState (() => isLoading = true);
                           if (context.mounted) {
-                            Navigator.of(context).pop();
+                            httpResponse = await executeRegister(context, registerUsernameController.text, registerPasswordController.text);
                           }
+                          if (httpResponse.statusCode == 200) {
+                            await Future.delayed(const Duration(milliseconds:1000));
+                            setState(() => isLoading = false);
+                            registerSuccess = true;
+                            responseString = httpResponse.body;
+                            await Future.delayed(const Duration(milliseconds: 1000));
+                            if (context.mounted) {
+                              Navigator.of(context).pop();
+                            }
+                          }
+                          else {
+                            setState(() => isLoading = false);
+                            if (context.mounted) {
+                              dialogBuilder(context, 'Failed', httpResponse.body);
+                            }
+                          }
+                          isTapped = false;
+                          registerSuccess = false;
                         }
                         else {
-                          setState(() => isLoading = false);
-                          if (context.mounted) {
-                            dialogBuilder(context, 'Failed', httpResponse.body);
-                          }
+                          dialogBuilder(context, 'Failed', 'Passwords does not match!');
                         }
-                        isTapped = false;
-                        registerSuccess = false;
                       }
                       else {
-                        dialogBuilder(context, 'Failed', 'Passwords does not match!');
+                        dialogBuilder(context, 'Failed', 'Fields cannot be empty!');
                       }
                     },
                   ),
