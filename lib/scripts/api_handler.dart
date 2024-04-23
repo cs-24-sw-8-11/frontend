@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:http/http.dart' as http;
