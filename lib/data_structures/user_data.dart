@@ -4,13 +4,12 @@ class UserData{
   String? occupation;
   String? userID;
 
+  // Only used in /user/data/update
+  String? token;
+
   UserData(this.userName, this.ageGroup, this.occupation, this.userID);
 
-
-  void printData(){
-    print('Username: $userName');
-    print('AgeGroup: $ageGroup');
-    print('Occupation: $occupation');
-    print('UserID: $userID');
+  void addToken(String token){
+    this.token = token;
   }
 }
