@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
 import '../data_structures/answer.dart';
 import '../data_structures/question.dart';
 import '../data_structures/setting.dart';
@@ -154,6 +155,7 @@ Future<List<Setting>> getSettings(String token) async {
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
+
 
 // Register API POST
 Future<http.Response> handleRegisterHttp(String json) async {
