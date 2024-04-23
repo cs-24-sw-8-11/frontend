@@ -7,6 +7,7 @@ import 'dart:convert';
 
 import '../data_structures/answer.dart';
 import '../data_structures/question.dart';
+import '../data_structures/setting.dart';
 import '../data_structures/user_data.dart';
 import '../data_structures/journal.dart';
 import 'json_handler.dart';
@@ -28,9 +29,37 @@ Future<http.Response> executeRegister(BuildContext context, String username, Str
 }
 
 // New Journal
-Future<http.Response> executeNewJournal(BuildContext context, Journal journal) async {
+Future<http.Response> executeNewJournal(BuildContext context, Journal journal, String token) async {
+  journal.addToken(token);
   final jsonString = jsonEncode(journal);
   dynamic httpResponse = await handleNewJournalHttp(jsonString);
+  return Future.value(httpResponse);
+}
+
+// Delete Journal
+Future<http.Response> executeDeleteJournal(BuildContext context, Journal journal, String token) async {
+  dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
+  return Future.value(httpResponse);
+}
+
+// Delete Journal From Id
+Future<http.Response> executeDeleteJournalFromId(BuildContext context, String journalId, String token) async {
+  dynamic httpResponse = await handleDeleteJournalHttp(journalId, token);
+  return Future.value(httpResponse);
+}
+
+// Update UserData
+Future<http.Response> executeUpdateUserData(BuildContext context, UserData data, String token) async {
+  data.addToken(token);
+  final jsonString = jsonEncode(data);
+  dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
+  return Future.value(httpResponse);
+}
+
+// Update UserData
+Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> settings, String token) async {
+  final jsonString = encodeSettingsJson(token, settings);
+  dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
   return Future.value(httpResponse);
 }
 
@@ -40,6 +69,13 @@ Future<UserData> getUserData(String token) async {
   final data = jsonDecode(response.body) as Map<String, dynamic>;
   UserData userData = UserData(data['username'], data['agegroup'], data['occupation'], data['userId']);
   return userData;
+}
+
+// Get All Users
+Future<List<int>> getAllUsers() async{
+  var response = await handleUserIdsHttp();
+  final data = jsonDecode(response.body) as List<int>;
+  return data;
 }
 
 // Get Journal Data
@@ -107,6 +143,17 @@ Future<List<Prediction>> getPredictionData(String token) async {
   return predictions;
 }
 
+// Get Prediction Data from User
+Future<List<Setting>> getSettings(String token) async {
+  var response = await handleSettingsHttp(token);
+  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  List<Setting> settings = [];
+  for(Map<String, dynamic> d in data){
+    settings.add(Setting(d['id'], d['key'], d['value'], d['userid']));
+  }
+  return settings;
+}
+
 //-----------------------------HTTP API CALLS-----------------------------------
 
 
@@ -146,10 +193,44 @@ Future<http.Response> handleNewPredictionHttp(String json) async {
   return response;
 }
 
+// Update UserData API POST
+Future<http.Response> handleUserDataUpdateHttp(String json) async {
+  http.Response response = await http.post(
+      Uri.http('localhost:8080', '/user/data/update'),
+      body: json
+  );
+  return response;
+}
+
+// Update UserData API POST
+Future<http.Response> handleSettingsUpdateHttp(String json) async {
+  http.Response response = await http.post(
+      Uri.http('localhost:8080', '/settings/update'),
+      body: json
+  );
+  return response;
+}
+
+// Delete Journal API DELETE
+Future<http.Response> handleDeleteJournalHttp(String journalId, String token) async {
+  http.Response response = await http.delete(
+      Uri.http('localhost:8080', '/journals/delete/$journalId/$token')
+  );
+  return response;
+}
+
 // UserData API GET
 Future<http.Response> handleUserDataHttp(String token) async {
   http.Response response = await http.get(
     Uri.http('localhost:8080', '/user/get/$token')
+  );
+  return response;
+}
+
+// User Ids API GET
+Future<http.Response> handleUserIdsHttp() async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/user/ids')
   );
   return response;
 }
@@ -198,6 +279,14 @@ Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
 Future<http.Response> handlePredictionHttp(String token) async {
   http.Response response = await http.get(
       Uri.http('localhost:8080', '/predictions/get/$token')
+  );
+  return response;
+}
+
+// UserData API GET
+Future<http.Response> handleSettingsHttp(String token) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/settings/get/$token')
   );
   return response;
 }
