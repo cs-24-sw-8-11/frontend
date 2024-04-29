@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 // Scaffold (base background)
 const globalScaffoldBackgroundColor = Color.fromARGB(255, 55, 55, 55);
 
+// Border
+const globalBorderBackgroundColor = Color.fromARGB(255, 100, 100, 100);
+
 // AppBar
 const globalAppBarColor = Color.fromARGB(255, 30, 30, 30);
 const globalnavigatorArrowColor = Colors.white;

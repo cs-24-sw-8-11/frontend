@@ -36,7 +36,7 @@ Future<http.Response> executeNewJournal(BuildContext context, Journal journal, S
 
 // Delete Journal
 Future<http.Response> executeDeleteJournal(BuildContext context, Journal journal, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
+  dynamic httpResponse = await handleDeleteJournalHttp(journal.id, token);
   return Future.value(httpResponse);
 }
 
@@ -65,7 +65,7 @@ Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> 
 Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
   final data = jsonDecode(response.body) as Map<String, dynamic>;
-  UserData userData = UserData(data['username'], data['agegroup'], data['occupation'], data['userId']);
+  UserData userData = UserData(data['username'], data['agegroup'], data['major'], data['userId']);
   return userData;
 }
 
@@ -116,7 +116,7 @@ Future<List<Question>> getDefaultQuestions() async {
   for (Map<String, dynamic> d in data){
     questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
   }
-  return questions;
+  return Future.value(questions);
 }
 
 // Get Default Question Data

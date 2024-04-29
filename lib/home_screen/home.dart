@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/data_structures/question.dart';
+import 'package:frontend/scripts/journal_con.dart';
 import 'package:frontend/main.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/scripts/api_handler.dart';
@@ -65,12 +67,7 @@ class HomeScreenState extends State<HomeScreen> {
           ),
         );
       case 1:
-        return Container(
-          key: const ValueKey<int>(2),
-          child: const Center(
-            child: Text('Page 2', style: TextStyle(color: globalTextColor)),
-          ),
-        );
+        return tempPage();
       case 2:
         return _fetchPage();
       case 3:
@@ -112,7 +109,7 @@ class HomeScreenState extends State<HomeScreen> {
             onPressed: () async {
               UserData userdata = await _fetchUserData();
               setState(() {
-                _apiText = '${userdata.userName} \n${userdata.ageGroup} \n${userdata.occupation} \n${userdata.userID}';
+                _apiText = '${userdata.userName} \n${userdata.ageGroup} \n${userdata.major} \n${userdata.userID}';
               });
             },
             style: ElevatedButton.styleFrom(
@@ -133,6 +130,25 @@ class HomeScreenState extends State<HomeScreen> {
   Future<UserData> _fetchUserData() async {
     String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
     return await getUserData(token);
+  }
+
+  Widget tempPage() {
+    return DecisionWidget(header: "Header text goes here", metatext: getMeta());
+  }
+
+String meta = "";
+
+  String getMeta() {
+    String metatxt = "";
+    setState(() {
+      metatxt = meta;
+    });
+    return metatxt;
+  }
+
+  void awaitFuture() async {
+    List<Question> questions = await getDefaultQuestions();
+    meta = questions[0].question;
   }
 
   void changePage(int index) {
