@@ -111,7 +111,8 @@ Future<Answer> getAnswer(int answerId, String token) async {
 // Get Default Question Data
 Future<List<Question>> getDefaultQuestions() async {
   var response = await handleDefaultQuestionsHttp();
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  //print(response);
+  final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
     questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
@@ -122,7 +123,7 @@ Future<List<Question>> getDefaultQuestions() async {
 // Get Default Question Data
 Future<List<Question>> getTaggedQuestions(String tag) async {
   var response = await handleQuestionsWithTagsHttp(tag);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
     questions.add(Question(d['id'], d['tags'], d['type'], d['question']));

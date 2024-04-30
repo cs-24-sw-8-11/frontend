@@ -17,6 +17,7 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   int _pageIndex = 0;
   late String _apiText = '';
+  String meta = '';
 
   @override
   Widget build(BuildContext context) {
@@ -133,27 +134,21 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget tempPage() {
-    return DecisionWidget(header: "Header text goes here", metatext: getMeta());
-  }
-
-String meta = "";
-
-  String getMeta() {
-    String metatxt = "";
-    setState(() {
-      metatxt = meta;
-    });
-    return metatxt;
+    return DecisionWidget(header: "Header text goes here", metatext: meta);
   }
 
   void awaitFuture() async {
     List<Question> questions = await getDefaultQuestions();
-    meta = questions[0].question;
+    //setState(() => meta = questions[0].question);
+    setState(() => meta = "I was aware of the action of my heart in the absence of physical exertion (eg, sense of heart rate increase, heart missing a beat).");
   }
 
   void changePage(int index) {
     setState(() {
       _pageIndex = index;
+      if(index == 1) {
+        awaitFuture();
+      }
     });
   }
 }
