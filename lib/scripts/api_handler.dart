@@ -64,7 +64,8 @@ Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> 
 // Get User Data
 Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
+  final data = jsonDecode(response.body) as dynamic;
+  print(data);
   UserData userData = UserData(data['username'], data['agegroup'], data['major'], data['userId']);
   return userData;
 }
@@ -72,16 +73,16 @@ Future<UserData> getUserData(String token) async {
 // Get All Users
 Future<List<int>> getAllUsers() async{
   var response = await handleUserIdsHttp();
-  final data = jsonDecode(response.body) as List<int>;
+  final data = jsonDecode(response.body) as dynamic;
   return data;
 }
 
 // Get Journal Data
 Future<Journal> getJournal(int journalId, String token) async {
   var response = await handleJournalHttp(journalId);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Answer> journalAnswers = [];
-  List<int> answerIds = jsonDecode(data['answers']) as List<int>;
+  List<int> answerIds = jsonDecode(data['answers']) as dynamic;
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
@@ -92,7 +93,7 @@ Future<Journal> getJournal(int journalId, String token) async {
 // Get Journal Data from a user
 Future<List<Journal>> getJournals(String token) async {
   var response = await handleJournalsHttp(token);
-  final data = jsonDecode(response.body) as List<int>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Journal> journals = [];
   for(int d in data){
     journals.add(await getJournal(d, token));
@@ -103,7 +104,7 @@ Future<List<Journal>> getJournals(String token) async {
 // Get Answer Data
 Future<Answer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
+  final data = jsonDecode(response.body) as dynamic;
   Answer answer = Answer(data['id'], data['answer'], data['journalId'], data['questionId']);
   return answer;
 }
@@ -134,7 +135,7 @@ Future<List<Question>> getTaggedQuestions(String tag) async {
 // Get Prediction Data from User
 Future<List<Prediction>> getPredictionData(String token) async {
   var response = await handlePredictionHttp(token);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Prediction> predictions = [];
   for(Map<String, dynamic> d in data){
     predictions.add(Prediction(d['id'], d['userid'], d['value']));
@@ -145,7 +146,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
 // Get Prediction Data from User
 Future<List<Setting>> getSettings(String token) async {
   var response = await handleSettingsHttp(token);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Setting> settings = [];
   for(Map<String, dynamic> d in data){
     settings.add(Setting(d['id'], d['key'], d['value'], d['userid']));
