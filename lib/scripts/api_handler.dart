@@ -65,7 +65,6 @@ Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> 
 Future<UserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
   final data = jsonDecode(response.body) as dynamic;
-  print(data);
   UserData userData = UserData(data['username'], data['agegroup'], data['major'], data['userId']);
   return userData;
 }
