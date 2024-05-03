@@ -14,6 +14,7 @@ class CustomInputField extends StatelessWidget{
       style: const TextStyle(color: Colors.white70),
       obscureText: hiddentext,
       controller: txtcontroller,
+      keyboardType: TextInputType.text,
       decoration: InputDecoration(
         border: const UnderlineInputBorder(),
         labelText: labeltext,
