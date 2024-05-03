@@ -83,7 +83,7 @@ class LoginScreenState extends State<LoginScreen> {
                         dynamic httpResponse;
                         setState (() => isLoading = true);
                         if (context.mounted) {
-                          httpResponse = await executeLogin(context, loginUsernameController.text, loginPasswordController.text);
+                          httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text);
                         }
                         if (httpResponse.statusCode == 200) {
                           await Future.delayed(const Duration(milliseconds: 1000));

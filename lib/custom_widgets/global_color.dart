@@ -12,6 +12,7 @@ const globalnavigatorArrowColor = Colors.white;
 
 // Text
 const globalTextColor = Colors.white;
+const globalFadedTextColor = Colors.white38;
 
 // Button
 const globalButtonBackgroundColor = Colors.white38;

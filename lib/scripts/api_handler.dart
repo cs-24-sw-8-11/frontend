@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -13,52 +12,52 @@ import 'json_handler.dart';
 //--------------------------API OBJECT CALLS------------------------------------
 
 // Login
-Future<http.Response> executeLogin(BuildContext context, String username, String password) async {
+Future<http.Response> executeLogin(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleLoginHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Register
-Future<http.Response> executeRegister(BuildContext context, String username, String password) async {
+Future<http.Response> executeRegister(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleRegisterHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // New Journal
-Future<http.Response> executeNewJournal(BuildContext context, Journal journal, String token) async {
+Future<http.Response> executeNewJournal(Journal journal, String token) async {
   journal.addToken(token);
   final jsonString = jsonEncode(journal);
   dynamic httpResponse = await handleNewJournalHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Delete Journal
-Future<http.Response> executeDeleteJournal(BuildContext context, Journal journal, String token) async {
+Future<http.Response> executeDeleteJournal(Journal journal, String token) async {
   dynamic httpResponse = await handleDeleteJournalHttp(journal.id, token);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Delete Journal From Id
-Future<http.Response> executeDeleteJournalFromId(BuildContext context, String journalId, String token) async {
+Future<http.Response> executeDeleteJournalFromId(String journalId, String token) async {
   dynamic httpResponse = await handleDeleteJournalHttp(journalId, token);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Update UserData
-Future<http.Response> executeUpdateUserData(BuildContext context, UserData data, String token) async {
+Future<http.Response> executeUpdateUserData(UserData data, String token) async {
   data.addToken(token);
   final jsonString = jsonEncode(data);
   dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Update UserData
-Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> settings, String token) async {
+Future<http.Response> executeUpdateSettings(List<Setting> settings, String token) async {
   final jsonString = encodeSettingsJson(token, settings);
   dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Get User Data

@@ -3,5 +3,6 @@ enum Options {
   opt1,
   opt2,
   opt3,
-  opt4
+  opt4,
+  opt5,
 }
