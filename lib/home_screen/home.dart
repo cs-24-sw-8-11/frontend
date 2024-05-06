@@ -85,7 +85,7 @@ class HomeScreenState extends State<HomeScreen> {
       case 1:
         return journalPage(context);
       case 2:
-        return predictionPage(context, updateApiText, _apiText);
+        return PredictionPage();
       case 3:
         return logoutManager(context);
       default:
