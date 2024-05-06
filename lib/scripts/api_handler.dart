@@ -136,7 +136,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
   final data = jsonDecode(response.body) as dynamic;
   List<Prediction> predictions = [];
   for(Map<String, dynamic> d in data){
-    predictions.add(Prediction(d['id'], d['userid'], d['value']));
+    predictions.add(Prediction(d['id'], d['userId'], d['value']));
   }
   return predictions;
 }
