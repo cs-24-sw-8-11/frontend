@@ -10,16 +10,14 @@ import 'package:frontend/data_structures/prediction.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
+import 'package:fl_chart/fl_chart.dart';
+
 Widget predictionPage(BuildContext context, Function(String) updateApiText, apiText) {
-    return Container(
+    return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(top: 25),
-          ),
-          const Text('Stress Predictions:', style: TextStyle(color: globalTextColor)),
-          Text(apiText, style: const TextStyle(color: globalTextColor)),
           ElevatedButton(
             onPressed: () async {
               String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
@@ -37,8 +35,31 @@ Widget predictionPage(BuildContext context, Function(String) updateApiText, apiT
                 borderRadius: BorderRadius.circular(5.0),
               ),
             ),
-            child: const Text('Calculate Predictions', style: TextStyle(color: globalTextColor)),
+            child: const Text('New Prediction', style: TextStyle(color: globalTextColor)),
           ),
+          Expanded(
+            child: Container(
+              //color: Colors.grey,
+              child: LineChart(
+                LineChartData(
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [
+                        FlSpot(0, 1),
+                        FlSpot(1, 1),
+                        FlSpot(1, 2),
+                        FlSpot(2, 3),
+                        FlSpot(3, 5),
+                      ]
+                    )
+                  ]
+                )
+              )
+              //child: Text(apiText, style: const TextStyle(color: globalTextColor)),
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.only(bottom: 25)),
         ],
       ),
     );
