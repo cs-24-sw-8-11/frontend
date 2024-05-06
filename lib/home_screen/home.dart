@@ -6,7 +6,7 @@ import 'package:frontend/custom_widgets/custom_predicitons.dart';
 
 import 'package:frontend/data_structures/question.dart';
 
-import 'package:frontend/scripts/journal_con.dart';
+import 'package:frontend/custom_widgets/custom_question.dart';
 import 'package:frontend/scripts/api_handler.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _pageIndex = 0;
+  int _qIndex = 0;
+  List<Question> questions = List.empty();
   late String _apiText;
   String meta = '';
 
@@ -25,6 +27,7 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _apiText = '';
+    awaitFuture();
   }
 
   @override
@@ -73,7 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
           child: Text('Page 1', style: TextStyle(color: globalTextColor)),
         );
       case 1:
-        return journalPage();
+        return journalPage(context);
       case 2:
         return fetchPage(context, updateApiText, _apiText);
       case 3:
@@ -83,14 +86,38 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget journalPage() {
-    return DecisionWidget(header: "Question 1/5", metatext: meta);
+  Widget journalPage(BuildContext context) {
+    switch (_qIndex) {
+      case 0:
+        fetchQuestion(_qIndex);
+        return QuestionWidget(header: "Question 1/5", metatext: meta, parentcontext: context);
+      case 1:
+        fetchQuestion(_qIndex);
+        return QuestionWidget(header: "Question 2/5", metatext: meta, parentcontext: context);
+      case 2:
+        fetchQuestion(_qIndex);
+        return QuestionWidget(header: "Question 3/5", metatext: meta, parentcontext: context);
+      case 3:
+        fetchQuestion(_qIndex);
+        return QuestionWidget(header: "Question 4/5", metatext: meta, parentcontext: context);
+      case 4:
+        fetchQuestion(_qIndex);
+        return QuestionWidget(header: "Question 5/5", metatext: meta, parentcontext: context);
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  void updateIndex(int value) {
+    _qIndex = value;
+  }
+
+  void fetchQuestion(int index) {
+    setState(() => meta = questions[index].question);
   }
 
   void awaitFuture() async {
-    List<Question> questions = await getDefaultQuestions();
-    setState(() => meta = questions[0].question);
-    //setState(() => meta = "I was aware of the action of my heart in the absence of physical exertion (eg, sense of heart rate increase, heart missing a beat).");
+    questions = await getDefaultQuestions();
   }
 
   void updateApiText(String newText) {
@@ -103,7 +130,7 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       _pageIndex = index;
       if(index == 1) {
-        awaitFuture();
+        
       }
     });
   }
