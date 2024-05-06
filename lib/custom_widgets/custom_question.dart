@@ -1,18 +1,21 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/custom_widgets/custom_iconbutton.dart';
 
+import 'package:frontend/home_screen/home.dart';
+
+import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/options_enum.dart';
+import 'package:provider/provider.dart';
 
 class QuestionWidget extends StatefulWidget {
   final String header;
   final String metatext;
   final bool renderlegend = true;
-  final BuildContext parentcontext;
 
-  const QuestionWidget( {super.key, required this.header, required this.metatext, required this.parentcontext});
+  const QuestionWidget( {super.key, required this.header, required this.metatext});
 
   @override
   State<QuestionWidget> createState() => QuestionWidgetState();
@@ -117,14 +120,40 @@ class QuestionWidgetState extends State<QuestionWidget>{
                 const Padding(
                   padding: EdgeInsets.only(top: 10)
                 ),
-                ElevatedButton(
-                  onPressed: () => {
-                    
-                  },
-                  child: const Text(
-                    "hi",
-                  ),
+                Row( //Nav Buttons
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Provider.of<HomePageProvider>(context, listen: false).returnIndex() != 0
+                    ? Flexible(
+                      child: CustomIconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        tooltipstring: "Back",
+                        onPressed: () {
+                          Provider.of<HomePageProvider>(context, listen: false).decrementIndex();
+                        }
+                      )
+                    )
+                    : const SizedBox.shrink(),
+                    Flexible(
+                      child: CustomIconButton(
+                        icon: const Icon(Icons.arrow_forward),
+                        tooltipstring: "Next",
+                        onPressed: () {
+                          Provider.of<HomePageProvider>(context, listen: false).incrementIndex();
+                        }
+                      )
+                    )
+                  ],
                 )
+                // ElevatedButton(
+                //   onPressed: () => {
+                //     Provider.of<HomePageProvider>(context, listen: false).updateIndex(1)
+                //   },
+                //   child: const Text(
+                //     "hi",
+                //   ),
+                // )
               ],
             )
           )

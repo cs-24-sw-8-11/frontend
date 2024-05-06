@@ -55,7 +55,7 @@ class StressManagementApp extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      body: authProvider.isLoggedIn ? const HomeScreen() : const LoginScreen(),
+      body: authProvider.isLoggedIn ? const HomeScreenProviderRoute() : const LoginScreen(),
     );
   }
 }
