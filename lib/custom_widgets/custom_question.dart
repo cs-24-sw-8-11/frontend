@@ -6,18 +6,19 @@ import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/options_enum.dart';
 
-class DecisionWidget extends StatefulWidget {
+class QuestionWidget extends StatefulWidget {
   final String header;
   final String metatext;
   final bool renderlegend = true;
+  final BuildContext parentcontext;
 
-  const DecisionWidget( {super.key, required this.header, required this.metatext});
+  const QuestionWidget( {super.key, required this.header, required this.metatext, required this.parentcontext});
 
   @override
-  State<DecisionWidget> createState() => DecisionWidgetState();
+  State<QuestionWidget> createState() => QuestionWidgetState();
 }
 
-class DecisionWidgetState extends State<DecisionWidget>{
+class QuestionWidgetState extends State<QuestionWidget>{
   List<Options> opts = Options.values;
   Options? _options = Options.none;
   int count = 5;
@@ -116,6 +117,14 @@ class DecisionWidgetState extends State<DecisionWidget>{
                 const Padding(
                   padding: EdgeInsets.only(top: 10)
                 ),
+                ElevatedButton(
+                  onPressed: () => {
+                    
+                  },
+                  child: const Text(
+                    "hi",
+                  ),
+                )
               ],
             )
           )
