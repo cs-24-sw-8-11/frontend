@@ -8,6 +8,11 @@ import 'package:frontend/data_structures/question.dart';
 
 import 'package:frontend/custom_widgets/custom_question.dart';
 import 'package:frontend/scripts/api_handler.dart';
+import 'package:provider/provider.dart';
+
+import 'package:frontend/main.dart';
+
+import '../data_structures/user_data.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,12 +26,14 @@ class HomeScreenState extends State<HomeScreen> {
   int _qIndex = 0;
   List<Question> questions = List.empty();
   late String _apiText;
+  late String _userName;
   String meta = '';
 
   @override
   void initState() {
     super.initState();
     _apiText = '';
+    _userName = '';
     awaitFuture();
   }
 
@@ -35,7 +42,9 @@ class HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
-        title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
+        title: const Center(
+            child: Text('Stress Handler',
+                style: TextStyle(color: globalTextColor))),
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       body: _buildBody(),
@@ -72,18 +81,33 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildBody() {
     switch (_pageIndex) {
       case 0:
-        return const Center(
-          child: Text('Page 1', style: TextStyle(color: globalTextColor)),
-        );
+        return homePage();
       case 1:
         return journalPage(context);
       case 2:
-        return fetchPage(context, updateApiText, _apiText);
+        return predictionPage(context, updateApiText, _apiText);
       case 3:
         return logoutManager(context);
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  Widget homePage() {
+    String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+    if (_userName == '') {
+      awaitUserNameFuture(token);
+    }
+    return Center(
+        child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 10),
+        ),
+        Text('Welcome $_userName', style: const TextStyle(color: globalTextColor))
+      ],
+    ));
   }
 
   Widget journalPage(BuildContext context) {
@@ -120,6 +144,13 @@ class HomeScreenState extends State<HomeScreen> {
     questions = await getDefaultQuestions();
   }
 
+  void awaitUserNameFuture(String token) async {
+    UserData data = await getUserData(token);
+    setState(() {
+      _userName = data.userName;
+    });
+  }
+
   void updateApiText(String newText) {
     setState(() {
       _apiText = newText;
@@ -129,9 +160,6 @@ class HomeScreenState extends State<HomeScreen> {
   void changePage(int index) {
     setState(() {
       _pageIndex = index;
-      if(index == 1) {
-        
-      }
     });
   }
 }

@@ -6,21 +6,27 @@ import 'package:frontend/main.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/data_structures/prediction.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
-Widget fetchPage(BuildContext context, Function(String) updateApiText, apiText) {
+import 'package:fl_chart/fl_chart.dart';
+
+Widget predictionPage(BuildContext context, Function(String) updateApiText, apiText) {
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(top: 250),
-          ),
           ElevatedButton(
             onPressed: () async {
-              UserData userdata = await _fetchUserData(context);
-              updateApiText('${userdata.userName} \n${userdata.ageGroup} \n${userdata.major} \n${userdata.userID}');
+              String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+              List<Prediction> predictions = await getPredictionData(token);
+              String predictionString = '';
+              for(Prediction pred in predictions){
+                predictionString += "${pred.value}\n";
+              }
+              updateApiText(predictionString);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: globalButtonBackgroundColor,
@@ -29,9 +35,31 @@ Widget fetchPage(BuildContext context, Function(String) updateApiText, apiText) 
                 borderRadius: BorderRadius.circular(5.0),
               ),
             ),
-            child: const Text('Fetch', style: TextStyle(color: globalTextColor)),
+            child: const Text('New Prediction', style: TextStyle(color: globalTextColor)),
           ),
-          Text(apiText, style: const TextStyle(color: globalTextColor)),
+          Expanded(
+            child: Container(
+              //color: Colors.grey,
+              child: LineChart(
+                LineChartData(
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: [
+                        FlSpot(0, 1),
+                        FlSpot(1, 1),
+                        FlSpot(1, 2),
+                        FlSpot(2, 3),
+                        FlSpot(3, 5),
+                      ]
+                    )
+                  ]
+                )
+              )
+              //child: Text(apiText, style: const TextStyle(color: globalTextColor)),
+            ),
+          ),
+
+          const Padding(padding: EdgeInsets.only(bottom: 25)),
         ],
       ),
     );
