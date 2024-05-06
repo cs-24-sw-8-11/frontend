@@ -120,40 +120,32 @@ class QuestionWidgetState extends State<QuestionWidget>{
                 const Padding(
                   padding: EdgeInsets.only(top: 10)
                 ),
-                Row( //Nav Buttons
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Provider.of<HomePageProvider>(context, listen: false).returnIndex() != 0
-                    ? Flexible(
-                      child: CustomIconButton(
+                SizedBox(
+                  width: (MediaQuery.of(context).size.width) * 0.75,
+                  child: Row( //Nav Buttons
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Provider.of<HomePageProvider>(context, listen: false).returnIndex() != 0
+                      ? CustomIconButton(
                         icon: const Icon(Icons.arrow_back),
                         tooltipstring: "Back",
                         onPressed: () {
                           Provider.of<HomePageProvider>(context, listen: false).decrementIndex();
                         }
                       )
-                    )
-                    : const SizedBox.shrink(),
-                    Flexible(
-                      child: CustomIconButton(
+                      : const SizedBox.shrink(),
+                      const Spacer(),
+                      CustomIconButton(
                         icon: const Icon(Icons.arrow_forward),
                         tooltipstring: "Next",
                         onPressed: () {
                           Provider.of<HomePageProvider>(context, listen: false).incrementIndex();
                         }
                       )
-                    )
-                  ],
-                )
-                // ElevatedButton(
-                //   onPressed: () => {
-                //     Provider.of<HomePageProvider>(context, listen: false).updateIndex(1)
-                //   },
-                //   child: const Text(
-                //     "hi",
-                //   ),
-                // )
+                    ],
+                  )
+                ),
               ],
             )
           )
@@ -192,6 +184,5 @@ class QuestionWidgetState extends State<QuestionWidget>{
 
   String returnLegend(){
     return '1: Did not apply to me at all\n2: Applied to me to some degree, or some of the time\n3: Applied to me to a considerable degree, or a good part of the time\n4: Applied to me very much, or most of the time';
-    
   }
 }
