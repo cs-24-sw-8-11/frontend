@@ -15,6 +15,8 @@ import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 
+import '../data_structures/mitigation.dart';
+
 class PredictionPage extends StatefulWidget {
   const PredictionPage({super.key});
 
@@ -24,12 +26,13 @@ class PredictionPage extends StatefulWidget {
 
 class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
+  List<Mitigation> mitigations = [];
+  Mitigation mitigation = Mitigation.Default();
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        //mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Padding(
               padding: const EdgeInsets.only(top: 15),
@@ -39,6 +42,7 @@ class PredictionPageState extends State<PredictionPage> {
                       context, listen: false)
                       .fetchToken();
                   List<Prediction> predictions = await getPredictionData(token);
+                  mitigations = await getMitigationsWithTag('default');
                   if (predictions.length < 3) {
                     if(context.mounted){
                       await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals.");
@@ -46,6 +50,7 @@ class PredictionPageState extends State<PredictionPage> {
                   }
                   else{
                     setState(() {
+                      mitigation = mitigations[0];
                       predictionPoints.clear();
                       for (Prediction pred in predictions) {
                         double? result = double.tryParse(pred.value);
@@ -68,8 +73,7 @@ class PredictionPageState extends State<PredictionPage> {
               )),
           Padding(
               padding: const EdgeInsets.only(top: 15),
-              child: mitigationBox(context, "Mitigation Title",
-                  "Mitigation description that will tell the user something to make them less stress. This is supposed to be a much longer text than the title and therefore this string will test how it looks with a long text.")),
+              child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.tags)),
           Padding(
               padding: const EdgeInsets.only(top: 15),
               child: Container(
@@ -156,7 +160,7 @@ class PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  Widget mitigationBox(BuildContext context, title, description) {
+  Widget mitigationBox(BuildContext context, title, description, tags) {
     return Container(
         width: MediaQuery
             .of(context)
@@ -185,7 +189,9 @@ class PredictionPageState extends State<PredictionPage> {
                         fontWeight: FontWeight.bold)),
                 Padding(padding: const EdgeInsets.only(top: 5), child:
                 Text(description,
-                    style: const TextStyle(color: globalTextColor)))
+                    style: const TextStyle(color: globalTextColor))),
+                Expanded(child: Align(alignment: Alignment.bottomCenter, child: Text('tags: ${tags.join(', ')}',
+                    style: const TextStyle(color: globalTextColor, fontSize: 10))))
               ],
             )));
   }
@@ -203,4 +209,6 @@ class PredictionPageState extends State<PredictionPage> {
         .fetchToken();
     return await getUserData(token);
   }
+  
+
 }

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../data_structures/answer.dart';
+import '../data_structures/mitigation.dart';
 import '../data_structures/question.dart';
 import '../data_structures/setting.dart';
 import '../data_structures/user_data.dart';
@@ -57,6 +58,13 @@ Future<http.Response> executeUpdateUserData(UserData data, String token) async {
 Future<http.Response> executeUpdateSettings(List<Setting> settings, String token) async {
   final jsonString = encodeSettingsJson(token, settings);
   dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
+  return httpResponse;
+}
+
+// Update UserData
+Future<http.Response> executeNewPrediction(String questionId, String token) async {
+  final jsonString = encodePredictionJson(token, questionId);
+  dynamic httpResponse = await handleNewPredictionHttp(jsonString);
   return httpResponse;
 }
 
@@ -141,7 +149,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
   return predictions;
 }
 
-// Get Prediction Data from User
+// Get Settings Data from User
 Future<List<Setting>> getSettings(String token) async {
   var response = await handleSettingsHttp(token);
   final data = jsonDecode(response.body) as dynamic;
@@ -150,6 +158,18 @@ Future<List<Setting>> getSettings(String token) async {
     settings.add(Setting(d['id'], d['key'], d['value'], d['userid']));
   }
   return settings;
+}
+
+// Get Settings Data from User
+Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
+  var response = await handleMitigationsTagHttp(tag);
+  final data = jsonDecode(response.body) as dynamic;
+  List<Mitigation> mitigations = [];
+  for(Map<String, dynamic> d in data){
+    List<String> tags = d['tags'].split(',');
+    mitigations.add(Mitigation(d['id'], d['title'], d['description'], tags));
+  }
+  return mitigations;
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
@@ -185,7 +205,7 @@ Future<http.Response> handleNewJournalHttp(String json) async {
 // New Prediction API POST
 Future<http.Response> handleNewPredictionHttp(String json) async {
   http.Response response = await http.post(
-      Uri.http('localhost:8080', '/predictions/new'),
+      Uri.http('localhost:8080', '/predictions/add'),
       body: json
   );
   return response;
@@ -281,10 +301,26 @@ Future<http.Response> handlePredictionHttp(String token) async {
   return response;
 }
 
-// UserData API GET
+// Settings API GET
 Future<http.Response> handleSettingsHttp(String token) async {
   http.Response response = await http.get(
       Uri.http('localhost:8080', '/settings/get/$token')
+  );
+  return response;
+}
+
+// Mitigation API GET
+Future<http.Response> handleMitigationsTagHttp(String tag) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/mitigations/tags/$tag')
+  );
+  return response;
+}
+
+// Mitigation API GET
+Future<http.Response> handleMitigationsIdHttp(String id) async {
+  http.Response response = await http.get(
+      Uri.http('localhost:8080', '/mitigations/get/$id')
   );
   return response;
 }

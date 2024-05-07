@@ -85,7 +85,7 @@ class HomeScreenState extends State<HomeScreen> {
       case 1:
         return journalPage(context);
       case 2:
-        return PredictionPage();
+        return const PredictionPage();
       case 3:
         return logoutManager(context);
       default:
@@ -102,10 +102,11 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.only(top: 10),
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold))
         ),
-        Text('Welcome $_userName', style: const TextStyle(color: globalTextColor))
+
       ],
     ));
   }
