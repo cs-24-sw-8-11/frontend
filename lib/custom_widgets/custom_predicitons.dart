@@ -28,6 +28,7 @@ class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
   List<Mitigation> mitigations = [];
   Mitigation mitigation = Mitigation.Default();
+  Random random = Random();
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -42,15 +43,15 @@ class PredictionPageState extends State<PredictionPage> {
                       context, listen: false)
                       .fetchToken();
                   List<Prediction> predictions = await getPredictionData(token);
-                  mitigations = await getMitigationsWithTag('default');
                   if (predictions.length < 3) {
                     if(context.mounted){
                       await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals.");
                     }
                   }
                   else{
+                    mitigations = await getMitigationsWithTag('default');
                     setState(() {
-                      mitigation = mitigations[0];
+                      mitigation = mitigations[random.nextInt(mitigations.length)];
                       predictionPoints.clear();
                       for (Prediction pred in predictions) {
                         double? result = double.tryParse(pred.value);
@@ -73,7 +74,7 @@ class PredictionPageState extends State<PredictionPage> {
               )),
           Padding(
               padding: const EdgeInsets.only(top: 15),
-              child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.tags)),
+              child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.type, mitigation.tags)),
           Padding(
               padding: const EdgeInsets.only(top: 15),
               child: Container(
@@ -160,7 +161,7 @@ class PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  Widget mitigationBox(BuildContext context, title, description, tags) {
+  Widget mitigationBox(BuildContext context, title, description, type, tags) {
     return Container(
         width: MediaQuery
             .of(context)
@@ -190,16 +191,18 @@ class PredictionPageState extends State<PredictionPage> {
                 Padding(padding: const EdgeInsets.only(top: 5), child:
                 Text(description,
                     style: const TextStyle(color: globalTextColor))),
-                Expanded(child: Align(alignment: Alignment.bottomCenter, child: Text('tags: ${tags.join(', ')}',
-                    style: const TextStyle(color: globalTextColor, fontSize: 10))))
+                Expanded(child: Stack(children: [Align(alignment: Alignment.bottomLeft, child: Text('tags: ${tags.join(', ')}',
+                    style: const TextStyle(color: globalTextColor, fontSize: 10))), Align(alignment: Alignment.bottomRight, child: Text('type: ${type == '1' ? 'short term' : 'long term'}',
+                    style: const TextStyle(color: globalTextColor, fontSize: 10)))]))
               ],
             )));
   }
 
   List<FlSpot> _generatePoints(List<double> points) {
     List<FlSpot> spots = [];
+    spots.add(FlSpot.zero);
     for (double i = 0; i < points.length; i++) {
-      spots.add(FlSpot(i, points[i.floor()]));
+      spots.add(FlSpot(i+1, points[i.floor()]));
     }
     return spots;
   }

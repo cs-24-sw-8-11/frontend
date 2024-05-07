@@ -167,7 +167,7 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
   List<Mitigation> mitigations = [];
   for(Map<String, dynamic> d in data){
     List<String> tags = d['tags'].split(',');
-    mitigations.add(Mitigation(d['id'], d['title'], d['description'], tags));
+    mitigations.add(Mitigation(d['id'], d['title'], d['description'], d['type'], tags));
   }
   return mitigations;
 }
