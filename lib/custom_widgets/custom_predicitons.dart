@@ -41,7 +41,7 @@ class PredictionPageState extends State<PredictionPage> {
                   List<Prediction> predictions = await getPredictionData(token);
                   if (predictions.length < 3) {
                     if(context.mounted){
-                      await dialogBuilder(context, "Not enough data!", "Please get stressed and give us some data so we can generate predictions for you");
+                      await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals.");
                     }
                   }
                   else{
