@@ -46,11 +46,12 @@ class PredictionPageState extends State<PredictionPage> {
                   }
                   else{
                     setState(() {
+                      predictionPoints.clear();
                       for (Prediction pred in predictions) {
-                        //predictionPoints.add(pred.value as double);
-                      }
-                      for (int i = 0; i < 10; i++) {
-                        predictionPoints.add(sqrt(i));
+                        double? result = double.tryParse(pred.value);
+                        if(result != null){
+                          predictionPoints.add(result);
+                        }
                       }
                     });
                   }
