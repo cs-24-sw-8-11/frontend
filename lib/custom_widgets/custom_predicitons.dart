@@ -15,6 +15,7 @@ import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 
+import '../data_structures/journal.dart';
 import '../data_structures/mitigation.dart';
 
 class PredictionPage extends StatefulWidget {
@@ -43,7 +44,8 @@ class PredictionPageState extends State<PredictionPage> {
                       context, listen: false)
                       .fetchToken();
                   List<Prediction> predictions = await getPredictionData(token);
-                  if (predictions.length < 3) {
+                  List<Journal> journals = await getJournals(token);
+                  if (journals.length < 3) {
                     if(context.mounted){
                       await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals.");
                     }
