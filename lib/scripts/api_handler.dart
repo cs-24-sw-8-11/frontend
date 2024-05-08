@@ -88,7 +88,7 @@ Future<Journal> getJournal(int journalId, String token) async {
   var response = await handleJournalHttp(journalId);
   final data = jsonDecode(response.body) as dynamic;
   List<Answer> journalAnswers = [];
-  List<int> answerIds = jsonDecode(data['answers']) as dynamic;
+  List<dynamic> answerIds = json.decode(json.encode(data['answers'])) as dynamic;
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }

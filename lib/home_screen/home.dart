@@ -143,13 +143,19 @@ class HomeScreenState extends State<HomeScreen> {
     }
     return Center(
         child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 10),
           child: Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold))
         ),
-
+        const Padding(
+            padding: EdgeInsets.only(top: 30, left: 10, right: 10),
+            child: Text('This app allows you to make journals about the stress in your daily life.\n'
+                'To do so, tap the Journals icon next to the Home icon.\n\n'
+                'When you have made at least 3 journals, it becomes possible to calculate predictions of future stress levels.\n\n'
+                'To view or perform those prediction calculations, tap on the Predictions icon.', style: TextStyle(color: globalTextColor, ))
+        ),
       ],
     ));
   }
