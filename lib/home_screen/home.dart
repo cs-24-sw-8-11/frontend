@@ -9,7 +9,7 @@ import 'package:frontend/custom_widgets/custom_question.dart';
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/user_data.dart';
 import 'package:frontend/data_structures/cache.dart';
-import 'package:frontend/data_structures/journal_data.dart';
+import 'package:frontend/data_structures/answer.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
@@ -33,8 +33,8 @@ class HomePageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCache(JournalDataObject jdo, int index) {
-    journalCache.updateCache(jdo, index);
+  void updateCache(Answer answer, int index) {
+    journalCache.updateCache(answer, index);
   }
 
   void clearCache() {
@@ -171,6 +171,7 @@ class HomeScreenState extends State<HomeScreen> {
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,
       index: currentIndex,
+      questionID: questions[currentIndex].id,
     );
   }
 

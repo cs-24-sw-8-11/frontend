@@ -6,7 +6,7 @@ import 'package:frontend/custom_widgets/custom_iconbutton.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
-import 'package:frontend/data_structures/journal_data.dart';
+import 'package:frontend/data_structures/answer.dart';
 import 'package:frontend/data_structures/options_enum.dart';
 
 import 'package:frontend/home_screen/home.dart';
@@ -15,8 +15,9 @@ class QuestionWidget extends StatefulWidget {
   final String header;
   final String metatext;
   final int index;
+  final String questionID;
 
-  const QuestionWidget({super.key, required this.header, required this.metatext, required this.index});
+  const QuestionWidget({super.key, required this.header, required this.metatext, required this.index, required this.questionID});
 
   @override
   State<QuestionWidget> createState() => QuestionWidgetState();
@@ -157,7 +158,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                         tooltipstring: "Next",
                         onPressed: () {
                           if (txtController.text != "" && _options != Options.none) {
-                            hpp.updateCache(JournalDataObject(txtController.text, _options),hpp.returnIndex());
+                            hpp.updateCache(Answer(widget.questionID, txtController.text, _options.index),hpp.returnIndex());
                             hpp.incrementIndex();
                           }
                           else {
@@ -174,7 +175,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                           ),
                         ),
                         onPressed: () {
-                          hpp.updateCache(JournalDataObject(txtController.text, _options),hpp.returnIndex());
+                          hpp.updateCache(Answer(widget.questionID, txtController.text, _options.index),hpp.returnIndex());
                           hpp.submitJournalCache(context); //remove context later
                         },
                         child: const Text(

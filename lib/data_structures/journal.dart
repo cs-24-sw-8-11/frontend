@@ -1,15 +1,11 @@
 import 'answer.dart';
 
 class Journal{
-  String id;
-  String comment;
-  String userID;
+  String? token;
+  String? id;
   List<Answer> answers;
 
-  // Only used for /journals/new
-  String? token;
-
-  Journal(this.id, this.comment, this.userID, this.answers);
+  Journal(this.answers);
 
   void addAnswer(Answer answer){
     answers.add(answer);

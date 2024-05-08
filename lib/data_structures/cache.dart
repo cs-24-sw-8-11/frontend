@@ -1,28 +1,36 @@
-import 'package:frontend/data_structures/journal_data.dart';
+import 'package:frontend/data_structures/answer.dart';
 
 // yeet these two later
 import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
 
 class Cache {
-  List<JournalDataObject> jdata = [];
+  List<Answer> answerData = [];
 
-  void updateCache(JournalDataObject object, int index) {
-    if(jdata.length <= index) {
-      jdata.add(object);
+  void updateCache(Answer answer, int index) {
+    if(answerData.length <= index) {
+      answerData.add(answer);
     }
     else {
-      jdata[index] = object;
+      answerData[index] = answer;
     }
   }
 
   void clearCache() {
-    jdata.clear();
+    answerData.clear();
   }
 
   void submitJournalCache(BuildContext context) {
     // Await backend completion of data type before i can submit the cache
+    dialogBuilder(context, "Success", stringOfAnswers(answerData));
     clearCache();
-    dialogBuilder(context, "Success", "Journal successfully created, but no backend connection yet :)) ");
+  }
+
+  String stringOfAnswers(List<Answer> answerList) {
+    String result = "";
+    for (var answer in answerList) {
+      result += answer.toString() + '\n';
+    }
+    return result;
   }
 }

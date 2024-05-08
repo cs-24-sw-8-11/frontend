@@ -1,8 +1,13 @@
 class Answer{
-  String id;
-  String answer;
-  String journalId;
-  String questionId;
 
-  Answer(this.id, this.answer, this.journalId, this.questionId);
+  String qid;
+  String meta;
+  int rating;
+
+  Answer(this.qid, this.meta, this.rating);
+
+  @override
+  String toString() {
+    return 'Question ID: $qid, Meta: $meta, Rating: $rating';
+  }
 }

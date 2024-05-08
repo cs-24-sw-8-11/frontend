@@ -36,7 +36,7 @@ Future<http.Response> executeNewJournal(Journal journal, String token) async {
 
 // Delete Journal
 Future<http.Response> executeDeleteJournal(Journal journal, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journal.id, token);
+  dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
   return httpResponse;
 }
 
@@ -92,7 +92,7 @@ Future<Journal> getJournal(int journalId, String token) async {
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
-  Journal journal = Journal(data['id'], data['comment'], data['userId'], journalAnswers);
+  Journal journal = Journal(journalAnswers);
   return journal;
 }
 
@@ -111,7 +111,7 @@ Future<List<Journal>> getJournals(String token) async {
 Future<Answer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
   final data = jsonDecode(response.body) as dynamic;
-  Answer answer = Answer(data['id'], data['answer'], data['journalId'], data['questionId']);
+  Answer answer = Answer(data['qid'], data['meta'], data['rating']);
   return answer;
 }
 
