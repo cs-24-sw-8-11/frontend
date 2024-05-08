@@ -6,6 +6,7 @@ import 'package:frontend/custom_widgets/custom_iconbutton.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
+import 'package:frontend/data_structures/journal_data.dart';
 import 'package:frontend/data_structures/options_enum.dart';
 
 import 'package:frontend/home_screen/home.dart';
@@ -23,7 +24,7 @@ class QuestionWidget extends StatefulWidget {
 
 class QuestionWidgetState extends State<QuestionWidget>{
   List<Options> opts = Options.values;
-  Options? _options;
+  Options _options = Options.none;
   int count = 5;
   TextEditingController txtController = TextEditingController();
 
@@ -42,6 +43,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
 
   @override
   Widget build(BuildContext context) {
+    HomePageProvider hpp = Provider.of<HomePageProvider>(context, listen: false);
     return Column(
       children: <Widget> [
         Center(
@@ -139,23 +141,47 @@ class QuestionWidgetState extends State<QuestionWidget>{
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Provider.of<HomePageProvider>(context, listen: false).returnIndex() != 0
+                      hpp.returnIndex() != 0
                       ? CustomIconButton(
                         icon: const Icon(Icons.arrow_back),
                         tooltipstring: "Back",
                         onPressed: () {
-                          Provider.of<HomePageProvider>(context, listen: false).decrementIndex();
+                          hpp.decrementIndex();
                         }
                       )
                       : const SizedBox.shrink(),
                       const Spacer(),
-                      CustomIconButton(
+                      hpp.returnIndex() != count-1
+                      ? CustomIconButton(
                         icon: const Icon(Icons.arrow_forward),
                         tooltipstring: "Next",
                         onPressed: () {
-                          Provider.of<HomePageProvider>(context, listen: false).incrementIndex();
+                          if (txtController.text != "" && _options != Options.none) {
+                            hpp.updateCache(JournalDataObject(txtController.text, _options),hpp.returnIndex());
+                            hpp.incrementIndex();
+                          }
+                          else {
+                            dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
+                          }
                         }
                       )
+                      : ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: globalButtonBackgroundColor,
+                          disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          hpp.updateCache(JournalDataObject(txtController.text, _options),hpp.returnIndex());
+                          hpp.submitJournalCache(context); //remove context later
+                        },
+                        child: const Text(
+                          "Submit",
+                          style: TextStyle(color: globalTextColor),
+                        )
+                      ),
                     ],
                   )
                 ),
@@ -187,7 +213,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
         groupValue: _options,
         onChanged: (Options? value) {
           setState(() {
-            _options = value;
+            _options = value!;
           });
         },
         title: Text('$label', style: const TextStyle(color: globalTextColor),)

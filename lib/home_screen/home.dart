@@ -33,15 +33,18 @@ class HomePageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void cacheAction(String action, JournalDataObject jdo, int index) {
-    switch(action) {
-      case "add":
-        journalCache.cacheData(jdo);
-      case "edit":
-        journalCache.editCache(jdo, index);
-      case "clear":
-        journalCache.clearCache();
-    }
+  void updateCache(JournalDataObject jdo, int index) {
+    journalCache.updateCache(jdo, index);
+  }
+
+  void clearCache() {
+    journalCache.clearCache();
+  }
+
+  //Remove context later
+  void submitJournalCache(BuildContext context) {
+    journalCache.submitJournalCache(context);
+    notifyListeners(); // Maybe keep, depends, we'll see
   }
 }
 
