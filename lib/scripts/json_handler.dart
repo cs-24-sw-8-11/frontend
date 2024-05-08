@@ -18,3 +18,8 @@ String encodeSettingsJson(String token, List<Setting> settings) {
   var data = {'token': token, 'settings': {settingsString}};
   return jsonEncode(data);
 }
+
+String encodePredictionJson(String token, String questionId){
+  var data = {'token': token, 'questionid': questionId};
+  return jsonEncode(data);
+}
