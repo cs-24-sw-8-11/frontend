@@ -1,22 +1,18 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
 
 import 'package:frontend/main.dart';
 
+import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
-import 'package:frontend/data_structures/user_data.dart';
 import 'package:frontend/data_structures/prediction.dart';
+import 'package:frontend/data_structures/journal.dart';
+import 'package:frontend/data_structures/mitigation.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
-
-import 'package:fl_chart/fl_chart.dart';
-
-import '../data_structures/journal.dart';
-import '../data_structures/mitigation.dart';
 
 class PredictionPage extends StatefulWidget {
   const PredictionPage({super.key});
@@ -214,6 +210,4 @@ class PredictionPageState extends State<PredictionPage> {
         .fetchToken();
     return await getUserData(token);
   }
-  
-
 }

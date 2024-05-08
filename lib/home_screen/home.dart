@@ -1,18 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
 import 'package:frontend/custom_widgets/custom_logout.dart';
 import 'package:frontend/custom_widgets/custom_predicitons.dart';
+import 'package:frontend/custom_widgets/custom_question.dart';
 
 import 'package:frontend/data_structures/question.dart';
+import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/data_structures/cache.dart';
+import 'package:frontend/data_structures/journal_data.dart';
 
-import 'package:frontend/custom_widgets/custom_question.dart';
 import 'package:frontend/scripts/api_handler.dart';
-import 'package:provider/provider.dart';
 
 import 'package:frontend/main.dart';
 
-import '../data_structures/user_data.dart';
+class HomePageProvider extends ChangeNotifier {
+  int qIndex = 0;
+  Cache journalCache = Cache();
+
+  int returnIndex() {
+    return qIndex;
+  }
+
+  void incrementIndex() {
+    qIndex += 1;
+    notifyListeners();
+  }
+
+  void decrementIndex() {
+    qIndex -= 1;
+    notifyListeners();
+  }
+
+  void cacheAction(String action, JournalDataObject jdo, int index) {
+    switch(action) {
+      case "add":
+        journalCache.cacheData(jdo);
+      case "edit":
+        journalCache.editCache(jdo, index);
+      case "clear":
+        journalCache.clearCache();
+    }
+  }
+}
+
+class HomeScreenProviderRoute extends StatelessWidget{
+  const HomeScreenProviderRoute({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => HomePageProvider(),
+      child: const HomeScreen(),
+    );
+  }
+
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,12 +66,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  int _pageIndex = 0;
-  int _qIndex = 0;
   List<Question> questions = List.empty();
+  int _pageIndex = 0;
+  String meta = '';
   late String _apiText;
   late String _userName;
-  String meta = '';
+
+  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -43,8 +88,8 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
         title: const Center(
-            child: Text('Stress Handler',
-                style: TextStyle(color: globalTextColor))),
+          child: Text('Stress Handler', style: TextStyle(color: globalTextColor))
+        ),
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       body: _buildBody(),
@@ -83,7 +128,7 @@ class HomeScreenState extends State<HomeScreen> {
       case 0:
         return homePage();
       case 1:
-        return journalPage(context);
+        return journalPage();
       case 2:
         return const PredictionPage();
       case 3:
@@ -111,31 +156,24 @@ class HomeScreenState extends State<HomeScreen> {
     ));
   }
 
-  Widget journalPage(BuildContext context) {
-    switch (_qIndex) {
-      case 0:
-        fetchQuestion(_qIndex);
-        return QuestionWidget(header: "Question 1/5", metatext: meta, parentcontext: context);
-      case 1:
-        fetchQuestion(_qIndex);
-        return QuestionWidget(header: "Question 2/5", metatext: meta, parentcontext: context);
-      case 2:
-        fetchQuestion(_qIndex);
-        return QuestionWidget(header: "Question 3/5", metatext: meta, parentcontext: context);
-      case 3:
-        fetchQuestion(_qIndex);
-        return QuestionWidget(header: "Question 4/5", metatext: meta, parentcontext: context);
-      case 4:
-        fetchQuestion(_qIndex);
-        return QuestionWidget(header: "Question 5/5", metatext: meta, parentcontext: context);
-      default:
-        return const SizedBox.shrink();
-    }
+  Widget journalPage() {
+    final homepageProvider = Provider.of<HomePageProvider>(context);
+    final int currentIndex = homepageProvider.returnIndex();
+    fetchQuestion(currentIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionWidgetKey.currentState?.resetState();
+    });
+
+    return QuestionWidget(
+      key: questionWidgetKey,
+      header: "Question ${currentIndex +1 }/5",
+      metatext: meta,
+      index: currentIndex,
+    );
   }
 
-  void updateIndex(int value) {
-    _qIndex = value;
-  }
+//-----------------------------FUNCTION CALLS-----------------------------------
 
   void fetchQuestion(int index) {
     setState(() => meta = questions[index].question);

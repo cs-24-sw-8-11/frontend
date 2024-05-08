@@ -1,18 +1,21 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/custom_widgets/custom_iconbutton.dart';
 
+import 'package:frontend/home_screen/home.dart';
+
+import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/options_enum.dart';
+import 'package:provider/provider.dart';
 
 class QuestionWidget extends StatefulWidget {
   final String header;
   final String metatext;
-  final bool renderlegend = true;
-  final BuildContext parentcontext;
+  final int index;
 
-  const QuestionWidget( {super.key, required this.header, required this.metatext, required this.parentcontext});
+  const QuestionWidget({super.key, required this.header, required this.metatext, required this.index});
 
   @override
   State<QuestionWidget> createState() => QuestionWidgetState();
@@ -20,9 +23,22 @@ class QuestionWidget extends StatefulWidget {
 
 class QuestionWidgetState extends State<QuestionWidget>{
   List<Options> opts = Options.values;
-  Options? _options = Options.none;
+  Options? _options;
   int count = 5;
-  final txtController = TextEditingController();
+  TextEditingController txtController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    resetState();
+  }
+
+  void resetState() {
+    setState(() {
+      _options = Options.none;
+      txtController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +87,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                   child: Center(child: renderTextField()),
                 ),
                 const Padding(
-                    padding: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(top: 60),
                 ),
                 Container( // Rating Container
                   height: (MediaQuery.of(context).size.height)*0.2,
@@ -117,14 +133,32 @@ class QuestionWidgetState extends State<QuestionWidget>{
                 const Padding(
                   padding: EdgeInsets.only(top: 10)
                 ),
-                ElevatedButton(
-                  onPressed: () => {
-                    
-                  },
-                  child: const Text(
-                    "hi",
-                  ),
-                )
+                SizedBox(
+                  width: (MediaQuery.of(context).size.width) * 0.75,
+                  child: Row( //Nav Buttons
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Provider.of<HomePageProvider>(context, listen: false).returnIndex() != 0
+                      ? CustomIconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        tooltipstring: "Back",
+                        onPressed: () {
+                          Provider.of<HomePageProvider>(context, listen: false).decrementIndex();
+                        }
+                      )
+                      : const SizedBox.shrink(),
+                      const Spacer(),
+                      CustomIconButton(
+                        icon: const Icon(Icons.arrow_forward),
+                        tooltipstring: "Next",
+                        onPressed: () {
+                          Provider.of<HomePageProvider>(context, listen: false).incrementIndex();
+                        }
+                      )
+                    ],
+                  )
+                ),
               ],
             )
           )
@@ -163,6 +197,5 @@ class QuestionWidgetState extends State<QuestionWidget>{
 
   String returnLegend(){
     return '1: Did not apply to me at all\n2: Applied to me to some degree, or some of the time\n3: Applied to me to a considerable degree, or a good part of the time\n4: Applied to me very much, or most of the time';
-    
   }
 }
