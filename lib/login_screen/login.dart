@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:frontend/custom_widgets/custom_input_field.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/custom_widgets/custom_diag.dart';
+
+import 'package:frontend/scripts/api_handler.dart';
+
 import 'animation_route.dart';
-import '../custom_widgets/custom_input_field.dart';
-import '../custom_widgets/global_color.dart';
-import '../scripts/api_handler.dart';
-import '../main.dart';
-import '../custom_widgets/custom_diag.dart';
+
+import 'package:frontend/main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

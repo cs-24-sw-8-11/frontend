@@ -1,5 +1,5 @@
 class Setting{
-  String? id; //Fix later
+  String id;
   String key;
   String value;
   String userId;
@@ -7,6 +7,6 @@ class Setting{
   Setting(this.id, this.key, this.value, this.userId);
 
   Setting createNewSetting(String key, String value, String userid){
-    return Setting(null, key, value, userid);
+    return Setting("0", key, value, userid);
   }
 }

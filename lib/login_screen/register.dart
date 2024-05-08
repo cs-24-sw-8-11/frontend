@@ -1,12 +1,11 @@
-// Flutter / Dart libs
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'dart:async';
 
-// Custom imports
-import '../custom_widgets/custom_diag.dart';
-import '../custom_widgets/custom_input_field.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/custom_widgets/custom_input_field.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
+
 import 'package:frontend/scripts/api_handler.dart';
 
 class RegisterScreen extends StatefulWidget {

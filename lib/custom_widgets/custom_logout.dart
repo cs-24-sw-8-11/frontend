@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
+
 import 'package:frontend/main.dart';
 
 Widget logoutManager(BuildContext context) {

@@ -1,14 +1,14 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:frontend/custom_widgets/custom_iconbutton.dart';
-
-import 'package:frontend/home_screen/home.dart';
-
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/options_enum.dart';
-import 'package:provider/provider.dart';
+
+import 'package:frontend/home_screen/home.dart';
 
 class QuestionWidget extends StatefulWidget {
   final String header;

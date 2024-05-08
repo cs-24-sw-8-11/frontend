@@ -69,7 +69,6 @@ class HomeScreenState extends State<HomeScreen> {
   List<Question> questions = List.empty();
   int _pageIndex = 0;
   String meta = '';
-  late String _apiText;
   late String _userName;
 
   final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
@@ -77,7 +76,6 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _apiText = '';
     _userName = '';
     awaitFuture();
   }
@@ -187,12 +185,6 @@ class HomeScreenState extends State<HomeScreen> {
     UserData data = await getUserData(token);
     setState(() {
       _userName = data.userName;
-    });
-  }
-
-  void updateApiText(String newText) {
-    setState(() {
-      _apiText = newText;
     });
   }
 

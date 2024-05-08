@@ -3,8 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 
-import 'package:frontend/main.dart';
-
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
@@ -13,6 +11,8 @@ import 'package:frontend/data_structures/journal.dart';
 import 'package:frontend/data_structures/mitigation.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
+
+import 'package:frontend/main.dart';
 
 class PredictionPage extends StatefulWidget {
   const PredictionPage({super.key});
@@ -24,7 +24,7 @@ class PredictionPage extends StatefulWidget {
 class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
   List<Mitigation> mitigations = [];
-  Mitigation mitigation = Mitigation.Default();
+  Mitigation mitigation = Mitigation.defaultMitigation();
   Random random = Random();
   @override
   Widget build(BuildContext context) {
@@ -203,11 +203,5 @@ class PredictionPageState extends State<PredictionPage> {
       spots.add(FlSpot(i+1, points[i.floor()]));
     }
     return spots;
-  }
-
-  Future<UserData> _fetchUserData(BuildContext context) async {
-    String token = Provider.of<AuthProvider>(context, listen: false)
-        .fetchToken();
-    return await getUserData(token);
   }
 }
