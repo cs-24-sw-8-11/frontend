@@ -66,11 +66,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  int _pageIndex = 0;
   List<Question> questions = List.empty();
+  int _pageIndex = 0;
+  String meta = '';
   late String _apiText;
   late String _userName;
-  String meta = '';
+
+  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -86,8 +88,8 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
         title: const Center(
-            child: Text('Stress Handler',
-                style: TextStyle(color: globalTextColor))),
+          child: Text('Stress Handler', style: TextStyle(color: globalTextColor))
+        ),
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       body: _buildBody(),
@@ -155,30 +157,22 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget journalPage() {
     final homepageProvider = Provider.of<HomePageProvider>(context);
-    switch (homepageProvider.returnIndex()) {
-      case 0:
-        fetchQuestion(homepageProvider.returnIndex());
-        return QuestionWidget(header: "Question 1/5", metatext: meta);
-      case 1:
-        //fetchQuestion(homepageProvider.returnIndex());
-        fetchQuestion(0);
-        return QuestionWidget(header: "Question 2/5", metatext: meta);
-      case 2:
-        //fetchQuestion(homepageProvider.returnIndex());
-        fetchQuestion(0);
-        return QuestionWidget(header: "Question 3/5", metatext: meta);
-      case 3:
-        //fetchQuestion(homepageProvider.returnIndex());
-        fetchQuestion(0);
-        return QuestionWidget(header: "Question 4/5", metatext: meta);
-      case 4:
-        //fetchQuestion(homepageProvider.returnIndex());
-        fetchQuestion(0);
-        return QuestionWidget(header: "Question 5/5", metatext: meta);
-      default:
-        return const SizedBox.shrink();
-    }
+    final int currentIndex = homepageProvider.returnIndex();
+    fetchQuestion(currentIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionWidgetKey.currentState?.resetState();
+    });
+
+    return QuestionWidget(
+      key: questionWidgetKey,
+      header: "Question ${currentIndex +1 }/5",
+      metatext: meta,
+      index: currentIndex,
+    );
   }
+
+//-----------------------------FUNCTION CALLS-----------------------------------
 
   void fetchQuestion(int index) {
     setState(() => meta = questions[index].question);

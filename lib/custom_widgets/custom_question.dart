@@ -13,9 +13,9 @@ import 'package:provider/provider.dart';
 class QuestionWidget extends StatefulWidget {
   final String header;
   final String metatext;
-  final bool renderlegend = true;
+  final int index;
 
-  const QuestionWidget( {super.key, required this.header, required this.metatext});
+  const QuestionWidget({super.key, required this.header, required this.metatext, required this.index});
 
   @override
   State<QuestionWidget> createState() => QuestionWidgetState();
@@ -23,9 +23,22 @@ class QuestionWidget extends StatefulWidget {
 
 class QuestionWidgetState extends State<QuestionWidget>{
   List<Options> opts = Options.values;
-  Options? _options = Options.none;
+  Options? _options;
   int count = 5;
-  final txtController = TextEditingController();
+  TextEditingController txtController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    resetState();
+  }
+
+  void resetState() {
+    setState(() {
+      _options = Options.none;
+      txtController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +87,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                   child: Center(child: renderTextField()),
                 ),
                 const Padding(
-                    padding: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(top: 60),
                 ),
                 Container( // Rating Container
                   height: (MediaQuery.of(context).size.height)*0.2,
