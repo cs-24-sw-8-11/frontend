@@ -62,9 +62,9 @@ Future<http.Response> executeUpdateSettings(List<Setting> settings, String token
 }
 
 // Update UserData
-Future<http.Response> executeNewPrediction(String questionId, String token) async {
-  final jsonString = encodePredictionJson(token, questionId);
-  dynamic httpResponse = await handleNewPredictionHttp(jsonString);
+Future<http.Response> executeNewPrediction(String token) async {
+  final jsonString = {'token':token};
+  dynamic httpResponse = await handleNewPredictionHttp(jsonEncode(jsonString));
   return httpResponse;
 }
 
@@ -92,7 +92,7 @@ Future<Journal> getJournal(int journalId, String token) async {
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
-  Journal journal = Journal(data['id'], data['comment'], data['userId'], journalAnswers);
+  Journal journal = Journal(data['id'], data['timestamp'], data['userId'], journalAnswers);
   return journal;
 }
 
@@ -111,7 +111,7 @@ Future<List<Journal>> getJournals(String token) async {
 Future<Answer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
   final data = jsonDecode(response.body) as dynamic;
-  Answer answer = Answer(data['id'], data['answer'], data['journalId'], data['questionId']);
+  Answer answer = Answer(data['id'], data['value'], data['rating'], data['journalId'], data['questionId']);
   return answer;
 }
 

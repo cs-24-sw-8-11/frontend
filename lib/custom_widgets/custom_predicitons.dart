@@ -48,6 +48,7 @@ class PredictionPageState extends State<PredictionPage> {
                   }
                   else{
                     mitigations = await getMitigationsWithTag('default');
+                    executeNewPrediction(token);
                     setState(() {
                       mitigation = mitigations[random.nextInt(mitigations.length)];
                       predictionPoints.clear();

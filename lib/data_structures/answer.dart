@@ -1,8 +1,9 @@
 class Answer{
   String id;
-  String answer;
+  String value;
+  String rating;
   String journalId;
   String questionId;
 
-  Answer(this.id, this.answer, this.journalId, this.questionId);
+  Answer(this.id, this.value, this.rating, this.journalId, this.questionId);
 }
