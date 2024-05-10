@@ -16,11 +16,17 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'package:frontend/main.dart';
 
 class HomePageProvider extends ChangeNotifier {
-  int qIndex = 0;
   Cache journalCache = Cache();
+  int qIndex = 0;
+  bool state = false;
 
   int returnIndex() {
     return qIndex;
+  }
+
+  void changeState() {
+    state = !state;
+    notifyListeners();
   }
 
   void incrementIndex() {
@@ -125,11 +131,12 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
+    final hpp = Provider.of<HomePageProvider>(context);
     switch (_pageIndex) {
       case 0:
         return homePage();
       case 1:
-        return journalPage();
+        return hpp.state ? questionPage() : journalPage();
       case 2:
         return const PredictionPage();
       case 3:
@@ -145,21 +152,44 @@ class HomeScreenState extends State<HomeScreen> {
       awaitUserNameFuture(token);
     }
     return Center(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold))
-        ),
-
-      ],
-    ));
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold))
+          ),
+        ],
+      )
+    );
   }
 
   Widget journalPage() {
-    final homepageProvider = Provider.of<HomePageProvider>(context);
-    final int currentIndex = homepageProvider.returnIndex();
+    final hpp = Provider.of<HomePageProvider>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        const Padding(padding: EdgeInsets.only(top: 30)),
+        Center(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: globalButtonBackgroundColor,
+              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+            onPressed: () => hpp.changeState(),
+            child: const Text("New Journal", style: TextStyle(color: globalTextColor)),
+          )
+        )
+      ],
+    );
+  }
+
+  Widget questionPage() {
+    final hpp = Provider.of<HomePageProvider>(context);
+    final int currentIndex = hpp.returnIndex();
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
