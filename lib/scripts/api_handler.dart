@@ -12,6 +12,9 @@ import 'json_handler.dart';
 
 //--------------------------API OBJECT CALLS------------------------------------
 
+String addr = "p8.skademaskinen.win";
+String port = "11034";
+
 // Login
 Future<http.Response> executeLogin(String username, String password) async {
   final jsonString = encodeJson(username, password);
@@ -96,6 +99,14 @@ Future<Journal> getJournal(int journalId, String token) async {
   return journal;
 }
 
+// Get Journal Data
+Future<Journal> getJournalWithoutAnswers(int journalId, String token) async {
+  var response = await handleJournalHttp(journalId);
+  final data = jsonDecode(response.body) as dynamic;
+  Journal journal = Journal(data['id'], data['timestamp'], data['userId'], []);
+  return journal;
+}
+
 // Get Journal Data from a user
 Future<List<Journal>> getJournals(String token) async {
   var response = await handleJournalsHttp(token);
@@ -103,6 +114,17 @@ Future<List<Journal>> getJournals(String token) async {
   List<Journal> journals = [];
   for(int d in data){
     journals.add(await getJournal(d, token));
+  }
+  return journals;
+}
+
+// Get Journal Data from a user
+Future<List<Journal>> getJournalsWithoutAnswers(String token) async {
+  var response = await handleJournalsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  List<Journal> journals = [];
+  for(int d in data){
+    journals.add(await getJournalWithoutAnswers(d, token));
   }
   return journals;
 }
@@ -178,7 +200,7 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
 // Register API POST
 Future<http.Response> handleRegisterHttp(String json) async {
   http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/register'),
+    Uri.https('$addr:$port', '/user/register'),
     body: json
    );
    return response;
@@ -187,7 +209,7 @@ Future<http.Response> handleRegisterHttp(String json) async {
 // Login API POST
 Future<http.Response> handleLoginHttp(String json) async {
   http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/auth'),
+    Uri.https('$addr:$port', '/user/auth'),
     body: json
    );
    return response;
@@ -196,7 +218,7 @@ Future<http.Response> handleLoginHttp(String json) async {
 // New Journal API POST
 Future<http.Response> handleNewJournalHttp(String json) async {
   http.Response response = await http.post(
-      Uri.http('localhost:8080', '/journals/new'),
+      Uri.https('$addr:$port', '/journals/new'),
       body: json
   );
   return response;
@@ -205,7 +227,7 @@ Future<http.Response> handleNewJournalHttp(String json) async {
 // New Prediction API POST
 Future<http.Response> handleNewPredictionHttp(String json) async {
   http.Response response = await http.post(
-      Uri.http('localhost:8080', '/predictions/add'),
+      Uri.https('$addr:$port', '/predictions/add'),
       body: json
   );
   return response;
@@ -214,7 +236,7 @@ Future<http.Response> handleNewPredictionHttp(String json) async {
 // Update UserData API POST
 Future<http.Response> handleUserDataUpdateHttp(String json) async {
   http.Response response = await http.post(
-      Uri.http('localhost:8080', '/user/data/update'),
+      Uri.https('$addr:$port', '/user/data/update'),
       body: json
   );
   return response;
@@ -223,7 +245,7 @@ Future<http.Response> handleUserDataUpdateHttp(String json) async {
 // Update UserData API POST
 Future<http.Response> handleSettingsUpdateHttp(String json) async {
   http.Response response = await http.post(
-      Uri.http('localhost:8080', '/settings/update'),
+      Uri.https('$addr:$port', '/settings/update'),
       body: json
   );
   return response;
@@ -232,7 +254,7 @@ Future<http.Response> handleSettingsUpdateHttp(String json) async {
 // Delete Journal API DELETE
 Future<http.Response> handleDeleteJournalHttp(String journalId, String token) async {
   http.Response response = await http.delete(
-      Uri.http('localhost:8080', '/journals/delete/$journalId/$token')
+      Uri.https('$addr:$port', '/journals/delete/$journalId/$token')
   );
   return response;
 }
@@ -240,7 +262,7 @@ Future<http.Response> handleDeleteJournalHttp(String journalId, String token) as
 // UserData API GET
 Future<http.Response> handleUserDataHttp(String token) async {
   http.Response response = await http.get(
-    Uri.http('localhost:8080', '/user/get/$token')
+    Uri.https('$addr:$port', '/user/get/$token')
   );
   return response;
 }
@@ -248,7 +270,7 @@ Future<http.Response> handleUserDataHttp(String token) async {
 // User Ids API GET
 Future<http.Response> handleUserIdsHttp() async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/user/ids')
+      Uri.https('$addr:$port', '/user/ids')
   );
   return response;
 }
@@ -256,7 +278,7 @@ Future<http.Response> handleUserIdsHttp() async {
 // Answer API GET
 Future<http.Response> handleAnswerHttp(int answerId, String token) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/answers/get/$answerId/$token')
+      Uri.https('$addr:$port', '/answers/get/$answerId/$token')
   );
   return response;
 }
@@ -264,7 +286,7 @@ Future<http.Response> handleAnswerHttp(int answerId, String token) async {
 // Journal API GET
 Future<http.Response> handleJournalHttp(int journalId) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/get/$journalId')
+      Uri.https('$addr:$port', '/journals/get/$journalId')
   );
   return response;
 }
@@ -272,7 +294,7 @@ Future<http.Response> handleJournalHttp(int journalId) async {
 // Journals from user API GET
 Future<http.Response> handleJournalsHttp(String token) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/ids/$token')
+      Uri.https('$addr:$port', '/journals/ids/$token')
   );
   return response;
 }
@@ -280,7 +302,7 @@ Future<http.Response> handleJournalsHttp(String token) async {
 // Default Questions API GET
 Future<http.Response> handleDefaultQuestionsHttp() async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/defaults')
+      Uri.https('$addr:$port', '/questions/defaults')
   );
   return response;
 }
@@ -288,7 +310,7 @@ Future<http.Response> handleDefaultQuestionsHttp() async {
 // Question with Tags API GET
 Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/get/$tag')
+      Uri.https('$addr:$port', '/questions/get/$tag')
   );
   return response;
 }
@@ -296,7 +318,7 @@ Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
 // Predictions API GET
 Future<http.Response> handlePredictionHttp(String token) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/predictions/get/$token')
+      Uri.https('$addr:$port', '/predictions/get/$token')
   );
   return response;
 }
@@ -304,7 +326,7 @@ Future<http.Response> handlePredictionHttp(String token) async {
 // Settings API GET
 Future<http.Response> handleSettingsHttp(String token) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/settings/get/$token')
+      Uri.https('$addr:$port', '/settings/get/$token')
   );
   return response;
 }
@@ -312,7 +334,7 @@ Future<http.Response> handleSettingsHttp(String token) async {
 // Mitigation API GET
 Future<http.Response> handleMitigationsTagHttp(String tag) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/mitigations/tags/$tag')
+      Uri.https('$addr:$port', '/mitigations/tags/$tag')
   );
   return response;
 }
@@ -320,7 +342,7 @@ Future<http.Response> handleMitigationsTagHttp(String tag) async {
 // Mitigation API GET
 Future<http.Response> handleMitigationsIdHttp(String id) async {
   http.Response response = await http.get(
-      Uri.http('localhost:8080', '/mitigations/get/$id')
+      Uri.https('$addr:$port', '/mitigations/get/$id')
   );
   return response;
 }

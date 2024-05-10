@@ -39,16 +39,16 @@ class PredictionPageState extends State<PredictionPage> {
                   String token = Provider.of<AuthProvider>(
                       context, listen: false)
                       .fetchToken();
-                  List<Prediction> predictions = await getPredictionData(token);
-                  List<Journal> journals = await getJournals(token);
+                  List<Journal> journals = await getJournalsWithoutAnswers(token);
                   if (journals.length < 3) {
                     if(context.mounted){
                       await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals. You currently have ${journals.length} journals.");
                     }
                   }
                   else{
+                    await executeNewPrediction(token);
+                    List<Prediction> predictions = await getPredictionData(token);
                     mitigations = await getMitigationsWithTag('default');
-                    executeNewPrediction(token);
                     setState(() {
                       mitigation = mitigations[random.nextInt(mitigations.length)];
                       predictionPoints.clear();
@@ -56,6 +56,9 @@ class PredictionPageState extends State<PredictionPage> {
                         double? result = double.tryParse(pred.value);
                         if(result != null){
                           predictionPoints.add(result);
+                        }
+                        else{
+                          print(result);
                         }
                       }
                     });
