@@ -45,152 +45,154 @@ class QuestionWidgetState extends State<QuestionWidget>{
   @override
   Widget build(BuildContext context) {
     HomePageProvider hpp = Provider.of<HomePageProvider>(context, listen: false);
-    return Column(
-      children: <Widget> [
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 75),
-            child: Column(
-              children: <Widget>[
-                SizedBox( // Question Container
-                  height: (MediaQuery.of(context).size.height)*0.2,
-                  width: (MediaQuery.of(context).size.width)*0.9,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20),
-                        child: Text(
-                          widget.header,
-                          style: const TextStyle(
-                            color: globalTextColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 28
-                          )
-                        )
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
-                        child: Text(
-                          widget.metatext,
-                          style: const TextStyle(
-                            color: globalTextColor,
-                            fontSize: 16
-                          )
-                        )
-                      ),
-                    ],
-                  ),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(top: 30),
-                ),
-                SizedBox( // Text Container
-                  height: (MediaQuery.of(context).size.height)*0.1,
-                  width: (MediaQuery.of(context).size.width)*0.9,
-                  child: Center(child: renderTextField()),
-                ),
-                const Padding(
-                    padding: EdgeInsets.only(top: 60),
-                ),
-                Container( // Rating Container
-                  height: (MediaQuery.of(context).size.height)*0.2,
-                  width: (MediaQuery.of(context).size.width)*0.9,
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          const Text(
-                            "Rating",
-                            style: TextStyle(
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget> [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 75),
+              child: Column(
+                children: <Widget>[
+                  SizedBox( // Question Container
+                    height: (MediaQuery.of(context).size.height)*0.2,
+                    width: (MediaQuery.of(context).size.width)*0.9,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20),
+                          child: Text(
+                            widget.header,
+                            style: const TextStyle(
                               color: globalTextColor,
                               fontWeight: FontWeight.bold,
                               fontSize: 28
                             )
-                          ),
-                          const Padding(padding: EdgeInsets.only(left: 10)),
-                          RichText(
-                            text: TextSpan(
-                              children: <TextSpan>[
-                                TextSpan(
-                                  text: '?',
-                                  style: const TextStyle(fontSize: 24, decoration: TextDecoration.underline, color: globalUnderlineColor),
-                                  recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    dialogBuilder(context, "Legend", returnLegend());
-                                  },
-                                ),
-                              ],
+                          )
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                          child: Text(
+                            widget.metatext,
+                            style: const TextStyle(
+                              color: globalTextColor,
+                              fontSize: 16
+                            )
+                          )
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                      padding: EdgeInsets.only(top: 30),
+                  ),
+                  SizedBox( // Text Container
+                    height: (MediaQuery.of(context).size.height)*0.1,
+                    width: (MediaQuery.of(context).size.width)*0.9,
+                    child: Center(child: renderTextField()),
+                  ),
+                  const Padding(
+                      padding: EdgeInsets.only(top: 60),
+                  ),
+                  Container( // Rating Container
+                    height: (MediaQuery.of(context).size.height)*0.2,
+                    width: (MediaQuery.of(context).size.width)*0.9,
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            const Text(
+                              "Rating",
+                              style: TextStyle(
+                                color: globalTextColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 28
+                              )
+                            ),
+                            const Padding(padding: EdgeInsets.only(left: 10)),
+                            RichText(
+                              text: TextSpan(
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text: '?',
+                                    style: const TextStyle(fontSize: 24, decoration: TextDecoration.underline, color: globalUnderlineColor),
+                                    recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      dialogBuilder(context, "Legend", returnLegend());
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: List.generate(count-1, (index) => renderRadioButton(index+1, opts[index+1])),
+                        ),
+                      ],
+                    )
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 10)
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width) * 0.75,
+                    child: Row( //Nav Buttons
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        hpp.returnIndex() != 0
+                        ? CustomIconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          tooltipstring: "Back",
+                          onPressed: () {
+                            hpp.decrementIndex();
+                          }
+                        )
+                        : const SizedBox.shrink(),
+                        const Spacer(),
+                        hpp.returnIndex() != count-1
+                        ? CustomIconButton(
+                          icon: const Icon(Icons.arrow_forward),
+                          tooltipstring: "Next",
+                          onPressed: () {
+                            if (txtController.text != "" && _options != Options.none) {
+                              hpp.updateCache(Answer(widget.questionID, txtController.text, _options.index),hpp.returnIndex());
+                              hpp.incrementIndex();
+                            }
+                            else {
+                              dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
+                            }
+                          }
+                        )
+                        : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: globalButtonBackgroundColor,
+                            disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
                             ),
                           ),
-                        ],
-                      ),
-                      Row(
-                        children: List.generate(count-1, (index) => renderRadioButton(index+1, opts[index+1])),
-                      ),
-                    ],
-                  )
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 10)
-                ),
-                SizedBox(
-                  width: (MediaQuery.of(context).size.width) * 0.75,
-                  child: Row( //Nav Buttons
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      hpp.returnIndex() != 0
-                      ? CustomIconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        tooltipstring: "Back",
-                        onPressed: () {
-                          hpp.decrementIndex();
-                        }
-                      )
-                      : const SizedBox.shrink(),
-                      const Spacer(),
-                      hpp.returnIndex() != count-1
-                      ? CustomIconButton(
-                        icon: const Icon(Icons.arrow_forward),
-                        tooltipstring: "Next",
-                        onPressed: () {
-                          if (txtController.text != "" && _options != Options.none) {
+                          onPressed: () {
                             hpp.updateCache(Answer(widget.questionID, txtController.text, _options.index),hpp.returnIndex());
-                            hpp.incrementIndex();
-                          }
-                          else {
-                            dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
-                          }
-                        }
-                      )
-                      : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: globalButtonBackgroundColor,
-                          disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
+                            hpp.submitJournalCache(context); //remove context later
+                          },
+                          child: const Text(
+                            "Submit",
+                            style: TextStyle(color: globalTextColor),
+                          )
                         ),
-                        onPressed: () {
-                          hpp.updateCache(Answer(widget.questionID, txtController.text, _options.index),hpp.returnIndex());
-                          hpp.submitJournalCache(context); //remove context later
-                        },
-                        child: const Text(
-                          "Submit",
-                          style: TextStyle(color: globalTextColor),
-                        )
-                      ),
-                    ],
-                  )
-                ),
-              ],
+                      ],
+                    )
+                  ),
+                ],
+              )
             )
-          )
-        ),
-      ]
+          ),
+        ]
+      ),
     );
   }
 

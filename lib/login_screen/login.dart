@@ -32,10 +32,10 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: globalAppBarColor,
-          title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
-        ),
+      appBar: AppBar(
+        backgroundColor: globalAppBarColor,
+        title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
+      ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(

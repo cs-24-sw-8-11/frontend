@@ -1,5 +1,5 @@
 import 'package:frontend/data_structures/prediction.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as https;
 import 'dart:convert';
 
 import '../data_structures/answer.dart';
@@ -13,21 +13,21 @@ import 'json_handler.dart';
 //--------------------------API OBJECT CALLS------------------------------------
 
 // Login
-Future<http.Response> executeLogin(String username, String password) async {
+Future<https.Response> executeLogin(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleLoginHttp(jsonString);
   return httpResponse;
 }
 
 // Register
-Future<http.Response> executeRegister(String username, String password) async {
+Future<https.Response> executeRegister(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleRegisterHttp(jsonString);
   return httpResponse;
 }
 
 // New Journal
-Future<http.Response> executeNewJournal(Journal journal, String token) async {
+Future<https.Response> executeNewJournal(Journal journal, String token) async {
   journal.addToken(token);
   final jsonString = jsonEncode(journal);
   dynamic httpResponse = await handleNewJournalHttp(jsonString);
@@ -35,19 +35,19 @@ Future<http.Response> executeNewJournal(Journal journal, String token) async {
 }
 
 // Delete Journal
-Future<http.Response> executeDeleteJournal(Journal journal, String token) async {
+Future<https.Response> executeDeleteJournal(Journal journal, String token) async {
   dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
   return httpResponse;
 }
 
 // Delete Journal From Id
-Future<http.Response> executeDeleteJournalFromId(String journalId, String token) async {
+Future<https.Response> executeDeleteJournalFromId(String journalId, String token) async {
   dynamic httpResponse = await handleDeleteJournalHttp(journalId, token);
   return httpResponse;
 }
 
 // Update UserData
-Future<http.Response> executeUpdateUserData(UserData data, String token) async {
+Future<https.Response> executeUpdateUserData(UserData data, String token) async {
   data.addToken(token);
   final jsonString = jsonEncode(data);
   dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
@@ -55,14 +55,14 @@ Future<http.Response> executeUpdateUserData(UserData data, String token) async {
 }
 
 // Update UserData
-Future<http.Response> executeUpdateSettings(List<Setting> settings, String token) async {
+Future<https.Response> executeUpdateSettings(List<Setting> settings, String token) async {
   final jsonString = encodeSettingsJson(token, settings);
   dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
   return httpResponse;
 }
 
 // Update UserData
-Future<http.Response> executeNewPrediction(String questionId, String token) async {
+Future<https.Response> executeNewPrediction(String questionId, String token) async {
   final jsonString = encodePredictionJson(token, questionId);
   dynamic httpResponse = await handleNewPredictionHttp(jsonString);
   return httpResponse;
@@ -176,151 +176,151 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
 
 
 // Register API POST
-Future<http.Response> handleRegisterHttp(String json) async {
-  http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/register'),
+Future<https.Response> handleRegisterHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('p8.skademaskinen.win:11034', '/user/register'),
     body: json
    );
    return response;
 }
 
 // Login API POST
-Future<http.Response> handleLoginHttp(String json) async {
-  http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/auth'),
+Future<https.Response> handleLoginHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('p8.skademaskinen.win:11034', '/user/auth'),
     body: json
    );
    return response;
 }
 
 // New Journal API POST
-Future<http.Response> handleNewJournalHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/journals/new'),
+Future<https.Response> handleNewJournalHttp(String json) async {
+  https.Response response = await https.post(
+      Uri.https('p8.skademaskinen.win:11034', '/journals/new'),
       body: json
   );
   return response;
 }
 
 // New Prediction API POST
-Future<http.Response> handleNewPredictionHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/predictions/add'),
+Future<https.Response> handleNewPredictionHttp(String json) async {
+  https.Response response = await https.post(
+      Uri.https('p8.skademaskinen.win:11034', '/predictions/add'),
       body: json
   );
   return response;
 }
 
 // Update UserData API POST
-Future<http.Response> handleUserDataUpdateHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/user/data/update'),
+Future<https.Response> handleUserDataUpdateHttp(String json) async {
+  https.Response response = await https.post(
+      Uri.https('p8.skademaskinen.win:11034', '/user/data/update'),
       body: json
   );
   return response;
 }
 
 // Update UserData API POST
-Future<http.Response> handleSettingsUpdateHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/settings/update'),
+Future<https.Response> handleSettingsUpdateHttp(String json) async {
+  https.Response response = await https.post(
+      Uri.https('p8.skademaskinen.win:11034', '/settings/update'),
       body: json
   );
   return response;
 }
 
 // Delete Journal API DELETE
-Future<http.Response> handleDeleteJournalHttp(String journalId, String token) async {
-  http.Response response = await http.delete(
-      Uri.http('localhost:8080', '/journals/delete/$journalId/$token')
+Future<https.Response> handleDeleteJournalHttp(String journalId, String token) async {
+  https.Response response = await https.delete(
+      Uri.https('p8.skademaskinen.win:11034', '/journals/delete/$journalId/$token')
   );
   return response;
 }
 
 // UserData API GET
-Future<http.Response> handleUserDataHttp(String token) async {
-  http.Response response = await http.get(
-    Uri.http('localhost:8080', '/user/get/$token')
+Future<https.Response> handleUserDataHttp(String token) async {
+  https.Response response = await https.get(
+    Uri.https('p8.skademaskinen.win:11034', '/user/get/$token')
   );
   return response;
 }
 
 // User Ids API GET
-Future<http.Response> handleUserIdsHttp() async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/user/ids')
+Future<https.Response> handleUserIdsHttp() async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/user/ids')
   );
   return response;
 }
 
 // Answer API GET
-Future<http.Response> handleAnswerHttp(int answerId, String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/answers/get/$answerId/$token')
+Future<https.Response> handleAnswerHttp(int answerId, String token) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/answers/get/$answerId/$token')
   );
   return response;
 }
 
 // Journal API GET
-Future<http.Response> handleJournalHttp(int journalId) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/get/$journalId')
+Future<https.Response> handleJournalHttp(int journalId) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/journals/get/$journalId')
   );
   return response;
 }
 
 // Journals from user API GET
-Future<http.Response> handleJournalsHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/ids/$token')
+Future<https.Response> handleJournalsHttp(String token) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/journals/ids/$token')
   );
   return response;
 }
 
 // Default Questions API GET
-Future<http.Response> handleDefaultQuestionsHttp() async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/defaults')
+Future<https.Response> handleDefaultQuestionsHttp() async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/questions/defaults')
   );
   return response;
 }
 
 // Question with Tags API GET
-Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/get/$tag')
+Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/questions/get/$tag')
   );
   return response;
 }
 
 // Predictions API GET
-Future<http.Response> handlePredictionHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/predictions/get/$token')
+Future<https.Response> handlePredictionHttp(String token) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/predictions/get/$token')
   );
   return response;
 }
 
 // Settings API GET
-Future<http.Response> handleSettingsHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/settings/get/$token')
+Future<https.Response> handleSettingsHttp(String token) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/settings/get/$token')
   );
   return response;
 }
 
 // Mitigation API GET
-Future<http.Response> handleMitigationsTagHttp(String tag) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/mitigations/tags/$tag')
+Future<https.Response> handleMitigationsTagHttp(String tag) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/mitigations/tags/$tag')
   );
   return response;
 }
 
 // Mitigation API GET
-Future<http.Response> handleMitigationsIdHttp(String id) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/mitigations/get/$id')
+Future<https.Response> handleMitigationsIdHttp(String id) async {
+  https.Response response = await https.get(
+      Uri.https('p8.skademaskinen.win:11034', '/mitigations/get/$id')
   );
   return response;
 }
