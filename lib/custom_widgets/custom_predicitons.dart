@@ -26,6 +26,7 @@ class PredictionPageState extends State<PredictionPage> {
   List<Mitigation> mitigations = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
   Random random = Random();
+  String token = '';
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -36,7 +37,7 @@ class PredictionPageState extends State<PredictionPage> {
               padding: const EdgeInsets.only(top: 15),
               child: ElevatedButton(
                 onPressed: () async {
-                  String token = Provider.of<AuthProvider>(
+                  token = Provider.of<AuthProvider>(
                       context, listen: false)
                       .fetchToken();
                   List<Journal> journals = await getJournalsWithoutAnswers(token);
@@ -56,9 +57,6 @@ class PredictionPageState extends State<PredictionPage> {
                         double? result = double.tryParse(pred.value);
                         if(result != null){
                           predictionPoints.add(result);
-                        }
-                        else{
-                          print(result);
                         }
                       }
                     });
@@ -84,7 +82,7 @@ class PredictionPageState extends State<PredictionPage> {
                   height: (MediaQuery
                       .of(context)
                       .size
-                      .height) * 0.4,
+                      .height) * 0.3,
                   width: (MediaQuery
                       .of(context)
                       .size
@@ -97,65 +95,87 @@ class PredictionPageState extends State<PredictionPage> {
                       width: 2, // Border width
                     ),
                   ),
-                  child: LineChart(LineChartData(
-                      borderData: FlBorderData(show: true),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          axisNameWidget: const Padding(
-                              padding: EdgeInsets.only(),
-                              child: Text('Time',
-                                  style: TextStyle(color: globalTextColor))),
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, titleMeta) {
-                              return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value % 1 == 0
-                                        ? value.toStringAsFixed(0)
-                                        : value.toStringAsFixed(1),
-                                    style: const TextStyle(
-                                        color: globalTextColor, fontSize: 15),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  ));
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          axisNameWidget: const Padding(
-                              padding: EdgeInsets.only(),
-                              child: Text('Stress',
-                                  style: TextStyle(color: globalTextColor))),
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, titleMeta) {
-                              return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value.toStringAsFixed(0),
-                                    style: const TextStyle(
-                                        color: globalTextColor, fontSize: 15),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  ));
-                            },
-                          ),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: _generatePoints(predictionPoints),
-                        )
-                      ]))
+                  child:
+                  FutureBuilder(
+                    builder: (ctx, snapshot) {
+                      if(!snapshot.hasData){
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+                      else{
+                        predictionPoints.clear();
+                        for (Prediction pred in snapshot.data!) {
+                          double? result = double.tryParse(pred.value);
+                          if(result != null){
+                            predictionPoints.add(result);
+                          }
+                        }
+                        return LineChart(LineChartData(
+                            borderData: FlBorderData(show: true),
+                            titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                axisNameWidget: const Padding(
+                                    padding: EdgeInsets.only(),
+                                    child: Text('Time',
+                                        style: TextStyle(color: globalTextColor))),
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (value, titleMeta) {
+                                    return SideTitleWidget(
+                                        axisSide: titleMeta.axisSide,
+                                        space: 4,
+                                        child: Text(
+                                          value % 1 == 0
+                                              ? value.toStringAsFixed(0)
+                                              : value.toStringAsFixed(1),
+                                          style: const TextStyle(
+                                              color: globalTextColor, fontSize: 15),
+                                          textDirection: TextDirection.rtl,
+                                          textAlign: TextAlign.center,
+                                        ));
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                axisNameWidget: const Padding(
+                                    padding: EdgeInsets.only(),
+                                    child: Text('Stress',
+                                        style: TextStyle(color: globalTextColor))),
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (value, titleMeta) {
+                                    return SideTitleWidget(
+                                        axisSide: titleMeta.axisSide,
+                                        space: 4,
+                                        child: Text(
+                                          value.toStringAsFixed(0),
+                                          style: const TextStyle(
+                                              color: globalTextColor, fontSize: 15),
+                                          textDirection: TextDirection.rtl,
+                                          textAlign: TextAlign.center,
+                                        ));
+                                  },
+                                ),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                            ),
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: _generatePoints(predictionPoints),
+                              )
+                            ]));
+                      }
+                    },
+                    future: getPredictionData(Provider.of<AuthProvider>(
+                        context, listen: false)
+                        .fetchToken()),
+                  ),
                 //child: Text(apiText, style: const TextStyle(color: globalTextColor)),
               )),
         ],
