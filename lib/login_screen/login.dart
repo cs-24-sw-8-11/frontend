@@ -33,10 +33,10 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: globalAppBarColor,
-          title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
-        ),
+      appBar: AppBar(
+        backgroundColor: globalAppBarColor,
+        title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
+      ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -92,9 +92,7 @@ class LoginScreenState extends State<LoginScreen> {
                           httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text);
                         }
                         if (httpResponse.statusCode == 200) {
-                          await Future.delayed(const Duration(milliseconds: 1000));
                           setState (() => isLoading = false);
-                          await Future.delayed(const Duration(milliseconds: 100));
                           if (context.mounted) {
                             Provider.of<AuthProvider>(context, listen: false).login(httpResponse.body);
                           }

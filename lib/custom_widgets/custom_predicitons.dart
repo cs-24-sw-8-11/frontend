@@ -44,7 +44,7 @@ class PredictionPageState extends State<PredictionPage> {
                 onPressed: () async {
                   token = Provider.of<AuthProvider>(context, listen: false)
                       .fetchToken();
-                  List<Journal> journals =
+                  List<GetJournal> journals =
                       await getJournalsWithoutAnswers(token);
                   if (journals.length < 3) {
                     if (context.mounted) {

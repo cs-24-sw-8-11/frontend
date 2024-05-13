@@ -9,18 +9,24 @@ import 'package:frontend/custom_widgets/custom_question.dart';
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/user_data.dart';
 import 'package:frontend/data_structures/cache.dart';
-import 'package:frontend/data_structures/journal_data.dart';
+import 'package:frontend/data_structures/answer.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:frontend/main.dart';
 
 class HomePageProvider extends ChangeNotifier {
-  int qIndex = 0;
   Cache journalCache = Cache();
+  int qIndex = 0;
+  bool state = false;
 
   int returnIndex() {
     return qIndex;
+  }
+
+  void changeState() {
+    state = !state;
+    notifyListeners();
   }
 
   void incrementIndex() {
@@ -33,15 +39,18 @@ class HomePageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void cacheAction(String action, JournalDataObject jdo, int index) {
-    switch(action) {
-      case "add":
-        journalCache.cacheData(jdo);
-      case "edit":
-        journalCache.editCache(jdo, index);
-      case "clear":
-        journalCache.clearCache();
-    }
+  void updateCache(PostAnswer answer, int index) {
+    journalCache.updateCache(answer, index);
+  }
+
+  void clearCache() {
+    journalCache.clearCache();
+  }
+
+  //Remove context later
+  void submitJournalCache(BuildContext context) {
+    journalCache.submitJournalCache(context);
+    notifyListeners(); // Maybe keep, depends, we'll see
   }
 }
 
@@ -122,11 +131,12 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
+    final hpp = Provider.of<HomePageProvider>(context);
     switch (_pageIndex) {
       case 0:
         return homePage();
       case 1:
-        return journalPage();
+        return hpp.state ? questionPage() : journalPage();
       case 2:
         return const PredictionPage();
       case 3:
@@ -156,13 +166,35 @@ class HomeScreenState extends State<HomeScreen> {
                 'When you have made at least 3 journals, it becomes possible to calculate predictions of future stress levels.\n\n'
                 'To view or perform those prediction calculations, tap on the Predictions icon.', style: TextStyle(color: globalTextColor, ))
         ),
-      ],
-    ));
+    );
   }
 
   Widget journalPage() {
-    final homepageProvider = Provider.of<HomePageProvider>(context);
-    final int currentIndex = homepageProvider.returnIndex();
+    final hpp = Provider.of<HomePageProvider>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        const Padding(padding: EdgeInsets.only(top: 30)),
+        Center(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: globalButtonBackgroundColor,
+              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+            onPressed: () => hpp.changeState(),
+            child: const Text("New Journal", style: TextStyle(color: globalTextColor)),
+          )
+        )
+      ],
+    );
+  }
+
+  Widget questionPage() {
+    final hpp = Provider.of<HomePageProvider>(context);
+    final int currentIndex = hpp.returnIndex();
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -174,6 +206,7 @@ class HomeScreenState extends State<HomeScreen> {
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,
       index: currentIndex,
+      questionID: questions[currentIndex].id,
     );
   }
 
@@ -188,7 +221,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void awaitUserNameFuture(String token) async {
-    UserData data = await getUserData(token);
+    GetUserData data = await getUserData(token);
     setState(() {
       _userName = data.userName;
     });
