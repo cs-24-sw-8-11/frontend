@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:frontend/login_screen/register.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -91,9 +92,7 @@ class LoginScreenState extends State<LoginScreen> {
                           httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text);
                         }
                         if (httpResponse.statusCode == 200) {
-                          await Future.delayed(const Duration(milliseconds: 1000));
                           setState (() => isLoading = false);
-                          await Future.delayed(const Duration(milliseconds: 100));
                           if (context.mounted) {
                             Provider.of<AuthProvider>(context, listen: false).login(httpResponse.body);
                           }
@@ -122,7 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
                         style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
                         recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Navigator.of(context).push(createRoute());
+                          Navigator.of(context).push(createRoute(const RegisterScreen()));
                         },
                       ),
                     ],

@@ -40,7 +40,7 @@ class PredictionPageState extends State<PredictionPage> {
                       context, listen: false)
                       .fetchToken();
                   List<Prediction> predictions = await getPredictionData(token);
-                  List<Journal> journals = await getJournals(token);
+                  List<GetJournal> journals = await getJournals(token);
                   if (journals.length < 3) {
                     if(context.mounted){
                       await dialogBuilder(context, "Not enough data!", "Please make sure you have made at least 3 journals. You currently have ${journals.length} journals.");

@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
 
 class Cache {
-  List<Answer> answerData = [];
+  List<PostAnswer> answerData = [];
 
-  void updateCache(Answer answer, int index) {
+  void updateCache(PostAnswer answer, int index) {
     if(answerData.length <= index) {
       answerData.add(answer);
     }
@@ -21,12 +21,13 @@ class Cache {
   }
 
   void submitJournalCache(BuildContext context) {
-    // Await backend completion of data type before i can submit the cache
+    // Await backend completion of data type before i can submit the cache - Delete soon when backend link is done
     dialogBuilder(context, "Success", stringOfAnswers(answerData));
     clearCache();
   }
 
-  String stringOfAnswers(List<Answer> answerList) {
+  //delete this soon
+  String stringOfAnswers(List<PostAnswer> answerList) {
     String result = "";
     for (var answer in answerList) {
       result += answer.toString() + '\n';

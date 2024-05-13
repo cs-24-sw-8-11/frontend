@@ -1,17 +1,21 @@
 import 'answer.dart';
 
-class Journal{
-  String? token;
-  String? id;
-  List<Answer> answers;
+class PostJournal{
+  String token = "";
+  List<PostAnswer> answers;
 
-  Journal(this.answers);
+  PostJournal(this.answers);
 
-  void addAnswer(Answer answer){
-    answers.add(answer);
-  }
-
-  void addToken(String token){
+  void addToken(String token) {
     this.token = token;
   }
+}
+
+class GetJournal{
+  String uid;
+  String jid;
+  String timestamp;
+  List<GetAnswer> answers;
+
+  GetJournal(this.uid, this.jid, this.timestamp, this.answers);
 }

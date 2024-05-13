@@ -39,7 +39,7 @@ class HomePageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCache(Answer answer, int index) {
+  void updateCache(PostAnswer answer, int index) {
     journalCache.updateCache(answer, index);
   }
 
@@ -216,7 +216,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void awaitUserNameFuture(String token) async {
-    UserData data = await getUserData(token);
+    GetUserData data = await getUserData(token);
     setState(() {
       _userName = data.userName;
     });

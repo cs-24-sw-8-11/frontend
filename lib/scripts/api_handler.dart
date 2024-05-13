@@ -1,14 +1,14 @@
-import 'package:frontend/data_structures/prediction.dart';
 import 'package:http/http.dart' as https;
 import 'dart:convert';
 
-import '../data_structures/answer.dart';
-import '../data_structures/mitigation.dart';
-import '../data_structures/question.dart';
-import '../data_structures/setting.dart';
-import '../data_structures/user_data.dart';
-import '../data_structures/journal.dart';
-import 'json_handler.dart';
+import 'package:frontend/data_structures/prediction.dart';
+import 'package:frontend/data_structures/answer.dart';
+import 'package:frontend/data_structures/mitigation.dart';
+import 'package:frontend/data_structures/question.dart';
+import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/data_structures/journal.dart';
+
+import 'package:frontend/scripts/json_handler.dart';
 
 //--------------------------API OBJECT CALLS------------------------------------
 
@@ -27,80 +27,54 @@ Future<https.Response> executeRegister(String username, String password) async {
 }
 
 // New Journal
-Future<https.Response> executeNewJournal(Journal journal, String token) async {
+Future<https.Response> executePostJournal(PostJournal journal, String token) async {
   journal.addToken(token);
   final jsonString = jsonEncode(journal);
   dynamic httpResponse = await handleNewJournalHttp(jsonString);
   return httpResponse;
 }
 
-// Delete Journal
-Future<https.Response> executeDeleteJournal(Journal journal, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
-  return httpResponse;
-}
-
-// Delete Journal From Id
-Future<https.Response> executeDeleteJournalFromId(String journalId, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journalId, token);
-  return httpResponse;
-}
-
-// Update UserData
-Future<https.Response> executeUpdateUserData(UserData data, String token) async {
-  data.addToken(token);
-  final jsonString = jsonEncode(data);
-  dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
-  return httpResponse;
-}
-
-// Update UserData
-Future<https.Response> executeUpdateSettings(List<Setting> settings, String token) async {
-  final jsonString = encodeSettingsJson(token, settings);
-  dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
-  return httpResponse;
-}
-
-// Update UserData
+// Update Prediction
 Future<https.Response> executeNewPrediction(String questionId, String token) async {
   final jsonString = encodePredictionJson(token, questionId);
   dynamic httpResponse = await handleNewPredictionHttp(jsonString);
   return httpResponse;
 }
 
-// Get User Data
-Future<UserData> getUserData(String token) async {
+// Update UserData
+Future<https.Response> executeUpdateUserData(PostUserData data, String token) async {
+  data.addToken(token);
+  final jsonString = jsonEncode(data);
+  dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
+  return httpResponse;
+}
+
+// Get UserData
+Future<GetUserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
   final data = jsonDecode(response.body) as dynamic;
-  UserData userData = UserData(data['username'], data['agegroup'], data['major'], data['userId']);
+  GetUserData userData = GetUserData(data['username']);
   return userData;
 }
 
-// Get All Users
-Future<List<int>> getAllUsers() async{
-  var response = await handleUserIdsHttp();
-  final data = jsonDecode(response.body) as dynamic;
-  return data;
-}
-
 // Get Journal Data
-Future<Journal> getJournal(int journalId, String token) async {
+Future<GetJournal> getJournal(int journalId, String token) async {
   var response = await handleJournalHttp(journalId);
   final data = jsonDecode(response.body) as dynamic;
-  List<Answer> journalAnswers = [];
+  List<GetAnswer> journalAnswers = [];
   List<int> answerIds = jsonDecode(data['answers']) as dynamic;
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
-  Journal journal = Journal(journalAnswers);
+  GetJournal journal = GetJournal(data['uid'], data['jid'], data['timestamp'], journalAnswers);
   return journal;
 }
 
 // Get Journal Data from a user
-Future<List<Journal>> getJournals(String token) async {
+Future<List<GetJournal>> getJournals(String token) async {
   var response = await handleJournalsHttp(token);
   final data = jsonDecode(response.body) as dynamic;
-  List<Journal> journals = [];
+  List<GetJournal> journals = [];
   for(int d in data){
     journals.add(await getJournal(d, token));
   }
@@ -108,10 +82,10 @@ Future<List<Journal>> getJournals(String token) async {
 }
 
 // Get Answer Data
-Future<Answer> getAnswer(int answerId, String token) async {
+Future<GetAnswer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
   final data = jsonDecode(response.body) as dynamic;
-  Answer answer = Answer(data['qid'], data['meta'], data['rating']);
+  GetAnswer answer = GetAnswer(data['value'], data['rating'], data['jid'], data['qid'], data['aid']);
   return answer;
 }
 
@@ -122,18 +96,18 @@ Future<List<Question>> getDefaultQuestions() async {
   final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
-    questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
+    questions.add(Question(d['id'], d['tags'], d['question']));
   }
   return Future.value(questions);
 }
 
-// Get Default Question Data
+// Get Tagged Question Data
 Future<List<Question>> getTaggedQuestions(String tag) async {
   var response = await handleQuestionsWithTagsHttp(tag);
   final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
-    questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
+    questions.add(Question(d['id'], d['tags'], d['question']));
   }
   return questions;
 }
@@ -150,17 +124,6 @@ Future<List<Prediction>> getPredictionData(String token) async {
 }
 
 // Get Settings Data from User
-Future<List<Setting>> getSettings(String token) async {
-  var response = await handleSettingsHttp(token);
-  final data = jsonDecode(response.body) as dynamic;
-  List<Setting> settings = [];
-  for(Map<String, dynamic> d in data){
-    settings.add(Setting(d['id'], d['key'], d['value'], d['userid']));
-  }
-  return settings;
-}
-
-// Get Settings Data from User
 Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
   var response = await handleMitigationsTagHttp(tag);
   final data = jsonDecode(response.body) as dynamic;
@@ -174,29 +137,29 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
 
 //-----------------------------HTTP API CALLS-----------------------------------
 
+// Login API POST
+Future<https.Response> handleLoginHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('p8-test.skademaskinen.win:11034', '/user/auth'),
+    body: json
+   );
+   return response;
+}
 
 // Register API POST
 Future<https.Response> handleRegisterHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('p8.skademaskinen.win:11034', '/user/register'),
+    Uri.https('p8-test.skademaskinen.win:11034', '/user/register'),
     body: json
    );
    return response;
 }
 
-// Login API POST
-Future<https.Response> handleLoginHttp(String json) async {
-  https.Response response = await https.post(
-    Uri.https('p8.skademaskinen.win:11034', '/user/auth'),
-    body: json
-   );
-   return response;
-}
 
 // New Journal API POST
 Future<https.Response> handleNewJournalHttp(String json) async {
   https.Response response = await https.post(
-      Uri.https('p8.skademaskinen.win:11034', '/journals/new'),
+      Uri.https('p8-test.skademaskinen.win:11034', '/journals/new'),
       body: json
   );
   return response;
@@ -205,7 +168,7 @@ Future<https.Response> handleNewJournalHttp(String json) async {
 // New Prediction API POST
 Future<https.Response> handleNewPredictionHttp(String json) async {
   https.Response response = await https.post(
-      Uri.https('p8.skademaskinen.win:11034', '/predictions/add'),
+      Uri.https('p8-test.skademaskinen.win:11034', '/predictions/add'),
       body: json
   );
   return response;
@@ -214,25 +177,8 @@ Future<https.Response> handleNewPredictionHttp(String json) async {
 // Update UserData API POST
 Future<https.Response> handleUserDataUpdateHttp(String json) async {
   https.Response response = await https.post(
-      Uri.https('p8.skademaskinen.win:11034', '/user/data/update'),
+      Uri.https('p8-test.skademaskinen.win:11034', '/user/data/update'),
       body: json
-  );
-  return response;
-}
-
-// Update UserData API POST
-Future<https.Response> handleSettingsUpdateHttp(String json) async {
-  https.Response response = await https.post(
-      Uri.https('p8.skademaskinen.win:11034', '/settings/update'),
-      body: json
-  );
-  return response;
-}
-
-// Delete Journal API DELETE
-Future<https.Response> handleDeleteJournalHttp(String journalId, String token) async {
-  https.Response response = await https.delete(
-      Uri.https('p8.skademaskinen.win:11034', '/journals/delete/$journalId/$token')
   );
   return response;
 }
@@ -240,23 +186,7 @@ Future<https.Response> handleDeleteJournalHttp(String journalId, String token) a
 // UserData API GET
 Future<https.Response> handleUserDataHttp(String token) async {
   https.Response response = await https.get(
-    Uri.https('p8.skademaskinen.win:11034', '/user/get/$token')
-  );
-  return response;
-}
-
-// User Ids API GET
-Future<https.Response> handleUserIdsHttp() async {
-  https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/user/ids')
-  );
-  return response;
-}
-
-// Answer API GET
-Future<https.Response> handleAnswerHttp(int answerId, String token) async {
-  https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/answers/get/$answerId/$token')
+    Uri.https('p8-test.skademaskinen.win:11034', '/user/get/$token')
   );
   return response;
 }
@@ -264,7 +194,7 @@ Future<https.Response> handleAnswerHttp(int answerId, String token) async {
 // Journal API GET
 Future<https.Response> handleJournalHttp(int journalId) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/journals/get/$journalId')
+      Uri.https('p8-test.skademaskinen.win:11034', '/journals/get/$journalId')
   );
   return response;
 }
@@ -272,7 +202,15 @@ Future<https.Response> handleJournalHttp(int journalId) async {
 // Journals from user API GET
 Future<https.Response> handleJournalsHttp(String token) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/journals/ids/$token')
+      Uri.https('p8-test.skademaskinen.win:11034', '/journals/ids/$token')
+  );
+  return response;
+}
+
+// Answer API GET
+Future<https.Response> handleAnswerHttp(int answerId, String token) async {
+  https.Response response = await https.get(
+      Uri.https('p8-test.skademaskinen.win:11034', '/answers/get/$answerId/$token')
   );
   return response;
 }
@@ -280,7 +218,7 @@ Future<https.Response> handleJournalsHttp(String token) async {
 // Default Questions API GET
 Future<https.Response> handleDefaultQuestionsHttp() async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/questions/defaults')
+      Uri.https('p8-test.skademaskinen.win:11034', '/questions/defaults')
   );
   return response;
 }
@@ -288,7 +226,7 @@ Future<https.Response> handleDefaultQuestionsHttp() async {
 // Question with Tags API GET
 Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/questions/get/$tag')
+      Uri.https('p8-test.skademaskinen.win:11034', '/questions/get/$tag')
   );
   return response;
 }
@@ -296,15 +234,7 @@ Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
 // Predictions API GET
 Future<https.Response> handlePredictionHttp(String token) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/predictions/get/$token')
-  );
-  return response;
-}
-
-// Settings API GET
-Future<https.Response> handleSettingsHttp(String token) async {
-  https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/settings/get/$token')
+      Uri.https('p8-test.skademaskinen.win:11034', '/predictions/get/$token')
   );
   return response;
 }
@@ -312,7 +242,7 @@ Future<https.Response> handleSettingsHttp(String token) async {
 // Mitigation API GET
 Future<https.Response> handleMitigationsTagHttp(String tag) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/mitigations/tags/$tag')
+      Uri.https('p8-test.skademaskinen.win:11034', '/mitigations/tags/$tag')
   );
   return response;
 }
@@ -320,7 +250,7 @@ Future<https.Response> handleMitigationsTagHttp(String tag) async {
 // Mitigation API GET
 Future<https.Response> handleMitigationsIdHttp(String id) async {
   https.Response response = await https.get(
-      Uri.https('p8.skademaskinen.win:11034', '/mitigations/get/$id')
+      Uri.https('p8-test.skademaskinen.win:11034', '/mitigations/get/$id')
   );
   return response;
 }

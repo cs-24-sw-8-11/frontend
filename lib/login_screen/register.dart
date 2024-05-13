@@ -102,7 +102,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                             httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
                           }
                           if (httpResponse.statusCode == 200) {
-                            await Future.delayed(const Duration(milliseconds:1000));
                             setState(() => isLoading = false);
                             registerSuccess = true;
                             responseString = httpResponse.body;
