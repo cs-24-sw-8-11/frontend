@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
 import 'package:frontend/custom_widgets/custom_logout.dart';
-import 'package:frontend/custom_widgets/custom_predicitons.dart';
+import 'package:frontend/custom_widgets/custom_predictions.dart';
 import 'package:frontend/custom_widgets/custom_question.dart';
 
 import 'package:frontend/data_structures/question.dart';
@@ -152,20 +152,18 @@ class HomeScreenState extends State<HomeScreen> {
       awaitUserNameFuture(token);
     }
     return Center(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold))
-        ),
-        const Padding(
-            padding: EdgeInsets.only(top: 30, left: 10, right: 10),
-            child: Text('This app allows you to make journals about the stress in your daily life.\n'
-                'To do so, tap the Journals icon next to the Home icon.\n\n'
-                'When you have made at least 3 journals, it becomes possible to calculate predictions of future stress levels.\n\n'
-                'To view or perform those prediction calculations, tap on the Predictions icon.', style: TextStyle(color: globalTextColor, ))
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold)),
+          const Padding(padding: EdgeInsets.only(top: 30)),
+          SizedBox(
+            width: (MediaQuery.of(context).size.width * 0.9),
+            child: Text(homePageTextBody(), style: const TextStyle(color: globalTextColor)),
+          )
+        ]
+      )
     );
   }
 
@@ -231,5 +229,9 @@ class HomeScreenState extends State<HomeScreen> {
     setState(() {
       _pageIndex = index;
     });
+  }
+
+  String homePageTextBody() {
+    return "This app allows you to make journals about the stress in your daily life.\nTo do so, tap the Journals icon next to the Home icon.\n\nWhen you have made at least 3 journals, it becomes possible to calculate predictions of future stress levels.\n\nTo view or perform those prediction calculations, tap on the Predictions icon.";
   }
 }
