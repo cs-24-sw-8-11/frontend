@@ -27,6 +27,7 @@ class PredictionPageState extends State<PredictionPage> {
   Mitigation mitigation = Mitigation.defaultMitigation();
   Random random = Random();
   String token = '';
+  double stressLevel = 0;
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -51,7 +52,7 @@ class PredictionPageState extends State<PredictionPage> {
                     List<Prediction> predictions = await getPredictionData(token);
                     mitigations = await getMitigationsWithTag('default');
                     setState(() {
-                      mitigation = mitigations[random.nextInt(mitigations.length)];
+                      mitigation = stressLevel > 1 ? mitigations[random.nextInt(mitigations.length)] : Mitigation.defaultMitigation();
                       predictionPoints.clear();
                       for (Prediction pred in predictions) {
                         double? result = double.tryParse(pred.value);
@@ -59,6 +60,7 @@ class PredictionPageState extends State<PredictionPage> {
                           predictionPoints.add(result);
                         }
                       }
+                      stressLevel = predictionPoints.last;
                     });
                   }
                 },
@@ -74,7 +76,7 @@ class PredictionPageState extends State<PredictionPage> {
               )),
           Padding(
               padding: const EdgeInsets.only(top: 15),
-              child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.type, mitigation.tags)),
+              child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.type, mitigation.tags, stressLevel)),
           Padding(
               padding: const EdgeInsets.only(top: 15),
               child: Container(
@@ -112,6 +114,7 @@ class PredictionPageState extends State<PredictionPage> {
                           }
                         }
                         return LineChart(LineChartData(
+                            maxY: 5,
                             borderData: FlBorderData(show: true),
                             titlesData: FlTitlesData(
                               bottomTitles: AxisTitles(
@@ -150,8 +153,7 @@ class PredictionPageState extends State<PredictionPage> {
                                         space: 4,
                                         child: Text(
                                           value.toStringAsFixed(0),
-                                          style: const TextStyle(
-                                              color: globalTextColor, fontSize: 15),
+                                          style: const TextStyle(color: globalTextColor),
                                           textDirection: TextDirection.rtl,
                                           textAlign: TextAlign.center,
                                         ));
@@ -183,7 +185,8 @@ class PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  Widget mitigationBox(BuildContext context, title, description, type, tags) {
+  Widget mitigationBox(BuildContext context, title, description, type, tags, stressLevel) {
+    //double parsedStress = double.tryParse(stressLevel) ?? 0;
     return Container(
         width: MediaQuery
             .of(context)
@@ -213,11 +216,17 @@ class PredictionPageState extends State<PredictionPage> {
                 Padding(padding: const EdgeInsets.only(top: 5), child:
                 Text(description,
                     style: const TextStyle(color: globalTextColor))),
-                Expanded(child: Stack(children: [Align(alignment: Alignment.bottomLeft, child: Text('tags: ${tags.join(', ')}',
-                    style: const TextStyle(color: globalTextColor, fontSize: 10))), Align(alignment: Alignment.bottomRight, child: Text('type: ${type == '1' ? 'short term' : 'long term'}',
-                    style: const TextStyle(color: globalTextColor, fontSize: 10)))]))
+                Expanded(child: Stack(children: [
+                  Align(alignment: Alignment.bottomLeft, child: Text('tags: ${tags.join(', ')}',
+                      style: const TextStyle(color: globalTextColor, fontSize: 10))),
+                  Align(alignment: Alignment.bottomRight, child: Text('type: ${type == '1' ? 'short term' : 'long term'}',
+                      style: const TextStyle(color: globalTextColor, fontSize: 10))),
+                  Align(alignment: Alignment.bottomCenter, child: Text('stress level: ${_stressLevelToString(stressLevel)}',
+                      style: const TextStyle(color: globalTextColor, fontSize: 10)))]))
               ],
-            )));
+            )
+        )
+    );
   }
 
   List<FlSpot> _generatePoints(List<double> points) {
@@ -227,5 +236,18 @@ class PredictionPageState extends State<PredictionPage> {
       spots.add(FlSpot(i+1, points[i.floor()]));
     }
     return spots;
+  }
+
+  String _stressLevelToString(double stressLevel){
+    if(stressLevel > 3){
+      return 'High Stress';
+    }
+    else if(stressLevel > 2){
+      return 'Moderate Stress';
+    }
+    else if(stressLevel > 1){
+      return 'Low Stress';
+    }
+    return 'No Stress';
   }
 }

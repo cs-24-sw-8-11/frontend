@@ -8,6 +8,6 @@ class Mitigation{
   Mitigation(this.id, this.title, this.description, this.type, this.tags);
 
   static Mitigation defaultMitigation() {
-    return Mitigation('0', 'Mitigations', 'This is where stress mitigations appear when enough data is present', '1', ['default']);
+    return Mitigation('0', 'Mitigations', 'This is where stress mitigations appear when enough data is present and if the stress level is high enough.', '1', ['default']);
   }
 }

@@ -12,7 +12,7 @@ import 'json_handler.dart';
 
 //--------------------------API OBJECT CALLS------------------------------------
 
-String addr = "p8.skademaskinen.win";
+String addr = "p8-test.skademaskinen.win";
 String port = "11034";
 
 // Login
