@@ -57,17 +57,24 @@ Future<http.Response> executeUpdateUserData(UserData data, String token) async {
   return httpResponse;
 }
 
-// Update UserData
+// Update Settings
 Future<http.Response> executeUpdateSettings(List<Setting> settings, String token) async {
   final jsonString = encodeSettingsJson(token, settings);
   dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
   return httpResponse;
 }
 
-// Update UserData
+// Make new Prediction
 Future<http.Response> executeNewPrediction(String token) async {
   final jsonString = {'token':token};
   dynamic httpResponse = await handleNewPredictionHttp(jsonEncode(jsonString));
+  return httpResponse;
+}
+
+// Submit Prediction rating
+Future<http.Response> executeTestRating(String token, String pid) async {
+  final jsonString = {'token':token, 'id':pid};
+  dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
   return httpResponse;
 }
 
@@ -246,6 +253,15 @@ Future<http.Response> handleUserDataUpdateHttp(String json) async {
 Future<http.Response> handleSettingsUpdateHttp(String json) async {
   http.Response response = await http.post(
       Uri.https('$addr:$port', '/settings/update'),
+      body: json
+  );
+  return response;
+}
+
+// Submit prediction rating API POST
+Future<http.Response> handleTestRatingHttp(String json) async {
+  http.Response response = await http.post(
+      Uri.https('$addr:$port', '/tests/rate'),
       body: json
   );
   return response;

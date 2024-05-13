@@ -35,7 +35,7 @@ class PredictionPageState extends State<PredictionPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(
-              padding: const EdgeInsets.only(top: 15),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
               child: ElevatedButton(
                 onPressed: () async {
                   token = Provider.of<AuthProvider>(
@@ -75,16 +75,16 @@ class PredictionPageState extends State<PredictionPage> {
                     style: TextStyle(color: globalTextColor)),
               )),
           Padding(
-              padding: const EdgeInsets.only(top: 15),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
               child: mitigationBox(context, mitigation.title, mitigation.description, mitigation.type, mitigation.tags, stressLevel)),
           Padding(
-              padding: const EdgeInsets.only(top: 15),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01),
               child: Container(
                   padding: const EdgeInsets.all(15),
                   height: (MediaQuery
                       .of(context)
                       .size
-                      .height) * 0.3,
+                      .height) * 0.4,
                   width: (MediaQuery
                       .of(context)
                       .size
@@ -107,8 +107,8 @@ class PredictionPageState extends State<PredictionPage> {
                       }
                       else{
                         predictionPoints.clear();
-                        for (Prediction pred in snapshot.data!) {
-                          double? result = double.tryParse(pred.value);
+                        for (Prediction prediction in snapshot.data!) {
+                          double? result = double.tryParse(prediction.value);
                           if(result != null){
                             predictionPoints.add(result);
                           }
@@ -211,7 +211,7 @@ class PredictionPageState extends State<PredictionPage> {
                 Text(title,
                     style: const TextStyle(
                         color: globalTextColor,
-                        fontSize: 25,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold)),
                 Padding(padding: const EdgeInsets.only(top: 5), child:
                 Text(description,
