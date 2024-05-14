@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'register.dart';
 
-Route createRoute() {
+Route createRoute(StatefulWidget dest) {
   return PageRouteBuilder(
-    pageBuilder: (context, animation, secondaryAnimation) => const RegisterScreen(),
+    pageBuilder: (context, animation, secondaryAnimation) => dest,
     transitionDuration: const Duration(milliseconds: 750),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       const begin = Offset(1.0, 0.0);

@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
+import 'package:frontend/login_screen/register.dart';
 import 'package:provider/provider.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:frontend/custom_widgets/custom_input_field.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/custom_widgets/custom_diag.dart';
+
+import 'package:frontend/scripts/api_handler.dart';
+
 import 'animation_route.dart';
-import '../custom_widgets/custom_input_field.dart';
-import '../custom_widgets/global_color.dart';
-import '../scripts/api_handler.dart';
-import '../main.dart';
-import '../custom_widgets/custom_diag.dart';
+
+import 'package:frontend/main.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,10 +33,10 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: globalAppBarColor,
-          title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
-        ),
+      appBar: AppBar(
+        backgroundColor: globalAppBarColor,
+        title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
+      ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -83,12 +89,10 @@ class LoginScreenState extends State<LoginScreen> {
                         dynamic httpResponse;
                         setState (() => isLoading = true);
                         if (context.mounted) {
-                          httpResponse = await executeLogin(context, loginUsernameController.text, loginPasswordController.text);
+                          httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text);
                         }
                         if (httpResponse.statusCode == 200) {
-                          await Future.delayed(const Duration(milliseconds: 1000));
                           setState (() => isLoading = false);
-                          await Future.delayed(const Duration(milliseconds: 100));
                           if (context.mounted) {
                             Provider.of<AuthProvider>(context, listen: false).login(httpResponse.body);
                           }
@@ -117,7 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
                         style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
                         recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Navigator.of(context).push(createRoute());
+                          Navigator.of(context).push(createRoute(const RegisterScreen()));
                         },
                       ),
                     ],

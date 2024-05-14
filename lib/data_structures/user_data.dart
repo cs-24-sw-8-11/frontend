@@ -1,15 +1,24 @@
-class UserData{
-  String? userName;
-  String? ageGroup;
-  String? occupation;
-  String? userID;
+class PostUserData{
+  String token = "";
+  String education;
+  String urban;
+  String gender;
+  String religion;
+  String orientation;
+  String race;
+  String married;
+  String age;
+  String pets;
+  
+  PostUserData(this.education, this.urban, this.gender, this.religion, this.orientation, this.race, this.married, this.age, this.pets);
 
-  // Only used in /user/data/update
-  String? token;
-
-  UserData(this.userName, this.ageGroup, this.occupation, this.userID);
-
-  void addToken(String token){
+  void addToken(String token) {
     this.token = token;
   }
+}
+
+class GetUserData{
+  String userName;
+
+  GetUserData(this.userName);
 }

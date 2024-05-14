@@ -1,9 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/global_color.dart';
-import 'package:frontend/main.dart';
 import 'package:provider/provider.dart';
-import 'package:frontend/scripts/api_handler.dart';
+
+import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/custom_widgets/custom_logout.dart';
+import 'package:frontend/custom_widgets/custom_predictions.dart';
+import 'package:frontend/custom_widgets/custom_question.dart';
+
+import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/data_structures/cache.dart';
+import 'package:frontend/data_structures/answer.dart';
+
+import 'package:frontend/scripts/api_handler.dart';
+
+import 'package:frontend/main.dart';
+
+class HomePageProvider extends ChangeNotifier {
+  Cache journalCache = Cache();
+  int qIndex = 0;
+  bool state = false;
+
+  int returnIndex() {
+    return qIndex;
+  }
+
+  void changeState() {
+    state = !state;
+    notifyListeners();
+  }
+
+  void incrementIndex() {
+    qIndex += 1;
+    notifyListeners();
+  }
+
+  void decrementIndex() {
+    qIndex -= 1;
+    notifyListeners();
+  }
+
+  void updateCache(PostAnswer answer, int index) {
+    journalCache.updateCache(answer, index);
+  }
+
+  void clearCache() {
+    journalCache.clearCache();
+  }
+
+  //Remove context later
+  void submitJournalCache(BuildContext context) {
+    journalCache.submitJournalCache(context);
+    notifyListeners(); // Maybe keep, depends, we'll see
+  }
+}
+
+class HomeScreenProviderRoute extends StatelessWidget{
+  const HomeScreenProviderRoute({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => HomePageProvider(),
+      child: const HomeScreen(),
+    );
+  }
+
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,15 +75,28 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+  List<Question> questions = List.empty();
   int _pageIndex = 0;
-  late String _apiText = '';
+  String meta = '';
+  late String _userName;
+
+  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _userName = '';
+    awaitFuture();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
-        title: const Center(child: Text('Stress Handler', style: TextStyle(color: globalTextColor))),
+        title: const Center(
+          child: Text('Stress Handler', style: TextStyle(color: globalTextColor))
+        ),
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       body: _buildBody(),
@@ -56,65 +131,50 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody() {
+    final hpp = Provider.of<HomePageProvider>(context);
     switch (_pageIndex) {
       case 0:
-        return Container(
-          key: const ValueKey<int>(1),
-          child: const Center(
-            child: Text('Page 1', style: TextStyle(color: globalTextColor)),
-          ),
-        );
+        return homePage();
       case 1:
-        return Container(
-          key: const ValueKey<int>(2),
-          child: const Center(
-            child: Text('Page 2', style: TextStyle(color: globalTextColor)),
-          ),
-        );
+        return hpp.state ? questionPage() : journalPage();
       case 2:
-        return _fetchPage();
+        return const PredictionPage();
       case 3:
-        return Container(
-          key: const ValueKey<int>(4),
-          child: Center(
-            child: ElevatedButton(
-              onPressed: () {
-                Provider.of<AuthProvider>(context, listen: false).logout();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: globalButtonBackgroundColor,
-                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
-              ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(color: globalTextColor),
-              ),
-            ),
-          ),
-        );
+        return logoutManager(context);
       default:
-        return Container();
+        return const SizedBox.shrink();
     }
   }
 
-  Widget _fetchPage() {
+  Widget homePage() {
+    String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+    if (_userName == '') {
+      awaitUserNameFuture(token);
+    }
     return Center(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(top: 250),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              UserData userdata = await _fetchUserData();
-              setState(() {
-                _apiText = '${userdata.userName} \n${userdata.ageGroup} \n${userdata.occupation} \n${userdata.userID}';
-              });
-            },
+          const Padding(padding: EdgeInsets.only(top: 10)),
+          Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold)),
+          const Padding(padding: EdgeInsets.only(top: 30)),
+          SizedBox(
+            width: (MediaQuery.of(context).size.width * 0.9),
+            child: Text(homePageTextBody(), style: const TextStyle(color: globalTextColor)),
+          )
+        ]
+      )
+    );
+  }
+
+  Widget journalPage() {
+    final hpp = Provider.of<HomePageProvider>(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        const Padding(padding: EdgeInsets.only(top: 30)),
+        Center(
+          child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: globalButtonBackgroundColor,
               disabledBackgroundColor: globalButtonDisabledBackgroundColor,
@@ -122,22 +182,56 @@ class HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(5.0),
               ),
             ),
-            child: const Text('Fetch', style: TextStyle(color: globalTextColor)),
-          ),
-          Text(_apiText, style: const TextStyle(color: globalTextColor)),
-        ],
-      ),
+            onPressed: () => hpp.changeState(),
+            child: const Text("New Journal", style: TextStyle(color: globalTextColor)),
+          )
+        )
+      ],
     );
   }
 
-  Future<UserData> _fetchUserData() async {
-    String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-    return await getUserData(token);
+  Widget questionPage() {
+    final hpp = Provider.of<HomePageProvider>(context);
+    final int currentIndex = hpp.returnIndex();
+    fetchQuestion(currentIndex);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionWidgetKey.currentState?.resetState();
+    });
+
+    return QuestionWidget(
+      key: questionWidgetKey,
+      header: "Question ${currentIndex +1 }/5",
+      metatext: meta,
+      index: currentIndex,
+      questionID: questions[currentIndex].id,
+    );
+  }
+
+//-----------------------------FUNCTION CALLS-----------------------------------
+
+  void fetchQuestion(int index) {
+    setState(() => meta = questions[index].question);
+  }
+
+  void awaitFuture() async {
+    questions = await getDefaultQuestions();
+  }
+
+  void awaitUserNameFuture(String token) async {
+    GetUserData data = await getUserData(token);
+    setState(() {
+      _userName = data.userName;
+    });
   }
 
   void changePage(int index) {
     setState(() {
       _pageIndex = index;
     });
+  }
+
+  String homePageTextBody() {
+    return "This app allows you to make journals about the stress in your daily life.\nTo do so, tap the Journals icon next to the Home icon.\n\nWhen you have made at least 3 journals, it becomes possible to calculate predictions of future stress levels.\n\nTo view or perform those prediction calculations, tap on the Predictions icon.";
   }
 }

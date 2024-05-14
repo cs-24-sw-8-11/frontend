@@ -1,8 +1,22 @@
-class Answer{
-  String? id;
-  String? answer;
-  String? journalId;
-  String? questionId;
+class PostAnswer{
+  String qid;
+  String meta;
+  String rating;
 
-  Answer(this.id, this.answer, this.journalId, this.questionId);
+  PostAnswer(this.qid, this.meta, this.rating);
+
+  @override
+  String toString() {
+    return 'Question ID: $qid, Meta: $meta, Rating: $rating';
+  }
+}
+
+class GetAnswer{
+  String value;
+  String rating;
+  String jid;
+  String qid;
+  String aid;
+
+  GetAnswer(this.value, this.rating, this.jid, this.qid, this.aid);
 }

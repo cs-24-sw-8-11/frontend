@@ -1,12 +1,11 @@
-// Flutter / Dart libs
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'dart:async';
 
-// Custom imports
-import '../custom_widgets/custom_diag.dart';
-import '../custom_widgets/custom_input_field.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/custom_widgets/custom_input_field.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
+
 import 'package:frontend/scripts/api_handler.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -100,10 +99,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                           dynamic httpResponse;
                           setState (() => isLoading = true);
                           if (context.mounted) {
-                            httpResponse = await executeRegister(context, registerUsernameController.text, registerPasswordController.text);
+                            httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
                           }
                           if (httpResponse.statusCode == 200) {
-                            await Future.delayed(const Duration(milliseconds:1000));
                             setState(() => isLoading = false);
                             registerSuccess = true;
                             responseString = httpResponse.body;

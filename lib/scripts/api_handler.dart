@@ -1,131 +1,142 @@
-import 'package:flutter/material.dart';
-import 'package:frontend/data_structures/prediction.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as https;
 import 'dart:convert';
 
-import '../data_structures/answer.dart';
-import '../data_structures/question.dart';
-import '../data_structures/setting.dart';
-import '../data_structures/user_data.dart';
-import '../data_structures/journal.dart';
-import 'json_handler.dart';
+import 'package:frontend/data_structures/prediction.dart';
+import 'package:frontend/data_structures/answer.dart';
+import 'package:frontend/data_structures/mitigation.dart';
+import 'package:frontend/data_structures/question.dart';
+import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/data_structures/journal.dart';
+
+import 'package:frontend/scripts/json_handler.dart';
 
 //--------------------------API OBJECT CALLS------------------------------------
 
+String addr = "p8-test.skademaskinen.win";
+String port = "11034";
+
 // Login
-Future<http.Response> executeLogin(BuildContext context, String username, String password) async {
+Future<https.Response> executeLogin(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleLoginHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // Register
-Future<http.Response> executeRegister(BuildContext context, String username, String password) async {
+Future<https.Response> executeRegister(String username, String password) async {
   final jsonString = encodeJson(username, password);
   dynamic httpResponse = await handleRegisterHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
 // New Journal
-Future<http.Response> executeNewJournal(BuildContext context, Journal journal, String token) async {
+Future<https.Response> executePostJournal(PostJournal journal, String token) async {
   journal.addToken(token);
   final jsonString = jsonEncode(journal);
   dynamic httpResponse = await handleNewJournalHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
-// Delete Journal
-Future<http.Response> executeDeleteJournal(BuildContext context, Journal journal, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journal.id!, token);
-  return Future.value(httpResponse);
-}
-
-// Delete Journal From Id
-Future<http.Response> executeDeleteJournalFromId(BuildContext context, String journalId, String token) async {
-  dynamic httpResponse = await handleDeleteJournalHttp(journalId, token);
-  return Future.value(httpResponse);
+// Make new Prediction
+Future<https.Response> executeNewPrediction(String token) async {
+  final jsonString = {'token':token};
+  dynamic httpResponse = await handleNewPredictionHttp(jsonEncode(jsonString));
+  return httpResponse;
 }
 
 // Update UserData
-Future<http.Response> executeUpdateUserData(BuildContext context, UserData data, String token) async {
+Future<https.Response> executeUpdateUserData(PostUserData data, String token) async {
   data.addToken(token);
   final jsonString = jsonEncode(data);
   dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
-  return Future.value(httpResponse);
+  return httpResponse;
 }
 
-// Update UserData
-Future<http.Response> executeUpdateSettings(BuildContext context, List<Setting> settings, String token) async {
-  final jsonString = encodeSettingsJson(token, settings);
-  dynamic httpResponse = await handleSettingsUpdateHttp(jsonString);
-  return Future.value(httpResponse);
+// Submit Prediction rating
+Future<https.Response> executeTestRating(String token, String pid) async {
+  final jsonString = {'token':token, 'id':pid};
+  dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
+  return httpResponse;
 }
 
-// Get User Data
-Future<UserData> getUserData(String token) async {
+// Get UserData
+Future<GetUserData> getUserData(String token) async {
   var response = await handleUserDataHttp(token);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
-  UserData userData = UserData(data['username'], data['agegroup'], data['occupation'], data['userId']);
+  final data = jsonDecode(response.body) as dynamic;
+  GetUserData userData = GetUserData(data['username']);
   return userData;
 }
 
-// Get All Users
-Future<List<int>> getAllUsers() async{
-  var response = await handleUserIdsHttp();
-  final data = jsonDecode(response.body) as List<int>;
-  return data;
-}
-
 // Get Journal Data
-Future<Journal> getJournal(int journalId, String token) async {
+Future<GetJournal> getJournal(int journalId, String token) async {
   var response = await handleJournalHttp(journalId);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
-  List<Answer> journalAnswers = [];
-  List<int> answerIds = jsonDecode(data['answers']) as List<int>;
+  final data = jsonDecode(response.body) as dynamic;
+  List<GetAnswer> journalAnswers = [];
+  List<int> answerIds = jsonDecode(data['answers']) as dynamic;
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
-  Journal journal = Journal(data['id'], data['comment'], data['userId'], journalAnswers);
+  GetJournal journal = GetJournal(data['uid'], data['jid'], data['timestamp'], journalAnswers);
   return journal;
 }
 
 // Get Journal Data from a user
-Future<List<Journal>> getJournals(String token) async {
+Future<List<GetJournal>> getJournals(String token) async {
   var response = await handleJournalsHttp(token);
-  final data = jsonDecode(response.body) as List<int>;
-  List<Journal> journals = [];
+  final data = jsonDecode(response.body) as dynamic;
+  List<GetJournal> journals = [];
   for(int d in data){
     journals.add(await getJournal(d, token));
   }
   return journals;
 }
 
+// Get Journal Data
+Future<GetJournal> getJournalWithoutAnswers(int journalId, String token) async {
+  var response = await handleJournalHttp(journalId);
+  final data = jsonDecode(response.body) as dynamic;
+  GetJournal journal = GetJournal(data['userId'], data['id'], data['timestamp'], []);
+  return journal;
+}
+
+// Get Journal Data from a user
+Future<List<GetJournal>> getJournalsWithoutAnswers(String token) async {
+  var response = await handleJournalsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  List<GetJournal> journals = [];
+  for(int d in data){
+    journals.add(await getJournalWithoutAnswers(d, token));
+  }
+  return journals;
+}
+
 // Get Answer Data
-Future<Answer> getAnswer(int answerId, String token) async {
+Future<GetAnswer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
-  final data = jsonDecode(response.body) as Map<String, dynamic>;
-  Answer answer = Answer(data['id'], data['answer'], data['journalId'], data['questionId']);
+  final data = jsonDecode(response.body) as dynamic;
+  GetAnswer answer = GetAnswer(data['value'], data['rating'], data['jid'], data['qid'], data['aid']);
   return answer;
 }
 
 // Get Default Question Data
 Future<List<Question>> getDefaultQuestions() async {
   var response = await handleDefaultQuestionsHttp();
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  //print(response);
+  final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
-    questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
+    questions.add(Question(d['id'], d['tags'], d['question']));
   }
-  return questions;
+  return Future.value(questions);
 }
 
-// Get Default Question Data
+// Get Tagged Question Data
 Future<List<Question>> getTaggedQuestions(String tag) async {
   var response = await handleQuestionsWithTagsHttp(tag);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
-    questions.add(Question(d['id'], d['tags'], d['type'], d['question']));
+    questions.add(Question(d['id'], d['tags'], d['question']));
   }
   return questions;
 }
@@ -133,158 +144,159 @@ Future<List<Question>> getTaggedQuestions(String tag) async {
 // Get Prediction Data from User
 Future<List<Prediction>> getPredictionData(String token) async {
   var response = await handlePredictionHttp(token);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
+  final data = jsonDecode(response.body) as dynamic;
   List<Prediction> predictions = [];
   for(Map<String, dynamic> d in data){
-    predictions.add(Prediction(d['id'], d['userid'], d['value']));
+    predictions.add(Prediction(d['id'], d['userId'], d['value']));
   }
   return predictions;
 }
 
-// Get Prediction Data from User
-Future<List<Setting>> getSettings(String token) async {
-  var response = await handleSettingsHttp(token);
-  final data = jsonDecode(response.body) as List<Map<String, dynamic>>;
-  List<Setting> settings = [];
+// Get Settings Data from User
+Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
+  var response = await handleMitigationsTagHttp(tag);
+  final data = jsonDecode(response.body) as dynamic;
+  List<Mitigation> mitigations = [];
   for(Map<String, dynamic> d in data){
-    settings.add(Setting(d['id'], d['key'], d['value'], d['userid']));
+    List<String> tags = d['tags'].split(',');
+    mitigations.add(Mitigation(d['id'], d['title'], d['description'], d['type'], tags));
   }
-  return settings;
+  return mitigations;
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
 
-
-// Register API POST
-Future<http.Response> handleRegisterHttp(String json) async {
-  http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/register'),
+// Login API POST
+Future<https.Response> handleLoginHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/user/auth'),
     body: json
-   );
-   return response;
+  );
+  return response;
 }
 
-// Login API POST
-Future<http.Response> handleLoginHttp(String json) async {
-  http.Response response = await http.post(
-    Uri.http('localhost:8080', '/user/auth'),
+// Register API POST
+Future<https.Response> handleRegisterHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/user/register'),
     body: json
-   );
-   return response;
+  );
+  return response;
 }
 
 // New Journal API POST
-Future<http.Response> handleNewJournalHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/journals/new'),
-      body: json
+Future<https.Response> handleNewJournalHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/journals/new'),
+    body: json
   );
   return response;
 }
 
 // New Prediction API POST
-Future<http.Response> handleNewPredictionHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/predictions/new'),
-      body: json
+Future<https.Response> handleNewPredictionHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/predictions/add'),
+    body: json
   );
   return response;
 }
 
 // Update UserData API POST
-Future<http.Response> handleUserDataUpdateHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/user/data/update'),
-      body: json
+Future<https.Response> handleUserDataUpdateHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/user/data/update'),
+    body: json
   );
   return response;
 }
 
-// Update UserData API POST
-Future<http.Response> handleSettingsUpdateHttp(String json) async {
-  http.Response response = await http.post(
-      Uri.http('localhost:8080', '/settings/update'),
-      body: json
-  );
-  return response;
-}
-
-// Delete Journal API DELETE
-Future<http.Response> handleDeleteJournalHttp(String journalId, String token) async {
-  http.Response response = await http.delete(
-      Uri.http('localhost:8080', '/journals/delete/$journalId/$token')
+// Submit prediction rating API POST
+Future<https.Response> handleTestRatingHttp(String json) async {
+  https.Response response = await https.post(
+    Uri.https('$addr:$port', '/tests/rate'),
+    body: json
   );
   return response;
 }
 
 // UserData API GET
-Future<http.Response> handleUserDataHttp(String token) async {
-  http.Response response = await http.get(
-    Uri.http('localhost:8080', '/user/get/$token')
+Future<https.Response> handleUserDataHttp(String token) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/user/get/$token')
   );
   return response;
 }
 
 // User Ids API GET
-Future<http.Response> handleUserIdsHttp() async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/user/ids')
+Future<https.Response> handleUserIdsHttp() async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/user/ids')
   );
   return response;
 }
 
 // Answer API GET
-Future<http.Response> handleAnswerHttp(int answerId, String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/answers/get/$answerId/$token')
+Future<https.Response> handleAnswerHttp(int answerId, String token) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/answers/get/$answerId/$token')
   );
   return response;
 }
 
 // Journal API GET
-Future<http.Response> handleJournalHttp(int journalId) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/get/$journalId')
+Future<https.Response> handleJournalHttp(int journalId) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/journals/get/$journalId')
   );
   return response;
 }
 
 // Journals from user API GET
-Future<http.Response> handleJournalsHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/journals/ids/$token')
+Future<https.Response> handleJournalsHttp(String token) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/journals/ids/$token')
   );
   return response;
 }
 
 // Default Questions API GET
-Future<http.Response> handleDefaultQuestionsHttp() async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/defaults')
+Future<https.Response> handleDefaultQuestionsHttp() async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/questions/defaults')
   );
   return response;
 }
 
 // Question with Tags API GET
-Future<http.Response> handleQuestionsWithTagsHttp(String tag) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/questions/get/$tag')
+Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/questions/get/$tag')
   );
   return response;
 }
 
 // Predictions API GET
-Future<http.Response> handlePredictionHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/predictions/get/$token')
+Future<https.Response> handlePredictionHttp(String token) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/predictions/get/$token')
   );
   return response;
 }
 
-// UserData API GET
-Future<http.Response> handleSettingsHttp(String token) async {
-  http.Response response = await http.get(
-      Uri.http('localhost:8080', '/settings/get/$token')
+
+// Mitigation API GET
+Future<https.Response> handleMitigationsTagHttp(String tag) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/mitigations/tags/$tag')
+  );
+  return response;
+}
+
+// Mitigation API GET
+Future<https.Response> handleMitigationsIdHttp(String id) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/mitigations/get/$id')
   );
   return response;
 }
