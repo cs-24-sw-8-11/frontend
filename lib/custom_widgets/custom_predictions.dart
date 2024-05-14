@@ -27,10 +27,17 @@ class PredictionPage extends StatefulWidget {
 class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
   List<Mitigation> mitigations = [];
+  List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
   Random random = Random();
   String token = '';
   double stressLevel = 0;
+
+  @override
+  void initState(){
+    super.initState();
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,7 @@ class PredictionPageState extends State<PredictionPage> {
               }
               else {
                 await executeNewPrediction(token);
-                List<Prediction> predictions = await getPredictionData(token);
+                predictions = await getPredictionData(token);
                 mitigations = await getMitigationsWithTag('default');
                 setState(() {
                   mitigation = stressLevel > 1
@@ -192,7 +199,7 @@ class PredictionPageState extends State<PredictionPage> {
               ),
             ),
             onPressed: () {
-              Navigator.of(context).push(createRoute(const PredictionRatingPage()));
+              Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints)));
             },
             child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor))
           ),

@@ -53,8 +53,8 @@ Future<https.Response> executeUpdateUserData(PostUserData data, String token) as
 }
 
 // Submit Prediction rating
-Future<https.Response> executeTestRating(String token, String pid) async {
-  final jsonString = {'token':token, 'id':pid};
+Future<https.Response> executeTestRating(String token, String pid, String rating) async {
+  final jsonString = {'token':token, 'id':pid, 'rating':rating};
   dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
   return httpResponse;
 }

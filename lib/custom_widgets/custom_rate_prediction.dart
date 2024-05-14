@@ -1,5 +1,9 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
@@ -11,7 +15,8 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'package:frontend/main.dart';
 
 class PredictionRatingPage extends StatefulWidget {
-  const PredictionRatingPage({super.key});
+  final List<double> predictionPoints;
+  const PredictionRatingPage(this.predictionPoints, {super.key});
 
   @override
   PredictionRatingPageState createState() => PredictionRatingPageState();
@@ -19,9 +24,13 @@ class PredictionRatingPage extends StatefulWidget {
 
 class PredictionRatingPageState extends State<PredictionRatingPage> {
   double sliderValue = 0;
+  String sliderLabel = '0';
+  String currentPredictionValue = '';
+  String token = '';
   @override
   Widget build(BuildContext context) {
-    List<double> predictionPoints = [];
+    List<double> predictionPoints = widget.predictionPoints;
+    currentPredictionValue = predictionPoints.last.toString();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
@@ -59,86 +68,70 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
                   width: 2, // Border width
                 ),
               ),
-              child: FutureBuilder(
-                builder: (ctx, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  else {
-                    predictionPoints.clear();
-                    for (Prediction prediction in snapshot.data!) {
-                      double? result = double.tryParse(prediction.value);
-                      if (result != null) {
-                        predictionPoints.add(result);
-                      }
-                    }
-                    return LineChart(
-                      LineChartData(
-                        maxY: 5,
-                        borderData: FlBorderData(show: true),
-                        titlesData: FlTitlesData(
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: const Text('Time', style: TextStyle(color: globalTextColor)),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, titleMeta) {
-                                return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value % 1 == 0
-                                      ? value.toStringAsFixed(0)
-                                      : value.toStringAsFixed(1),
-                                    style: const TextStyle(
-                                      color: globalTextColor,
-                                      fontSize: 15),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  )
-                                );
-                              },
-                            ),
-                          ),
-                          leftTitles: AxisTitles(
-                            axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, titleMeta) {
-                                return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value.toStringAsFixed(0),
-                                    style: const TextStyle(
-                                      color: globalTextColor),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  )
-                                );
-                              },
-                            ),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                        ),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: _generatePoints(predictionPoints),
-                          )
-                        ]
-                      )
-                    );
-                  }
-                },
-                future: getPredictionData(Provider.of<AuthProvider>(context, listen: false).fetchToken()),
+              child: LineChart(
+                LineChartData(
+                  maxY: 5,
+                  borderData: FlBorderData(show: true),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      axisNameWidget: const Text('Time', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, titleMeta) {
+                          return SideTitleWidget(
+                            axisSide: titleMeta.axisSide,
+                            space: 4,
+                            child: Text(
+                              value % 1 == 0
+                                ? value.toStringAsFixed(0)
+                                : value.toStringAsFixed(1),
+                              style: const TextStyle(
+                                color: globalTextColor,
+                                fontSize: 15),
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                            )
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, titleMeta) {
+                          return SideTitleWidget(
+                            axisSide: titleMeta.axisSide,
+                            space: 4,
+                            child: Text(
+                              value.toStringAsFixed(0),
+                              style: const TextStyle(
+                                color: globalTextColor),
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                            )
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _generatePoints(predictionPoints),
+                    )
+                  ]
+                )
               ),
             ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+            Text('Current Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
             Slider(
               value: sliderValue,
               max: 10,
@@ -147,9 +140,35 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
               onChanged: (double value) {
                 setState(() {
                   sliderValue = value;
+                  sliderLabel = sliderValue.round().toString();
+                  currentPredictionValue = predictionPoints.last.toString();
                 });
               },
-            )
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+            Text('Rating: $sliderLabel', style: const TextStyle(color: globalTextColor)),
+            const Expanded(
+              child: SizedBox.shrink(),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                String pid = (await getPredictionData(token)).last.id;
+                Response response = await executeTestRating(token, pid, sliderLabel);
+                if(context.mounted){
+                  await dialogBuilder(context, '${response.statusCode}', response.body);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              child: const Text('Submit Rating', style: TextStyle(color: globalTextColor)),
+            ),
+            Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height*0.05))
           ],
         ),
       )
