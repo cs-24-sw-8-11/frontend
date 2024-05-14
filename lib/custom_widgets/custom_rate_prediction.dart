@@ -48,7 +48,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
           children: <Widget>[
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
             const Text(
-              'Rate Prediction',
+              'Rate Stress Prediction',
               style: TextStyle(
                 color: globalTextColor,
                 fontSize: 25,
@@ -130,7 +130,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
               ),
             ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-            Text('Current Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
+            Text('Current Stress Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
             Slider(
               value: sliderValue,
