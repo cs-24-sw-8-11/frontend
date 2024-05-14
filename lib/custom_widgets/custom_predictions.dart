@@ -64,9 +64,6 @@ class PredictionPageState extends State<PredictionPage> {
                 predictions = await getPredictionData(token);
                 mitigations = await getMitigationsWithTag('default');
                 setState(() {
-                  mitigation = stressLevel > 1
-                    ? mitigations[random.nextInt(mitigations.length)]
-                    : Mitigation.defaultMitigation();
                   predictionPoints.clear();
                   for (Prediction pred in predictions) {
                     double? result = double.tryParse(pred.value);
@@ -75,6 +72,9 @@ class PredictionPageState extends State<PredictionPage> {
                     }
                   }
                   stressLevel = predictionPoints.last;
+                  mitigation = stressLevel > 1
+                      ? mitigations[random.nextInt(mitigations.length)]
+                      : Mitigation.defaultMitigation();
                 });
               }
             },
