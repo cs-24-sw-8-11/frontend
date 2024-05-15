@@ -8,8 +8,6 @@ import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
 
-import 'package:frontend/data_structures/prediction.dart';
-
 import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:frontend/main.dart';

@@ -110,6 +110,17 @@ Future<List<GetJournal>> getJournalsWithoutAnswers(String token) async {
   return journals;
 }
 
+// Get Journal Data from a user
+Future<int> getJournalCount(String token) async {
+  var response = await handleJournalsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  int count = 0;
+  for(int d in data){
+    count++;
+  }
+  return count;
+}
+
 // Get Answer Data
 Future<GetAnswer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
