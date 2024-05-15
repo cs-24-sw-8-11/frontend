@@ -1,18 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:frontend/custom_widgets/custom_slider_diag.dart';
 import 'package:provider/provider.dart';
-import 'dart:math';
-
-import 'package:frontend/login_screen/animation_route.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:frontend/data_structures/mitigation.dart';
-import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
@@ -30,7 +25,6 @@ class PredictionPageState extends State<PredictionPage> {
   List<Mitigation> mitigations = [];
   List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
-  Random random = Random();
   String token = '';
   double stressLevel = 0;
   double userPredictedStress = 0;
@@ -41,6 +35,9 @@ class PredictionPageState extends State<PredictionPage> {
     getPredictionData(token).then((data) {
       _refreshPredictionChartData(data);
       stressLevel = predictionPoints.last;
+    });
+    getCuratedMitigation(token).then((data) {
+      mitigation = data;
     });
     super.initState();
   }
@@ -68,12 +65,12 @@ class PredictionPageState extends State<PredictionPage> {
               else {
                 await executeNewPrediction(token);
                 predictions = await getPredictionData(token);
-                mitigations = await getMitigationsWithTag('default');
+                mitigation = await getCuratedMitigation(token);
                 setState(() {
                   _refreshPredictionChartData(predictions);
                   stressLevel = predictionPoints.last;
                   mitigation = stressLevel > 1
-                      ? mitigations[random.nextInt(mitigations.length)]
+                      ? mitigation
                       : Mitigation.defaultMitigation();
                 });
                 await _showUserStressPredictionDialog(predictions.last.id);

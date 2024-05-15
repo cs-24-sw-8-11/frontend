@@ -114,11 +114,7 @@ Future<List<GetJournal>> getJournalsWithoutAnswers(String token) async {
 Future<int> getJournalCount(String token) async {
   var response = await handleJournalsHttp(token);
   final data = jsonDecode(response.body) as dynamic;
-  int count = 0;
-  for(int d in data){
-    count++;
-  }
-  return count;
+  return data.length;
 }
 
 // Get Answer Data
@@ -163,7 +159,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
   return predictions;
 }
 
-// Get Settings Data from User
+// Get Mitigation Data from Tag
 Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
   var response = await handleMitigationsTagHttp(tag);
   final data = jsonDecode(response.body) as dynamic;
@@ -173,6 +169,15 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
     mitigations.add(Mitigation(d['id'], d['title'], d['description'], d['type'], tags));
   }
   return mitigations;
+}
+
+// Get Curated Mitigation Data from User
+Future<Mitigation> getCuratedMitigation(String token) async {
+  var response = await handleCuratedMitigationsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  List<String> tags = data['tags'].split(',');
+  Mitigation mitigation = Mitigation(data['id'], data['title'], data['description'], data['type'], tags);
+  return mitigation;
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
@@ -308,6 +313,14 @@ Future<https.Response> handleMitigationsTagHttp(String tag) async {
 Future<https.Response> handleMitigationsIdHttp(String id) async {
   https.Response response = await https.get(
     Uri.https('$addr:$port', '/mitigations/get/$id')
+  );
+  return response;
+}
+
+// Mitigation API GET
+Future<https.Response> handleCuratedMitigationsHttp(String token) async {
+  https.Response response = await https.get(
+      Uri.https('$addr:$port', '/mitigations/new/$token')
   );
   return response;
 }
