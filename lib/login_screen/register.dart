@@ -29,14 +29,6 @@ class RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
-        centerTitle: true,
-        backgroundColor: globalAppBarColor,
-        iconTheme: const IconThemeData(
-          color: globalnavigatorArrowColor,
-        ),
-      ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(

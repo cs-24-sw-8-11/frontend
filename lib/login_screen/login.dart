@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:frontend/login_screen/register.dart';
+import 'package:frontend/login_screen/register_page_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -119,7 +120,7 @@ class LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
                       recognizer: TapGestureRecognizer()
                       ..onTap = () {
-                        Navigator.of(context).push(createRoute(const RegisterScreen()));
+                        Navigator.of(context).push(createRoute(const RegisterManager()));
                       },
                     ),
                   ],

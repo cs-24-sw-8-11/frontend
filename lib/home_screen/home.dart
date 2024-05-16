@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 import 'package:frontend/custom_widgets/custom_logout.dart';
 import 'package:frontend/custom_widgets/custom_predictions.dart';
-import 'package:frontend/custom_widgets/custom_question.dart';
+import 'package:frontend/custom_widgets/custom_journal.dart';
 
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/user_data.dart';
-import 'package:frontend/data_structures/cache.dart';
+import 'package:frontend/data_structures/journal_cache.dart';
 import 'package:frontend/data_structures/answer.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
@@ -16,7 +16,7 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'package:frontend/main.dart';
 
 class HomePageProvider extends ChangeNotifier {
-  Cache journalCache = Cache();
+  JournalCache journalCache = JournalCache();
   int qIndex = 0;
   bool state = false;
 
@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
   String meta = '';
   late String _userName;
 
-  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+  final GlobalKey<JournalWidgetState> questionWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -199,7 +199,7 @@ class HomeScreenState extends State<HomeScreen> {
       questionWidgetKey.currentState?.resetState();
     });
 
-    return QuestionWidget(
+    return JournalWidget(
       key: questionWidgetKey,
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,
