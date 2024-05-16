@@ -238,7 +238,7 @@ class PredictionPageState extends State<PredictionPage> {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
       height: MediaQuery.of(context).size.height * 0.25,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white10,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -258,7 +258,7 @@ class PredictionPageState extends State<PredictionPage> {
                 fontWeight: FontWeight.bold
               )
             ),
-            const Padding(padding: EdgeInsets.only(top: 5)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
             Text(description, style: const TextStyle(color: globalTextColor)),
             Expanded(
               child: Stack(
