@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/global_color.dart';
 
 class SliderDialog extends StatefulWidget {
   /// initial selection for the slider

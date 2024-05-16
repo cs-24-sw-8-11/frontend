@@ -141,7 +141,7 @@ class PredictionPageState extends State<PredictionPage> {
                 borderData: FlBorderData(show: true),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
-                    axisNameWidget: const Text('Time',style: TextStyle(color: globalTextColor)),
+                    axisNameWidget: const Text('Prediction Points',style: TextStyle(color: globalTextColor)),
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, titleMeta) {
@@ -164,7 +164,7 @@ class PredictionPageState extends State<PredictionPage> {
                     ),
                   ),
                   leftTitles: AxisTitles(
-                    axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
+                    axisNameWidget: const Text('Stress Level', style: TextStyle(color: globalTextColor)),
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, titleMeta) {
