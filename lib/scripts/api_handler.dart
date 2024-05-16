@@ -121,7 +121,6 @@ Future<GetAnswer> getAnswer(int answerId, String token) async {
 // Get Default Question Data
 Future<List<Question>> getDefaultQuestions() async {
   var response = await handleDefaultQuestionsHttp();
-  //print(response);
   final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
@@ -152,7 +151,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
   return predictions;
 }
 
-// Get Settings Data from User
+// Get Mitigations Data from User
 Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
   var response = await handleMitigationsTagHttp(tag);
   final data = jsonDecode(response.body) as dynamic;
