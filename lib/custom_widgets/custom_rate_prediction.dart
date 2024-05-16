@@ -135,6 +135,9 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             Text('Current Stress Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
+            const Text('Do you feel that the prediction is accurate?', style: TextStyle(color: globalTextColor)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate((opts.length)-1, (index) => renderRadioButton(index+1, opts[index+1])),
@@ -142,7 +145,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
-              child: const Text('Please give a rating how of accurate you feel that the current stress prediction is.', style: TextStyle(color: globalTextColor))),
+              child: const Text('Please let us know if you feel that the current prediction is accurate by selecting Yes or No above. This will help tune the algorithm to be more accurate for your stress.', style: TextStyle(color: globalTextColor))),
             const Expanded(
               child: SizedBox.shrink(),
             ),
