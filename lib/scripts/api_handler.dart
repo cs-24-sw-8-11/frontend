@@ -53,8 +53,8 @@ Future<https.Response> executeUpdateUserData(PostUserData data, String token) as
 }
 
 // Submit Prediction rating
-Future<https.Response> executeTestRating(String token, String pid, String rating) async {
-  final jsonString = {'token':token, 'id':pid, 'rating':rating};
+Future<https.Response> executeTestRating(String token, String pid, String rating, String expected) async {
+  final jsonString = {'token':token, 'id':pid, 'rating':rating, 'expected':expected};
   dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
   return httpResponse;
 }
@@ -175,8 +175,8 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
 Future<Mitigation> getCuratedMitigation(String token) async {
   var response = await handleCuratedMitigationsHttp(token);
   final data = jsonDecode(response.body) as dynamic;
-  List<String> tags = data['tags'].split(',');
-  Mitigation mitigation = Mitigation(data['id'], data['title'], data['description'], data['type'], tags);
+  List<String> tags = data['data']['tags'].split(',');
+  Mitigation mitigation = Mitigation(data['data']['id'], data['data']['title'], data['data']['description'], data['data']['type'], tags);
   return mitigation;
 }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 import 'package:frontend/custom_widgets/custom_slider_diag.dart';
+import 'package:frontend/login_screen/animation_route.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
@@ -34,7 +36,7 @@ class PredictionPageState extends State<PredictionPage> {
     token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
     getPredictionData(token).then((data) {
       _refreshPredictionChartData(data);
-      stressLevel = predictionPoints.last;
+      stressLevel = predictionPoints.isNotEmpty ? predictionPoints.last : 0;
     });
     getCuratedMitigation(token).then((data) {
       mitigation = data;
@@ -85,7 +87,7 @@ class PredictionPageState extends State<PredictionPage> {
             ),
             child: const Text('New Prediction', style: TextStyle(color: globalTextColor)),
           ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
           mitigationBox(
             context,
             mitigation.title,
@@ -176,6 +178,20 @@ class PredictionPageState extends State<PredictionPage> {
               )
             ),
           ),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
+          ElevatedButton(
+            onPressed: ()  {
+              Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints)));
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: globalButtonBackgroundColor,
+              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+            ),
+            child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
+          ),
         ],
       ),
     );
@@ -196,7 +212,7 @@ class PredictionPageState extends State<PredictionPage> {
   Widget mitigationBox(BuildContext context, title, description, type, tags) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
-      height: MediaQuery.of(context).size.height * 0.3,
+      height: MediaQuery.of(context).size.height * 0.25,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white10,
@@ -232,7 +248,7 @@ class PredictionPageState extends State<PredictionPage> {
                   ),
                 ]
               )
-            )
+            ),
           ],
         )
       )
@@ -266,7 +282,6 @@ class PredictionPageState extends State<PredictionPage> {
     );
 
     if (selectedUserStress != null) {
-      await executeTestRating(token, pid, userPredictedStress.toStringAsFixed(1));
       setState(() {
         userPredictedStress = selectedUserStress;
       });

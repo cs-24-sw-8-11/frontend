@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
@@ -14,7 +12,8 @@ import 'package:frontend/main.dart';
 
 class PredictionRatingPage extends StatefulWidget {
   final List<double> predictionPoints;
-  const PredictionRatingPage(this.predictionPoints, {super.key});
+  final double userStress;
+  const PredictionRatingPage(this.predictionPoints, this.userStress, {super.key});
 
   @override
   PredictionRatingPageState createState() => PredictionRatingPageState();
@@ -129,21 +128,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             Text('Current Stress Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
-            Slider(
-              value: sliderValue,
-              max: 10,
-              divisions: 10,
-              label: sliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  sliderValue = value;
-                  sliderLabel = sliderValue.round().toString();
-                  currentPredictionValue = predictionPoints.last.toString();
-                });
-              },
-            ),
-            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-            Text('Rating: $sliderLabel', style: const TextStyle(color: globalTextColor)),
+            Row(),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
