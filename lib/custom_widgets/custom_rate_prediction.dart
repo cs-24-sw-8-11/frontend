@@ -190,7 +190,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             });
           },
         ),
-        Text('$label', style: const TextStyle(color: globalTextColor))
+        Text(label == 1 ? 'Yes' : 'No', style: const TextStyle(color: globalTextColor))
       ]
     );
   }

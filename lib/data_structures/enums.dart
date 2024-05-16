@@ -9,6 +9,6 @@ enum JournalRating {
 
 enum PredictionRating {
   none,
-  no,
   yes,
+  no,
 }
