@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
+import 'package:frontend/data_structures/enums.dart';
+
+import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
@@ -24,6 +26,9 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
   String sliderLabel = '0';
   String currentPredictionValue = '';
   String token = '';
+  List<PredictionRating> opts = PredictionRating.values;
+  PredictionRating _radioRating = PredictionRating.none;
+
   @override
   Widget build(BuildContext context) {
     List<double> predictionPoints = widget.predictionPoints;
@@ -128,7 +133,10 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             Text('Current Stress Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
-            Row(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate((opts.length)-1, (index) => renderRadioButton(index+1, opts[index+1])),
+            ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,
@@ -140,7 +148,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
               onPressed: () async {
                 token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
                 String pid = (await getPredictionData(token)).last.id;
-                Response response = await executeTestRating(token, pid, sliderLabel);
+                Response response = await executeTestRating(token, pid, (_radioRating.index-1).toString());
                 if(context.mounted){
                   await dialogBuilder(context, '${response.statusCode}', response.body);
                 }
@@ -160,6 +168,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
       )
     );
   }
+  
   List<FlSpot> _generatePoints(List<double> points) {
     List<FlSpot> spots = [];
     spots.add(FlSpot.zero);
@@ -168,4 +177,22 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
     }
     return spots;
   }
+
+  Widget renderRadioButton(int label, PredictionRating opt) {
+    return Column(
+      children: <Widget>[
+        Radio<PredictionRating>(
+          value: opt,
+          groupValue: _radioRating,
+          onChanged: (PredictionRating? value) {
+            setState(() {
+              _radioRating = value!;
+            });
+          },
+        ),
+        Text('$label', style: const TextStyle(color: globalTextColor))
+      ]
+    );
+  }
+
 }
