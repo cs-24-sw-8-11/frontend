@@ -27,6 +27,7 @@ class SliderDialogState extends State<SliderDialog> {
         Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2)),
         Center(
           child: AlertDialog(
+            backgroundColor: Colors.white70,
             title: const Text('How stressed do you think you will be?'),
             content: Column(
               children: [

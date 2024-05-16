@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 import 'package:frontend/custom_widgets/custom_slider_diag.dart';
+import 'package:frontend/data_structures/journal.dart';
 import 'package:frontend/login_screen/animation_route.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +26,7 @@ class PredictionPage extends StatefulWidget {
 
 class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
+  List<double> journalTimestamps = [];
   List<Mitigation> mitigations = [];
   List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
@@ -33,18 +35,12 @@ class PredictionPageState extends State<PredictionPage> {
   double userPredictedStress = 0;
   bool hasMadeNewPrediction = false;
   bool isLoading = false;
+  int latestJournalTimestamp = 0;
 
   @override
   void initState(){
-    token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-    getPredictionData(token).then((data) {
-      _refreshPredictionChartData(data);
-      stressLevel = predictionPoints.isNotEmpty ? predictionPoints.last : 0;
-    });
-    getCuratedMitigation(token).then((data) {
-      mitigation = data;
-    });
     super.initState();
+    _initializeData();
   }
 
   @override
@@ -141,7 +137,7 @@ class PredictionPageState extends State<PredictionPage> {
                 borderData: FlBorderData(show: true),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
-                    axisNameWidget: const Text('Prediction Points',style: TextStyle(color: globalTextColor)),
+                    axisNameWidget: const Text('Time',style: TextStyle(color: globalTextColor)),
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, titleMeta) {
@@ -189,7 +185,7 @@ class PredictionPageState extends State<PredictionPage> {
                 ),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: _generatePoints(predictionPoints),
+                    spots: _generatePoints(predictionPoints, journalTimestamps),
                   )
                 ]
               )
@@ -223,15 +219,13 @@ class PredictionPageState extends State<PredictionPage> {
   }
 
   void _refreshPredictionChartData(List<Prediction> data) {
-    setState(() {
-      predictionPoints.clear();
-      for (Prediction prediction in data) {
-        double? result = double.tryParse(prediction.value);
-        if (result != null) {
-          predictionPoints.add(result);
-        }
+    predictionPoints.clear();
+    for (Prediction prediction in data) {
+      double? result = double.tryParse(prediction.value);
+      if (result != null) {
+        predictionPoints.add(result);
       }
-    });
+    }
   }
 
   Widget mitigationBox(BuildContext context, title, description, type, tags) {
@@ -280,11 +274,13 @@ class PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  List<FlSpot> _generatePoints(List<double> points) {
+  List<FlSpot> _generatePoints(List<double> points, List<double> timeStamps) {
     List<FlSpot> spots = [];
     spots.add(FlSpot.zero);
-    for (double i = 0; i < points.length; i++) {
-      spots.add(FlSpot(i + 1, points[i.floor()]));
+    timeStamps = timeStamps.reversed.toList();
+    for (int i = 0; i < points.length && i < timeStamps.length; i++) {
+      int timestampOffset = timeStamps[0].floor() - timeStamps[0].floor() % 86400;
+      spots.add(FlSpot((timeStamps[i] - timestampOffset) / 86400, points[i]));
     }
     return spots;
   }
@@ -317,5 +313,28 @@ class PredictionPageState extends State<PredictionPage> {
     setState(() {
       stressLevel = newStressLevel;
     });
+  }
+
+  Future<void> _initializeData() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+
+    final journalsFuture = getJournalsWithoutAnswers(token).then((data) {
+      journalTimestamps = data.map((journal) => double.tryParse(journal.timestamp)!).toList();
+    });
+
+    final curatedMitigationFuture = getCuratedMitigation(token).then((data) {
+      mitigation = data;
+    });
+
+    final predictionDataFuture = getPredictionData(token).then((data) {
+      _refreshPredictionChartData(data);
+      stressLevel = predictionPoints.isNotEmpty ? predictionPoints.last : 0;
+    });
+
+    // Wait for all futures to complete
+    await Future.wait([journalsFuture, curatedMitigationFuture, predictionDataFuture]);
+
+    // Update state after all futures have completed
+    setState(() {});
   }
 }
