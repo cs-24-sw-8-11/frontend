@@ -299,3 +299,11 @@ Future<https.Response> handleMitigationsIdHttp(String id) async {
   );
   return response;
 }
+
+// Question Options (Legend) API GET
+Future<https.Response> handleQuestionLegend(String id) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/questions/legend/$id')
+  );
+  return response;
+}

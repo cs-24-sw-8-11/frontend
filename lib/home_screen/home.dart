@@ -155,9 +155,9 @@ class HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Padding(padding: EdgeInsets.only(top: 10)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
           Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold)),
-          const Padding(padding: EdgeInsets.only(top: 30)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
           SizedBox(
             width: (MediaQuery.of(context).size.width * 0.9),
             child: Text(homePageTextBody(), style: const TextStyle(color: globalTextColor)),
@@ -172,7 +172,7 @@ class HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        const Padding(padding: EdgeInsets.only(top: 30)),
+        Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
         Center(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(

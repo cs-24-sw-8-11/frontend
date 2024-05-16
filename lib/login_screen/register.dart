@@ -30,29 +30,31 @@ class RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: globalAppBarColor,
-          iconTheme: const IconThemeData(
-            color: globalnavigatorArrowColor,
-          ),
-          title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
-          centerTitle: true,
+        title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
+        centerTitle: true,
+        backgroundColor: globalAppBarColor,
+        iconTheme: const IconThemeData(
+          color: globalnavigatorArrowColor,
         ),
+      ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 170),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.225)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
               child: CustomInputField(
                 labeltext: 'Username',
                 icondata: const Icon(Icons.person_rounded, size: 18),
                 txtcontroller: registerUsernameController,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
               child: CustomInputField(
                 labeltext: 'Password',
                 icondata: const Icon(Icons.lock_rounded, size: 18),
@@ -60,8 +62,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                 hiddentext: true,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.7,
               child: CustomInputField(
                 labeltext: 'Repeat Password',
                 icondata: const Icon(Icons.lock_rounded, size: 18),
@@ -69,76 +72,70 @@ class RegisterScreenState extends State<RegisterScreen> {
                 hiddentext: true,
               ),
             ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 50, right: 50, top: 30),
-                child: SizedBox(
-                  height: 34,
-                  width: 110,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: globalButtonBackgroundColor,
-                      disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                    ),
-                    child: !isLoading ?
-                      const Text(
-                        'Register',
-                        style: TextStyle(color: globalTextColor),
-                      )
-                      : const SpinKitSquareCircle(
-                        color: globalAnimationColor,
-                        size: 20,
-                      ),
-                    onPressed: () async {
-                      if (registerUsernameController.text != "" && registerPasswordController.text != "" && registerRepeatPasswordController.text != "") {
-                        if (!isLoading && !isTapped && (registerPasswordController.text == registerRepeatPasswordController.text)) {
-                          isTapped = true;
-                          dynamic httpResponse;
-                          setState (() => isLoading = true);
-                          if (context.mounted) {
-                            httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
-                          }
-                          if (httpResponse.statusCode == 200) {
-                            setState(() => isLoading = false);
-                            registerSuccess = true;
-                            responseString = httpResponse.body;
-                            await Future.delayed(const Duration(milliseconds: 1000));
-                            if (context.mounted) {
-                              Navigator.of(context).pop();
-                            }
-                          }
-                          else {
-                            setState(() => isLoading = false);
-                            if (context.mounted) {
-                              dialogBuilder(context, 'Failed', httpResponse.body);
-                            }
-                          }
-                          isTapped = false;
-                          registerSuccess = false;
-                        }
-                        else {
-                          dialogBuilder(context, 'Failed', 'Passwords does not match!');
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
+              width: MediaQuery.of(context).size.width * 0.25,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: !isLoading
+                  ? const Text(
+                    'Register',
+                    style: TextStyle(color: globalTextColor),
+                  )
+                  : const SpinKitSquareCircle(
+                    color: globalAnimationColor,
+                    size: 20,
+                  ),
+                onPressed: () async {
+                  if (registerUsernameController.text != "" && registerPasswordController.text != "" && registerRepeatPasswordController.text != "") {
+                    if (!isLoading && !isTapped && (registerPasswordController.text == registerRepeatPasswordController.text)) {
+                      isTapped = true;
+                      dynamic httpResponse;
+                      setState (() => isLoading = true);
+                      if (context.mounted) {
+                        httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
+                      }
+                      if (httpResponse.statusCode == 200) {
+                        setState(() => isLoading = false);
+                        registerSuccess = true;
+                        responseString = httpResponse.body;
+                        await Future.delayed(const Duration(milliseconds: 1000));
+                        if (context.mounted) {
+                          Navigator.of(context).pop();
                         }
                       }
                       else {
-                        dialogBuilder(context, 'Failed', 'Fields cannot be empty!');
+                        setState(() => isLoading = false);
+                        if (context.mounted) {
+                          dialogBuilder(context, 'Failed', httpResponse.body);
+                        }
                       }
-                    },
-                  ),
-                ) 
-              ), 
+                      isTapped = false;
+                      registerSuccess = false;
+                    }
+                    else {
+                      dialogBuilder(context, 'Failed', 'Passwords does not match!');
+                    }
+                  }
+                  else {
+                    dialogBuilder(context, 'Failed', 'Fields cannot be empty!');
+                  }
+                },
+              ),
             ),
-            Center (
-              child: Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: registerSuccess
-                ? Text(responseString, style: const TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
-                : const Text('') 
-              )
-            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+            Center(
+              child: registerSuccess
+              ? Text(responseString, style: const TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
+              : const Text('') 
+            )
           ]
         ),
       ), 

@@ -49,17 +49,15 @@ class QuestionWidgetState extends State<QuestionWidget>{
       child: Column(
         children: <Widget> [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              const Padding(
-                padding: EdgeInsets.only(top: 75),
-              ),
+              Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1)),
               SizedBox( // Question Container
                 height: (MediaQuery.of(context).size.height)*0.2,
                 width: (MediaQuery.of(context).size.width)*0.9,
                 child: Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 20),
+                    Center(
                       child: Text(
                         widget.header,
                         style: const TextStyle(
@@ -69,8 +67,8 @@ class QuestionWidgetState extends State<QuestionWidget>{
                         )
                       )
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
+                    Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03)),
+                    Center(
                       child: Text(
                         widget.metatext,
                         style: const TextStyle(
@@ -82,17 +80,13 @@ class QuestionWidgetState extends State<QuestionWidget>{
                   ],
                 ),
               ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 30),
-              ),
+              Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
               SizedBox( // Text Container
-                height: (MediaQuery.of(context).size.height)*0.1,
-                width: (MediaQuery.of(context).size.width)*0.9,
+                height: (MediaQuery.of(context).size.height) * 0.1,
+                width: (MediaQuery.of(context).size.width) * 0.9,
                 child: Center(child: renderTextField()),
               ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 50),
-              ),
+              Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.07)),
               Container( // Rating Container
                 alignment: Alignment.center,
                 child: Column(
@@ -109,7 +103,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                             fontSize: 28
                           )
                         ),
-                        const Padding(padding: EdgeInsets.only(left: 10)),
+                        Padding(padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.02)),
                         RichText(
                           text: TextSpan(
                             children: <TextSpan>[
@@ -126,7 +120,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                         ),
                       ],
                     ),
-                    const Padding(padding: EdgeInsets.only(top: 10)),
+                    Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: List.generate(count-1, (index) => renderRadioButton(index+1, opts[index+1])),
@@ -134,10 +128,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                   ],
                 )
               ),
-              const Padding(
-                padding: EdgeInsets.only(top: 10)
-              ),
-              const Padding(padding: EdgeInsets.only(top: 15)),
+              Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
               SizedBox(
                 width: (MediaQuery.of(context).size.width) * 0.75,
                 child: Row( //Nav Buttons
