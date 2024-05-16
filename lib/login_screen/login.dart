@@ -85,7 +85,6 @@ class LoginScreenState extends State<LoginScreen> {
                   size: 20,
                 ),
                 onPressed: () async {
-                  print(MediaQuery.of(context).size.width);
                   if (!isLoading && !isTapped) {
                     isTapped = true;
                     dynamic httpResponse;
