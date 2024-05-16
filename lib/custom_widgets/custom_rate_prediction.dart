@@ -148,7 +148,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
               onPressed: () async {
                 token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
                 String pid = (await getPredictionData(token)).last.id;
-                Response response = await executeTestRating(token, pid, (_radioRating.index-1).toString());
+                Response response = await executeTestRating(token, pid, widget.userStress.toString(),(_radioRating.index-1).toString());
                 if(context.mounted){
                   await dialogBuilder(context, '${response.statusCode}', response.body);
                 }

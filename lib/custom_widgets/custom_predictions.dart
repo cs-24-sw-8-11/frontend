@@ -181,7 +181,7 @@ class PredictionPageState extends State<PredictionPage> {
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
           ElevatedButton(
             onPressed: ()  {
-              Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints)));
+              Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints, userPredictedStress)));
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: globalButtonBackgroundColor,
