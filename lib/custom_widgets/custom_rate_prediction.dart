@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
   String token = '';
   List<PredictionRating> opts = PredictionRating.values;
   PredictionRating _radioRating = PredictionRating.none;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -144,23 +146,39 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
             const Expanded(
               child: SizedBox.shrink(),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-                String pid = (await getPredictionData(token)).last.id;
-                Response response = await executeTestRating(token, pid, widget.userStress.toString(),(_radioRating.index-1).toString());
-                if(context.mounted){
-                  await dialogBuilder(context, '${response.statusCode}', response.body);
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: globalButtonBackgroundColor,
-                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.4,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if(!isLoading){
+                    setState(() {
+                      isLoading = true;
+                    });
+                    token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                    String pid = (await getPredictionData(token)).last.id;
+                    Response response = await executeTestRating(token, pid, widget.userStress.toStringAsFixed(1),(_radioRating.index-1).toString());
+                    if(context.mounted){
+                      await dialogBuilder(context, response.statusCode == 200 ? 'Success' : 'Error (${response.statusCode})', response.body);
+                      if(context.mounted){
+                        Navigator.of(context).pop();
+                      }
+                    }
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
                 ),
+                child: !isLoading ?
+                const Text('Submit Rating', style: TextStyle(color: globalTextColor))
+                : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
               ),
-              child: const Text('Submit Rating', style: TextStyle(color: globalTextColor)),
             ),
             Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height*0.05))
           ],

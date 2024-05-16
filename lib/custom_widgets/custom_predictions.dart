@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 import 'package:frontend/custom_widgets/custom_slider_diag.dart';
 import 'package:frontend/login_screen/animation_route.dart';
@@ -30,6 +31,8 @@ class PredictionPageState extends State<PredictionPage> {
   String token = '';
   double stressLevel = 0;
   double userPredictedStress = 0;
+  bool hasMadeNewPrediction = false;
+  bool isLoading = false;
 
   @override
   void initState(){
@@ -51,41 +54,55 @@ class PredictionPageState extends State<PredictionPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
-          ElevatedButton(
-            onPressed: () async {
-              token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-              int journals = await getJournalCount(token);
-              if (journals < 3) {
-                if (context.mounted) {
-                  await dialogBuilder(
-                    context,
-                    "Not enough data!",
-                    "Please make sure you have made at least 3 journals. You currently have $journals journals."
-                  );
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: ElevatedButton(
+              onPressed: () async {
+                if(!isLoading){
+                  setState(() {
+                    isLoading = true;
+                  });
+                  token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                  int journals = await getJournalCount(token);
+                  if (journals < 3) {
+                    if (context.mounted) {
+                      await dialogBuilder(
+                          context,
+                          "Not enough data!",
+                          "Please make sure you have made at least 3 journals. You currently have $journals journals."
+                      );
+                    }
+                  }
+                  else {
+                    await executeNewPrediction(token);
+                    predictions = await getPredictionData(token);
+                    mitigation = await getCuratedMitigation(token);
+                    setState(() {
+                      hasMadeNewPrediction = true;
+                      _refreshPredictionChartData(predictions);
+                      stressLevel = predictionPoints.last;
+                      mitigation = stressLevel > 1
+                          ? mitigation
+                          : Mitigation.defaultMitigation();
+                    });
+                    await _showUserStressPredictionDialog(predictions.last.id);
+                  }
+                  setState(() {
+                    isLoading = false;
+                  });
                 }
-              }
-              else {
-                await executeNewPrediction(token);
-                predictions = await getPredictionData(token);
-                mitigation = await getCuratedMitigation(token);
-                setState(() {
-                  _refreshPredictionChartData(predictions);
-                  stressLevel = predictionPoints.last;
-                  mitigation = stressLevel > 1
-                      ? mitigation
-                      : Mitigation.defaultMitigation();
-                });
-                await _showUserStressPredictionDialog(predictions.last.id);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: globalButtonBackgroundColor,
-              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
+              child: !isLoading ?
+              const Text('New Prediction', style: TextStyle(color: globalTextColor))
+              : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
             ),
-            child: const Text('New Prediction', style: TextStyle(color: globalTextColor)),
           ),
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
           mitigationBox(
@@ -179,18 +196,26 @@ class PredictionPageState extends State<PredictionPage> {
             ),
           ),
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
-          ElevatedButton(
-            onPressed: ()  {
-              Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints, userPredictedStress)));
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: globalButtonBackgroundColor,
-              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: ElevatedButton(
+              onPressed: ()  {
+                if(hasMadeNewPrediction){
+                  Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints, userPredictedStress)));
+                }
+                else{
+                  dialogBuilder(context, 'No Prediction to rate', 'Please make a new prediction before rating');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
+              child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
             ),
-            child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
           ),
         ],
       ),
