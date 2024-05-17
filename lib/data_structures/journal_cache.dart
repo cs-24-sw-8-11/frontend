@@ -30,7 +30,7 @@ class JournalCache {
   String stringOfAnswers(List<PostAnswer> answerList) {
     String result = "";
     for (var answer in answerList) {
-      result += answer.toString() + '\n';
+      result += '$answer\n';
     }
     return result;
   }

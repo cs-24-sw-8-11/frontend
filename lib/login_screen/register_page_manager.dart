@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/data_structures/user_data.dart';
+import 'package:frontend/custom_widgets/custom_reg_question.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/data_structures/question.dart';
@@ -8,6 +8,8 @@ import 'package:frontend/data_structures/register_cache.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
+
+import 'package:frontend/main.dart';
 
 import 'package:frontend/login_screen/register.dart';
 
@@ -18,6 +20,10 @@ class RegisterProvider extends ChangeNotifier {
 
   int returnIndex() {
     return rIndex;
+  }
+
+  bool returnState() {
+    return state;
   }
 
   void changeState() {
@@ -35,8 +41,8 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCache(PostUserData udata, int index) {
-    registerCache.updateCache(udata, index);
+  void updateCache(String udataitem, int index) {
+    registerCache.updateCache(udataitem, index);
   }
 
   void clearCache() {
@@ -45,7 +51,7 @@ class RegisterProvider extends ChangeNotifier {
 
   //Remove context later
   void submitRegisterCache(BuildContext context) {
-    registerCache.submitRegisterCache(context);
+    registerCache.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
     notifyListeners(); // Maybe keep, depends, we'll see
   }
 }
@@ -79,12 +85,14 @@ class RegisterBodyState extends State<RegisterBody> {
   @override
   void initState() {
     super.initState();
-    //questions = getDefaultQuestions();
+    getDefaultQuestions().then((data) {
+      questions = data;
+    });
   }
   
   int _pageIndex = 0;
+  String meta = '';
   late List<Question> questions;
-
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +102,7 @@ class RegisterBodyState extends State<RegisterBody> {
         title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
         centerTitle: true,
         backgroundColor: globalAppBarColor,
+        automaticallyImplyLeading: rpp.state ? false : true,
         iconTheme: const IconThemeData(
           color: globalnavigatorArrowColor,
         ),
@@ -107,34 +116,38 @@ class RegisterBodyState extends State<RegisterBody> {
   Widget _buildBody() {
     switch (_pageIndex) {
       case 0:
-        return defaultQuestion(_pageIndex);
       case 1:
-        return defaultQuestion(_pageIndex);
       case 2:
-        return defaultQuestion(_pageIndex);
       case 3:
-        return defaultQuestion(_pageIndex);
       case 4:
-        return defaultQuestion(_pageIndex);
       case 5:
-        return defaultQuestion(_pageIndex);
       case 6:
-        return defaultQuestion(_pageIndex);
       case 7:
-        return defaultQuestion(_pageIndex);
       case 8:
-        return defaultQuestion(_pageIndex);
+        return defaultQuestion();
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget defaultQuestion(int index) {
-    return SizedBox.shrink();
+  Widget defaultQuestion() {
+    final rpp = Provider.of<RegisterProvider>(context);
+    final int index = rpp.returnIndex();
+    fetchQuestion(index);
+
+    return QuestionWidget(
+      header: "Question ${index +1 }/9",
+      metatext: meta,
+      index: index,
+      questionID: questions[index].id,
+    );
   }
 
 //-----------------------------FUNCTION CALLS-----------------------------------
 
+  void fetchQuestion(int index) {
+      setState(() => meta = questions[index].question);
+    }
 
   void changePage(int index) {
     setState(() {

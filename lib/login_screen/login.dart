@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
-import 'package:frontend/login_screen/register.dart';
-import 'package:frontend/login_screen/register_page_manager.dart';
 import 'package:provider/provider.dart';
-
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:frontend/custom_widgets/custom_input_field.dart';
@@ -15,6 +12,8 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'animation_route.dart';
 
 import 'package:frontend/main.dart';
+
+import 'package:frontend/login_screen/register_page_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

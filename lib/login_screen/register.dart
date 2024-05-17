@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -7,6 +8,8 @@ import 'package:frontend/custom_widgets/custom_input_field.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
+
+import 'package:frontend/login_screen/register_page_manager.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -26,8 +29,10 @@ class RegisterScreenState extends State<RegisterScreen> {
   final registerPasswordController = TextEditingController();
   final registerRepeatPasswordController = TextEditingController();
 
+
   @override
   Widget build(BuildContext context) {
+  final rpp = Provider.of<RegisterProvider>(context);
     return Scaffold(
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
@@ -100,7 +105,8 @@ class RegisterScreenState extends State<RegisterScreen> {
                         responseString = httpResponse.body;
                         await Future.delayed(const Duration(milliseconds: 1000));
                         if (context.mounted) {
-                          Navigator.of(context).pop();
+                          rpp.changeState();
+                          // Navigator.of(context).pop();
                         }
                       }
                       else {
