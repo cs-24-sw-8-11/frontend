@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 import 'package:frontend/custom_widgets/custom_logout.dart';
 import 'package:frontend/custom_widgets/custom_predictions.dart';
-import 'package:frontend/custom_widgets/custom_question.dart';
+import 'package:frontend/custom_widgets/custom_journal.dart';
 
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/user_data.dart';
-import 'package:frontend/data_structures/cache.dart';
+import 'package:frontend/data_structures/journal_cache.dart';
 import 'package:frontend/data_structures/answer.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
@@ -16,7 +16,7 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'package:frontend/main.dart';
 
 class HomePageProvider extends ChangeNotifier {
-  Cache journalCache = Cache();
+  JournalCache journalCache = JournalCache();
   int qIndex = 0;
   bool state = false;
 
@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
   String meta = '';
   late String _userName;
 
-  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+  final GlobalKey<JournalWidgetState> questionWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -155,9 +155,9 @@ class HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          const Padding(padding: EdgeInsets.only(top: 10)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
           Text('Welcome $_userName', style: const TextStyle(color: globalTextColor, fontSize: 25, fontWeight: FontWeight.bold)),
-          const Padding(padding: EdgeInsets.only(top: 30)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
           SizedBox(
             width: (MediaQuery.of(context).size.width * 0.9),
             child: Text(homePageTextBody(), style: const TextStyle(color: globalTextColor)),
@@ -172,7 +172,7 @@ class HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        const Padding(padding: EdgeInsets.only(top: 30)),
+        Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
         Center(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -199,7 +199,7 @@ class HomeScreenState extends State<HomeScreen> {
       questionWidgetKey.currentState?.resetState();
     });
 
-    return QuestionWidget(
+    return JournalWidget(
       key: questionWidgetKey,
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,

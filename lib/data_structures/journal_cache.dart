@@ -4,7 +4,7 @@ import 'package:frontend/data_structures/answer.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
 
-class Cache {
+class JournalCache {
   List<PostAnswer> answerData = [];
 
   void updateCache(PostAnswer answer, int index) {
@@ -30,7 +30,7 @@ class Cache {
   String stringOfAnswers(List<PostAnswer> answerList) {
     String result = "";
     for (var answer in answerList) {
-      result += answer.toString() + '\n';
+      result += '$answer\n';
     }
     return result;
   }

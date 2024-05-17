@@ -137,7 +137,6 @@ Future<GetAnswer> getAnswer(int answerId, String token) async {
 // Get Default Question Data
 Future<List<Question>> getDefaultQuestions() async {
   var response = await handleDefaultQuestionsHttp();
-  //print(response);
   final data = jsonDecode(response.body) as dynamic;
   List<Question> questions = [];
   for (Map<String, dynamic> d in data){
@@ -335,5 +334,10 @@ Future<https.Response> handleCuratedMitigationsHttp(String token) async {
   return response;
 }
 
-//--------------------------------------------
-
+// Question Options (Legend) API GET
+Future<https.Response> handleQuestionLegend(String id) async {
+  https.Response response = await https.get(
+    Uri.https('$addr:$port', '/questions/legend/$id')
+  );
+  return response;
+}
