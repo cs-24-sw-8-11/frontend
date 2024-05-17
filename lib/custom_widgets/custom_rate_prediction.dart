@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:frontend/data_structures/prediction.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
@@ -14,9 +15,9 @@ import 'package:frontend/scripts/api_handler.dart';
 import 'package:frontend/main.dart';
 
 class PredictionRatingPage extends StatefulWidget {
-  final List<double> predictionPoints;
+  final List<Prediction> predictions;
   final double userStress;
-  const PredictionRatingPage(this.predictionPoints, this.userStress, {super.key});
+  const PredictionRatingPage(this.predictions, this.userStress, {super.key});
 
   @override
   PredictionRatingPageState createState() => PredictionRatingPageState();
@@ -33,8 +34,8 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
 
   @override
   Widget build(BuildContext context) {
-    List<double> predictionPoints = widget.predictionPoints;
-    currentPredictionValue = predictionPoints.last.toString();
+    List<Prediction> predictions = widget.predictions;
+    currentPredictionValue = predictions.last.value;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
@@ -127,7 +128,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
                   ),
                   lineBarsData: [
                     LineChartBarData(
-                      spots: _generatePoints(predictionPoints),
+                      spots: _generatePoints(predictions),
                     )
                   ]
                 )
@@ -189,12 +190,15 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
       )
     );
   }
-  
-  List<FlSpot> _generatePoints(List<double> points) {
+
+  List<FlSpot> _generatePoints(List<Prediction> predictions) {
     List<FlSpot> spots = [];
-    spots.add(FlSpot.zero);
-    for (double i = 0; i < points.length; i++) {
-      spots.add(FlSpot(i + 1, points[i.floor()]));
+    int oneWeekAgo = (DateTime.now().millisecondsSinceEpoch - 86400000 * 7) ~/ 1000;
+    predictions = predictions.where((x) => (x.timeStamp - x.timeStamp % 86400) >= oneWeekAgo && x.timeStamp <= DateTime.now().millisecondsSinceEpoch ~/ 1000).toList();
+    predictions.sort();
+    for (int i = 0; i < predictions.length; i++) {
+      int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
     }
     return spots;
   }

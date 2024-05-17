@@ -24,8 +24,6 @@ class PredictionPage extends StatefulWidget {
 }
 
 class PredictionPageState extends State<PredictionPage> {
-  List<double> predictionPoints = [];
-  List<int> predictionTimeStamps = [];
   List<Mitigation> mitigations = [];
   List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
@@ -73,8 +71,7 @@ class PredictionPageState extends State<PredictionPage> {
                     mitigation = await getCuratedMitigation(token);
                     setState(() {
                       hasMadeNewPrediction = true;
-                      _refreshPredictionChartData(predictions);
-                      stressLevel = predictionPoints.last;
+                      stressLevel = double.parse(predictions.last.value);
                       mitigation = stressLevel > 1
                           ? mitigation
                           : Mitigation.defaultMitigation();
@@ -195,7 +192,7 @@ class PredictionPageState extends State<PredictionPage> {
             child: ElevatedButton(
               onPressed: ()  {
                 if(hasMadeNewPrediction){
-                  Navigator.of(context).push(createRoute(PredictionRatingPage(predictionPoints, userPredictedStress)));
+                  Navigator.of(context).push(createRoute(PredictionRatingPage(predictions, userPredictedStress)));
                 }
                 else{
                   dialogBuilder(context, 'No Prediction to rate', 'Please make a new prediction before rating');
@@ -214,19 +211,6 @@ class PredictionPageState extends State<PredictionPage> {
         ],
       ),
     );
-  }
-
-  void _refreshPredictionChartData(List<Prediction> data) {
-    predictionPoints.clear();
-    predictionTimeStamps.clear();
-    data.sort();
-    for (Prediction prediction in data) {
-      double? result = double.tryParse(prediction.value);
-      if (result != null) {
-        predictionPoints.add(result);
-      }
-      predictionTimeStamps.add(prediction.timeStamp);
-    }
   }
 
   Widget mitigationBox(BuildContext context, title, description, type, tags) {
@@ -326,7 +310,7 @@ class PredictionPageState extends State<PredictionPage> {
 
     final predictionDataFuture = getPredictionData(token).then((data) {
       predictions = data;
-      stressLevel = predictionPoints.isNotEmpty ? predictionPoints.last : 0;
+      stressLevel = predictions.isNotEmpty ? double.parse(predictions.last.value) : 0;
     });
 
     // Wait for all futures to complete
