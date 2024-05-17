@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:provider/provider.dart';
-import 'dart:math';
-
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
+import 'package:frontend/custom_widgets/custom_slider_diag.dart';
 import 'package:frontend/login_screen/animation_route.dart';
+import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/prediction.dart';
-import 'package:frontend/data_structures/journal.dart';
 import 'package:frontend/data_structures/mitigation.dart';
-import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
@@ -25,12 +24,20 @@ class PredictionPage extends StatefulWidget {
 }
 
 class PredictionPageState extends State<PredictionPage> {
-  List<double> predictionPoints = [];
   List<Mitigation> mitigations = [];
+  List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
-  Random random = Random();
   String token = '';
   double stressLevel = 0;
+  double userPredictedStress = 0;
+  bool hasMadeNewPrediction = false;
+  bool isLoading = false;
+
+  @override
+  void initState(){
+    super.initState();
+    _initializeData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,47 +45,55 @@ class PredictionPageState extends State<PredictionPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-          ElevatedButton(
-            onPressed: () async {
-              token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-              List<GetJournal> journals = await getJournalsWithoutAnswers(token);
-              if (journals.length < 3) {
-                if (context.mounted) {
-                  await dialogBuilder(
-                    context,
-                    "Not enough data!",
-                    "Please make sure you have made at least 3 journals. You currently have ${journals.length} journals."
-                  );
-                }
-              }
-              else {
-                await executeNewPrediction(token);
-                List<Prediction> predictions = await getPredictionData(token);
-                mitigations = await getMitigationsWithTag('default');
-                setState(() {
-                  mitigation = stressLevel > 1
-                    ? mitigations[random.nextInt(mitigations.length)]
-                    : Mitigation.defaultMitigation();
-                  predictionPoints.clear();
-                  for (Prediction pred in predictions) {
-                    double? result = double.tryParse(pred.value);
-                    if (result != null) {
-                      predictionPoints.add(result);
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: ElevatedButton(
+              onPressed: () async {
+                if(!isLoading){
+                  setState(() {
+                    isLoading = true;
+                  });
+                  token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                  int journals = await getJournalCount(token);
+                  if (journals < 3) {
+                    if (context.mounted) {
+                      await dialogBuilder(
+                          context,
+                          "Not enough data!",
+                          "Please make sure you have made at least 3 journals. You currently have $journals journals."
+                      );
                     }
                   }
-                  stressLevel = predictionPoints.last;
-                });
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: globalButtonBackgroundColor,
-              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+                  else {
+                    await executeNewPrediction(token);
+                    predictions = await getPredictionData(token);
+                    mitigation = await getCuratedMitigation(token);
+                    setState(() {
+                      hasMadeNewPrediction = true;
+                      stressLevel = double.parse(predictions.last.value);
+                      mitigation = stressLevel > 1
+                          ? mitigation
+                          : Mitigation.defaultMitigation();
+                    });
+                    await _showUserStressPredictionDialog();
+                  }
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
+              child: !isLoading ?
+              const Text('New Prediction', style: TextStyle(color: globalTextColor))
+              : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
             ),
-            child: const Text('New Prediction', style: TextStyle(color: globalTextColor)),
           ),
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
           mitigationBox(
@@ -87,11 +102,20 @@ class PredictionPageState extends State<PredictionPage> {
             mitigation.description,
             mitigation.type,
             mitigation.tags,
-            stressLevel
+          ),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(_stressLevelToString(stressLevel), style: const TextStyle(color: globalTextColor)),
+                Text('Current Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
+              ],
+            ),
           ),
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
           Container(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.only(top:15, left: 15, right: 15, bottom: 10),
             height: (MediaQuery.of(context).size.height) * 0.35,
             width: (MediaQuery.of(context).size.width) * 0.9,
             decoration: BoxDecoration(
@@ -102,111 +126,100 @@ class PredictionPageState extends State<PredictionPage> {
                 width: 2, // Border width
               ),
             ),
-            child: FutureBuilder(
-              builder: (ctx, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                minY: 0,
+                maxX: 7,
+                maxY: 5,
+                borderData: FlBorderData(show: true),
+                titlesData: FlTitlesData(
+                  bottomTitles: AxisTitles(
+                    axisNameSize: 20,
+                    axisNameWidget: const Text('Time (Days)', style: TextStyle(color: globalTextColor)),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 30,
+                      getTitlesWidget: (value, titleMeta) {
+                        return SideTitleWidget(
+                          axisSide: titleMeta.axisSide,
+                          space: 4,
+                          child: Text(value.toStringAsFixed(0),
+                            style: const TextStyle(
+                                color: globalTextColor,
+                                fontSize: 15
+                            ),
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.center,
+                          )
+                        );
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    axisNameWidget: const Text('Stress Level', style: TextStyle(color: globalTextColor)),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, titleMeta) {
+                      return SideTitleWidget(
+                        axisSide: titleMeta.axisSide,
+                        space: 4,
+                        child: Text(
+                          value.toStringAsFixed(0),
+                          style: const TextStyle(color: globalTextColor),
+                          textDirection: TextDirection.rtl,
+                          textAlign: TextAlign.center,
+                        ));
+                      },
+                    ),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: _generatePoints(predictions),
+                  )
+                ]
+              )
+            ),
+          ),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: ElevatedButton(
+              onPressed: ()  {
+                if(hasMadeNewPrediction){
+                  Navigator.of(context).push(createRoute(PredictionRatingPage(predictions, userPredictedStress)));
                 }
-                else {
-                  predictionPoints.clear();
-                  for (Prediction prediction in snapshot.data!) {
-                    double? result = double.tryParse(prediction.value);
-                    if (result != null) {
-                      predictionPoints.add(result);
-                    }
-                  }
-                  return LineChart(
-                    LineChartData(
-                      maxY: 5,
-                      borderData: FlBorderData(show: true),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          axisNameWidget: const Text('Time',style: TextStyle(color: globalTextColor)),
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, titleMeta) {
-                              return SideTitleWidget(
-                                axisSide: titleMeta.axisSide,
-                                space: 4,
-                                child: Text(
-                                  value % 1 == 0
-                                    ? value.toStringAsFixed(0)
-                                    : value.toStringAsFixed(1),
-                                  style: const TextStyle(
-                                    color: globalTextColor,
-                                    fontSize: 15
-                                  ),
-                                  textDirection: TextDirection.rtl,
-                                  textAlign: TextAlign.center,
-                                )
-                              );
-                            },
-                          ),
-                        ),
-                        leftTitles: AxisTitles(
-                          axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            getTitlesWidget: (value, titleMeta) {
-                              return SideTitleWidget(
-                                axisSide: titleMeta.axisSide,
-                                space: 4,
-                                child: Text(
-                                  value.toStringAsFixed(0),
-                                  style: const TextStyle(color: globalTextColor),
-                                  textDirection: TextDirection.rtl,
-                                  textAlign: TextAlign.center,
-                                )
-                              );
-                            },
-                          ),
-                        ),
-                        topTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                        rightTitles: const AxisTitles(
-                          sideTitles: SideTitles(showTitles: false),
-                        ),
-                      ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: _generatePoints(predictionPoints),
-                        )
-                      ]
-                    )
-                  );
+                else{
+                  dialogBuilder(context, 'No Prediction to rate', 'Please make a new prediction before rating');
                 }
               },
-              future: getPredictionData(Provider.of<AuthProvider>(context, listen: false).fetchToken()),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: globalButtonBackgroundColor,
-              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
+              child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
             ),
-            onPressed: () {
-              Navigator.of(context).push(createRoute(const PredictionRatingPage()));
-            },
-            child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor))
           ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
         ],
       ),
     );
   }
 
-  Widget mitigationBox(BuildContext context, title, description, type, tags, stressLevel) {
+  Widget mitigationBox(BuildContext context, title, description, type, tags) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.9,
-      height: MediaQuery.of(context).size.height * 0.3,
-      padding: const EdgeInsets.all(8),
+      height: MediaQuery.of(context).size.height * 0.25,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white10,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -226,7 +239,7 @@ class PredictionPageState extends State<PredictionPage> {
                 fontWeight: FontWeight.bold
               )
             ),
-            const Padding(padding: EdgeInsets.only(top: 5)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
             Text(description, style: const TextStyle(color: globalTextColor)),
             Expanded(
               child: Stack(
@@ -239,24 +252,23 @@ class PredictionPageState extends State<PredictionPage> {
                     alignment: Alignment.bottomRight,
                     child: Text('type: ${type == '1' ? 'short term' : 'long term'}', style: const TextStyle(color: globalTextColor, fontSize: 10))
                   ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Text('stress level: ${_stressLevelToString(stressLevel)}', style: const TextStyle(color: globalTextColor, fontSize: 10))
-                  ),
                 ]
               )
-            )
+            ),
           ],
         )
       )
     );
   }
 
-  List<FlSpot> _generatePoints(List<double> points) {
+  List<FlSpot> _generatePoints(List<Prediction> predictions) {
     List<FlSpot> spots = [];
-    spots.add(FlSpot.zero);
-    for (double i = 0; i < points.length; i++) {
-      spots.add(FlSpot(i + 1, points[i.floor()]));
+    int oneWeekAgo = (DateTime.now().millisecondsSinceEpoch - 86400000 * 7) ~/ 1000;
+    predictions = predictions.where((x) => (x.timeStamp - x.timeStamp % 86400) >= oneWeekAgo && x.timeStamp <= DateTime.now().millisecondsSinceEpoch ~/ 1000).toList();
+    predictions.sort();
+    for (int i = 0; i < predictions.length; i++) {
+      int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
     }
     return spots;
   }
@@ -270,5 +282,43 @@ class PredictionPageState extends State<PredictionPage> {
       return 'Low Stress';
     }
     return 'No Stress';
+  }
+
+  Future<void> _showUserStressPredictionDialog() async {
+    final selectedUserStress = await showDialog<double>(
+      context: context,
+      builder: (context) => SliderDialog(stressLevel),
+    );
+
+    if (selectedUserStress != null) {
+      setState(() {
+        userPredictedStress = selectedUserStress;
+      });
+    }
+  }
+
+  void updateStressLevel(double newStressLevel){
+    setState(() {
+      stressLevel = newStressLevel;
+    });
+  }
+
+  Future<void> _initializeData() async {
+    final token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+
+    final curatedMitigationFuture = getCuratedMitigation(token).then((data) {
+      mitigation = data;
+    });
+
+    final predictionDataFuture = getPredictionData(token).then((data) {
+      predictions = data;
+      stressLevel = predictions.isNotEmpty ? double.parse(predictions.last.value) : 0;
+    });
+
+    // Wait for all futures to complete
+    await Future.wait([curatedMitigationFuture, predictionDataFuture]);
+
+    // Update state after all futures have completed
+    setState(() {});
   }
 }

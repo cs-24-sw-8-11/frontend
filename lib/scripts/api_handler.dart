@@ -53,8 +53,8 @@ Future<https.Response> executeUpdateUserData(PostUserData data, String token) as
 }
 
 // Submit Prediction rating
-Future<https.Response> executeTestRating(String token, String pid) async {
-  final jsonString = {'token':token, 'id':pid};
+Future<https.Response> executeTestRating(String token, int pid, String rating, String expected) async {
+  final jsonString = {'token':token, 'id':pid.toString(), 'rating':rating, 'expected':expected};
   dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
   return httpResponse;
 }
@@ -72,11 +72,11 @@ Future<GetJournal> getJournal(int journalId, String token) async {
   var response = await handleJournalHttp(journalId);
   final data = jsonDecode(response.body) as dynamic;
   List<GetAnswer> journalAnswers = [];
-  List<int> answerIds = jsonDecode(data['answers']) as dynamic;
+  List<int> answerIds = (data['answers'] as List<dynamic>).map((dynamic id) => id as int).toList();
   for (int id in answerIds){
     journalAnswers.add(await getAnswer(id, token));
   }
-  GetJournal journal = GetJournal(data['uid'], data['jid'], data['timestamp'], journalAnswers);
+  GetJournal journal = GetJournal(data['userId'], data['id'], data['timestamp'], journalAnswers);
   return journal;
 }
 
@@ -99,22 +99,38 @@ Future<GetJournal> getJournalWithoutAnswers(int journalId, String token) async {
   return journal;
 }
 
+// Get Journal Data
+Future<GetJournal> getLatestJournalWithoutAnswers(String token) async {
+  var response = await handleJournalsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  GetJournal lastJournal = await getJournal(data.last, token);
+  return lastJournal;
+}
+
 // Get Journal Data from a user
 Future<List<GetJournal>> getJournalsWithoutAnswers(String token) async {
   var response = await handleJournalsHttp(token);
   final data = jsonDecode(response.body) as dynamic;
   List<GetJournal> journals = [];
   for(int d in data){
-    journals.add(await getJournalWithoutAnswers(d, token));
+    GetJournal journal = await getJournalWithoutAnswers(d, token);
+    journals.add(journal);
   }
   return journals;
+}
+
+// Get Journal Data from a user
+Future<int> getJournalCount(String token) async {
+  var response = await handleJournalsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  return data.length;
 }
 
 // Get Answer Data
 Future<GetAnswer> getAnswer(int answerId, String token) async {
   var response = await handleAnswerHttp(answerId, token);
   final data = jsonDecode(response.body) as dynamic;
-  GetAnswer answer = GetAnswer(data['value'], data['rating'], data['jid'], data['qid'], data['aid']);
+  GetAnswer answer = GetAnswer(data['value'], data['rating'], data['journalId'], data['questionId'], data['id']);
   return answer;
 }
 
@@ -146,12 +162,12 @@ Future<List<Prediction>> getPredictionData(String token) async {
   final data = jsonDecode(response.body) as dynamic;
   List<Prediction> predictions = [];
   for(Map<String, dynamic> d in data){
-    predictions.add(Prediction(d['id'], d['userId'], d['value']));
+    predictions.add(Prediction(int.parse(d['id']), d['userId'], d['value'], int.parse(d['timestamp'])));
   }
   return predictions;
 }
 
-// Get Mitigations Data from User
+// Get Mitigation Data from Tag
 Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
   var response = await handleMitigationsTagHttp(tag);
   final data = jsonDecode(response.body) as dynamic;
@@ -161,6 +177,16 @@ Future<List<Mitigation>> getMitigationsWithTag(String tag) async {
     mitigations.add(Mitigation(d['id'], d['title'], d['description'], d['type'], tags));
   }
   return mitigations;
+}
+
+// Get Curated Mitigation Data from User
+Future<Mitigation> getCuratedMitigation(String token) async {
+  var response = await handleCuratedMitigationsHttp(token);
+  final data = jsonDecode(response.body) as dynamic;
+  //List<String> tags = data['data']['tags'].split(',');
+  List<String> tags = [data['data']['tags']];
+  Mitigation mitigation = Mitigation(data['data']['id'], data['data']['title'], data['data']['description'], data['data']['type'], tags);
+  return mitigation;
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
@@ -296,6 +322,14 @@ Future<https.Response> handleMitigationsTagHttp(String tag) async {
 Future<https.Response> handleMitigationsIdHttp(String id) async {
   https.Response response = await https.get(
     Uri.https('$addr:$port', '/mitigations/get/$id')
+  );
+  return response;
+}
+
+// Mitigation API GET
+Future<https.Response> handleCuratedMitigationsHttp(String token) async {
+  https.Response response = await https.get(
+      Uri.https('$addr:$port', '/mitigations/new/$token')
   );
   return response;
 }

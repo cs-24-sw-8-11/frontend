@@ -7,7 +7,7 @@ import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/answer.dart';
-import 'package:frontend/data_structures/options_enum.dart';
+import 'package:frontend/data_structures/enums.dart';
 
 import 'package:frontend/home_screen/home.dart';
 
@@ -24,8 +24,8 @@ class JournalWidget extends StatefulWidget {
 }
 
 class JournalWidgetState extends State<JournalWidget>{
-  List<Options> opts = Options.values;
-  Options _options = Options.none;
+  List<JournalRating> opts = JournalRating.values;
+  JournalRating _rating = JournalRating.none;
   int count = 5;
   TextEditingController txtController = TextEditingController();
 
@@ -37,7 +37,7 @@ class JournalWidgetState extends State<JournalWidget>{
 
   void resetState() {
     setState(() {
-      _options = Options.none;
+      _rating = JournalRating.none;
       txtController.clear();
     });
   }
@@ -148,8 +148,8 @@ class JournalWidgetState extends State<JournalWidget>{
                   icon: const Icon(Icons.arrow_forward),
                   tooltipstring: "Next",
                   onPressed: () {
-                    if (txtController.text != "" && _options != Options.none) {
-                      hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _options.index.toString()),hpp.returnIndex());
+                    if (txtController.text != "" && _rating != JournalRating.none) {
+                      hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
                       hpp.incrementIndex();
                     }
                     else {
@@ -166,7 +166,7 @@ class JournalWidgetState extends State<JournalWidget>{
                     ),
                   ),
                   onPressed: () {
-                    hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _options.index.toString()),hpp.returnIndex());
+                    hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
                     hpp.submitJournalCache(context); //remove context later
                   },
                   child: const Text(
@@ -195,15 +195,15 @@ class JournalWidgetState extends State<JournalWidget>{
     );
   }
 
-  Widget renderRadioButton(int label, Options opt) {
+  Widget renderRadioButton(int label, JournalRating opt) {
     return Column(
       children: <Widget>[
-        Radio<Options>(
+        Radio<JournalRating>(
           value: opt,
-          groupValue: _options,
-          onChanged: (Options? value) {
+          groupValue: _rating,
+          onChanged: (JournalRating? value) {
             setState(() {
-              _options = value!;
+              _rating = value!;
             });
           },
         ),

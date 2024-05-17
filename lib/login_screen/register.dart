@@ -100,12 +100,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                         httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
                       }
                       if (httpResponse.statusCode == 200) {
+                        rpp.changeState();
                         setState(() => isLoading = false);
                         registerSuccess = true;
                         responseString = httpResponse.body;
                         await Future.delayed(const Duration(milliseconds: 1000));
                         if (context.mounted) {
-                          rpp.changeState();
                           // Navigator.of(context).pop();
                         }
                       }

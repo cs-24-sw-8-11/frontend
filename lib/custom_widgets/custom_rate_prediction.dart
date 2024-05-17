@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:frontend/data_structures/prediction.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
-import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/data_structures/enums.dart';
 
-import 'package:frontend/data_structures/prediction.dart';
+import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:frontend/main.dart';
 
 class PredictionRatingPage extends StatefulWidget {
-  const PredictionRatingPage({super.key});
+  final List<Prediction> predictions;
+  final double userStress;
+  const PredictionRatingPage(this.predictions, this.userStress, {super.key});
 
   @override
   PredictionRatingPageState createState() => PredictionRatingPageState();
@@ -19,9 +25,17 @@ class PredictionRatingPage extends StatefulWidget {
 
 class PredictionRatingPageState extends State<PredictionRatingPage> {
   double sliderValue = 0;
+  String sliderLabel = '0';
+  String currentPredictionValue = '';
+  String token = '';
+  List<PredictionRating> opts = PredictionRating.values;
+  PredictionRating _radioRating = PredictionRating.none;
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
-    List<double> predictionPoints = [];
+    List<Prediction> predictions = widget.predictions;
+    currentPredictionValue = predictions.last.value;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
@@ -39,7 +53,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
           children: <Widget>[
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
             const Text(
-              'Rate Prediction',
+              'Rate Stress Prediction',
               style: TextStyle(
                 color: globalTextColor,
                 fontSize: 25,
@@ -59,108 +73,151 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
                   width: 2, // Border width
                 ),
               ),
-              child: FutureBuilder(
-                builder: (ctx, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  else {
-                    predictionPoints.clear();
-                    for (Prediction prediction in snapshot.data!) {
-                      double? result = double.tryParse(prediction.value);
-                      if (result != null) {
-                        predictionPoints.add(result);
-                      }
-                    }
-                    return LineChart(
-                      LineChartData(
-                        maxY: 5,
-                        borderData: FlBorderData(show: true),
-                        titlesData: FlTitlesData(
-                          bottomTitles: AxisTitles(
-                            axisNameWidget: const Text('Time', style: TextStyle(color: globalTextColor)),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, titleMeta) {
-                                return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value % 1 == 0
-                                      ? value.toStringAsFixed(0)
-                                      : value.toStringAsFixed(1),
-                                    style: const TextStyle(
-                                      color: globalTextColor,
-                                      fontSize: 15),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  )
-                                );
-                              },
-                            ),
-                          ),
-                          leftTitles: AxisTitles(
-                            axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              getTitlesWidget: (value, titleMeta) {
-                                return SideTitleWidget(
-                                  axisSide: titleMeta.axisSide,
-                                  space: 4,
-                                  child: Text(
-                                    value.toStringAsFixed(0),
-                                    style: const TextStyle(
-                                      color: globalTextColor),
-                                    textDirection: TextDirection.rtl,
-                                    textAlign: TextAlign.center,
-                                  )
-                                );
-                              },
-                            ),
-                          ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                        ),
-                        lineBarsData: [
-                          LineChartBarData(
-                            spots: _generatePoints(predictionPoints),
-                          )
-                        ]
-                      )
-                    );
-                  }
-                },
-                future: getPredictionData(Provider.of<AuthProvider>(context, listen: false).fetchToken()),
+              child: LineChart(
+                LineChartData(
+                  maxY: 5,
+                  borderData: FlBorderData(show: true),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      axisNameWidget: const Text('Time', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, titleMeta) {
+                          return SideTitleWidget(
+                            axisSide: titleMeta.axisSide,
+                            space: 4,
+                            child: Text(
+                              value % 1 == 0
+                                ? value.toStringAsFixed(0)
+                                : value.toStringAsFixed(1),
+                              style: const TextStyle(
+                                color: globalTextColor,
+                                fontSize: 15),
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                            )
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      axisNameWidget: const Text('Stress', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, titleMeta) {
+                          return SideTitleWidget(
+                            axisSide: titleMeta.axisSide,
+                            space: 4,
+                            child: Text(
+                              value.toStringAsFixed(0),
+                              style: const TextStyle(
+                                color: globalTextColor),
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                            )
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _generatePoints(predictions),
+                    )
+                  ]
+                )
               ),
             ),
-            Slider(
-              value: sliderValue,
-              max: 10,
-              divisions: 10,
-              label: sliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  sliderValue = value;
-                });
-              },
-            )
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+            Text('Current Stress Prediction: $currentPredictionValue', style: const TextStyle(color: globalTextColor)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
+            const Text('Do you feel that the prediction is accurate?', style: TextStyle(color: globalTextColor)),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height*0.01)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate((opts.length)-1, (index) => renderRadioButton(index+1, opts[index+1])),
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.9,
+              child: const Text('Please let us know if you feel that the current prediction is accurate by selecting Yes or No above. This will help tune the algorithm to be more accurate for your stress.', style: TextStyle(color: globalTextColor))),
+            const Expanded(
+              child: SizedBox.shrink(),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.4,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if(!isLoading){
+                    setState(() {
+                      isLoading = true;
+                    });
+                    token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                    int pid = (await getPredictionData(token)).last.id;
+                    Response response = await executeTestRating(token, pid, widget.userStress.toStringAsFixed(1),(_radioRating.index-1).toString());
+                    if(context.mounted){
+                      await dialogBuilder(context, response.statusCode == 200 ? 'Success' : 'Error (${response.statusCode})', response.statusCode == 200 ? 'Successfully rated prediction.' : response.body);
+                      if(context.mounted){
+                        Navigator.of(context).pop();
+                      }
+                    }
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: !isLoading ?
+                const Text('Submit Rating', style: TextStyle(color: globalTextColor))
+                : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
+              ),
+            ),
+            Padding(padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height*0.05))
           ],
         ),
       )
     );
   }
-  List<FlSpot> _generatePoints(List<double> points) {
+
+  List<FlSpot> _generatePoints(List<Prediction> predictions) {
     List<FlSpot> spots = [];
-    spots.add(FlSpot.zero);
-    for (double i = 0; i < points.length; i++) {
-      spots.add(FlSpot(i + 1, points[i.floor()]));
+    int oneWeekAgo = (DateTime.now().millisecondsSinceEpoch - 86400000 * 7) ~/ 1000;
+    predictions = predictions.where((x) => (x.timeStamp - x.timeStamp % 86400) >= oneWeekAgo && x.timeStamp <= DateTime.now().millisecondsSinceEpoch ~/ 1000).toList();
+    predictions.sort();
+    for (int i = 0; i < predictions.length; i++) {
+      int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
     }
     return spots;
   }
+
+  Widget renderRadioButton(int label, PredictionRating opt) {
+    return Column(
+      children: <Widget>[
+        Radio<PredictionRating>(
+          value: opt,
+          groupValue: _radioRating,
+          onChanged: (PredictionRating? value) {
+            setState(() {
+              _radioRating = value!;
+            });
+          },
+        ),
+        Text(label == 1 ? 'Yes' : 'No', style: const TextStyle(color: globalTextColor))
+      ]
+    );
+  }
+
 }
