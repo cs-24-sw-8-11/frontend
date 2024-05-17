@@ -7,7 +7,7 @@ import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/data_structures/answer.dart';
-import 'package:frontend/data_structures/options_enum.dart';
+import 'package:frontend/data_structures/enums.dart';
 
 import 'package:frontend/home_screen/home.dart';
 
@@ -24,8 +24,8 @@ class QuestionWidget extends StatefulWidget {
 }
 
 class QuestionWidgetState extends State<QuestionWidget>{
-  List<Options> opts = Options.values;
-  Options _options = Options.none;
+  List<JournalRating> opts = JournalRating.values;
+  JournalRating _options = JournalRating.none;
   int count = 5;
   TextEditingController txtController = TextEditingController();
 
@@ -37,7 +37,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
 
   void resetState() {
     setState(() {
-      _options = Options.none;
+      _options = JournalRating.none;
       txtController.clear();
     });
   }
@@ -159,7 +159,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                       icon: const Icon(Icons.arrow_forward),
                       tooltipstring: "Next",
                       onPressed: () {
-                        if (txtController.text != "" && _options != Options.none) {
+                        if (txtController.text != "" && _options != JournalRating.none) {
                           hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _options.index.toString()),hpp.returnIndex());
                           hpp.incrementIndex();
                         }
@@ -208,13 +208,13 @@ class QuestionWidgetState extends State<QuestionWidget>{
     );
   }
 
-  Widget renderRadioButton(int label, Options opt) {
+  Widget renderRadioButton(int label, JournalRating opt) {
     return Column(
       children: <Widget>[
-        Radio<Options>(
+        Radio<JournalRating>(
           value: opt,
           groupValue: _options,
-          onChanged: (Options? value) {
+          onChanged: (JournalRating? value) {
             setState(() {
               _options = value!;
             });
