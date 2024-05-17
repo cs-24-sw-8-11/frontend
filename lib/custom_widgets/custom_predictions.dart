@@ -135,9 +135,11 @@ class PredictionPageState extends State<PredictionPage> {
                 borderData: FlBorderData(show: true),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
+                    axisNameSize: 20,
                     axisNameWidget: const Text('Time (Days)', style: TextStyle(color: globalTextColor)),
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 30,
                       getTitlesWidget: (value, titleMeta) {
                         return SideTitleWidget(
                           axisSide: titleMeta.axisSide,
