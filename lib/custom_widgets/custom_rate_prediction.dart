@@ -162,7 +162,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
                     int pid = (await getPredictionData(token)).last.id;
                     Response response = await executeTestRating(token, pid, widget.userStress.toStringAsFixed(1),(_radioRating.index-1).toString());
                     if(context.mounted){
-                      await dialogBuilder(context, response.statusCode == 200 ? 'Success' : 'Error (${response.statusCode})', response.body);
+                      await dialogBuilder(context, response.statusCode == 200 ? 'Success' : 'Error (${response.statusCode})', response.statusCode == 200 ? 'Successfully rated prediction.' : response.body);
                       if(context.mounted){
                         Navigator.of(context).pop();
                       }
