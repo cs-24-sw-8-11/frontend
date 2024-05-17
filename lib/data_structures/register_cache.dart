@@ -1,12 +1,16 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
 import 'package:frontend/data_structures/user_data.dart';
 
-// yeet these two later
-import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_diag.dart';
+
+import 'package:frontend/scripts/api_handler.dart';
+
 
 class RegisterCache {
   List<String> userData = [];
-  PostUserData? _postUserData;
+  Response? response;
 
   void updateCache(String udata, int index) {
     if(userData.length <= index) {
@@ -22,14 +26,21 @@ class RegisterCache {
   }
 
   void submitRegisterCache(BuildContext context, String token) {
-    // Await backend completion of data type before i can submit the cache - Delete soon when backend link is done
-    buildDataObject(token);
-    dialogBuilder(context, "Success", stringOfAnswers(userData));
-    clearCache();
+    PostUserData userDataObject = buildDataObject(token);
+    executeUpdateUserData(userDataObject).then((data) {
+      response = data;
+      if (response!.statusCode == 200) {
+        dialogBuilder(context, "Success", response!.body);
+      }
+      else {
+        dialogBuilder(context, "Unexpected Error - ${response!.statusCode}", response!.body);
+      }
+      clearCache();
+    });
   }
 
-  void buildDataObject(String token) {
-    _postUserData = PostUserData(
+  PostUserData buildDataObject(String token) {
+    PostUserData postUserData = PostUserData(
       userData[0], // education
       userData[1], // urban
       userData[2], // gender
@@ -40,15 +51,7 @@ class RegisterCache {
       userData[7], // age
       userData[8], // pets
     );
-    _postUserData!.addToken(token);
-  }
-
-  //delete this soon
-  String stringOfAnswers(List<String> answerList) {
-    String result = "";
-    for (var answer in answerList) {
-      result += '$answer\n';
-    }
-    return result;
+    postUserData.addToken(token);
+    return postUserData;
   }
 }

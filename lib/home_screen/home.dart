@@ -80,7 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
   String meta = '';
   late String _userName;
 
-  final GlobalKey<JournalWidgetState> questionWidgetKey = GlobalKey();
+  final GlobalKey<JournalWidgetState> journalWidgetKey = GlobalKey();
 
   @override
   void initState() {
@@ -196,11 +196,11 @@ class HomeScreenState extends State<HomeScreen> {
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      questionWidgetKey.currentState?.resetState();
+      journalWidgetKey.currentState?.resetState();
     });
 
     return JournalWidget(
-      key: questionWidgetKey,
+      key: journalWidgetKey,
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,
       index: currentIndex,

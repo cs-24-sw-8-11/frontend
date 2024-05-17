@@ -11,6 +11,8 @@ import 'package:frontend/scripts/api_handler.dart';
 
 import 'package:frontend/login_screen/register_page_manager.dart';
 
+import 'package:frontend/main.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -22,8 +24,6 @@ class RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
   bool isTapped = false;
   bool registerSuccess = false;
-
-  String responseString = "";
 
   final registerUsernameController = TextEditingController();
   final registerPasswordController = TextEditingController();
@@ -100,10 +100,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                         httpResponse = await executeRegister(registerUsernameController.text, registerPasswordController.text);
                       }
                       if (httpResponse.statusCode == 200) {
+                        if (context.mounted) {
+                          Provider.of<AuthProvider>(context, listen: false).storeToken(httpResponse.body);
+                        }
                         rpp.changeState();
                         setState(() => isLoading = false);
                         registerSuccess = true;
-                        responseString = httpResponse.body;
                         await Future.delayed(const Duration(milliseconds: 1000));
                         if (context.mounted) {
                           // Navigator.of(context).pop();
@@ -131,7 +133,7 @@ class RegisterScreenState extends State<RegisterScreen> {
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
             Center(
               child: registerSuccess
-              ? Text(responseString, style: const TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
+              ? const Text("Successfully Registered!", style: TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
               : const Text('') 
             )
           ]

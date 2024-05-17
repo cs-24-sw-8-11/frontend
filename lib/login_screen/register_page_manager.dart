@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_reg_question.dart';
 import 'package:provider/provider.dart';
 
+import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/register_cache.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
-
-import 'package:frontend/main.dart';
 
 import 'package:frontend/login_screen/register.dart';
 
@@ -50,9 +49,9 @@ class RegisterProvider extends ChangeNotifier {
   }
 
   //Remove context later
-  void submitRegisterCache(BuildContext context) {
-    registerCache.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-    notifyListeners(); // Maybe keep, depends, we'll see
+  void submitRegisterCache(BuildContext context, String token) {
+    registerCache.submitRegisterCache(context, token);
+    notifyListeners();
   }
 }
 
@@ -82,16 +81,19 @@ class RegisterBody extends StatefulWidget {
 }
 
 class RegisterBodyState extends State<RegisterBody> {
+
+  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
-    getDefaultQuestions().then((data) {
-      questions = data;
-    });
+    awaitDefaultFuture();
+    awaitAllLegendFuture();
   }
   
-  int _pageIndex = 0;
   String meta = '';
+  List<String> legends = [];
+  late List<List<LegendEntry>> completeLegend;
   late List<Question> questions;
 
   @override
@@ -109,49 +111,58 @@ class RegisterBodyState extends State<RegisterBody> {
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: rpp.state ? _buildBody() : const RegisterScreen()
+      body: rpp.state ? defaultQuestion() : const RegisterScreen()
     );
-  }
-
-  Widget _buildBody() {
-    switch (_pageIndex) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-        return defaultQuestion();
-      default:
-        return const SizedBox.shrink();
-    }
   }
 
   Widget defaultQuestion() {
     final rpp = Provider.of<RegisterProvider>(context);
     final int index = rpp.returnIndex();
+    fetchLegend(index);
     fetchQuestion(index);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionWidgetKey.currentState?.resetState();
+    });
+
     return QuestionWidget(
+      key: questionWidgetKey,
       header: "Question ${index +1 }/9",
       metatext: meta,
       index: index,
       questionID: questions[index].id,
+      legends: legends,
     );
   }
 
 //-----------------------------FUNCTION CALLS-----------------------------------
 
   void fetchQuestion(int index) {
-      setState(() => meta = questions[index].question);
-    }
+    setState(() => meta = questions[index].question);
+  }
 
-  void changePage(int index) {
-    setState(() {
-      _pageIndex = index;
-    });
+  void fetchLegend(int index) {
+    var stringlist = createLegendStringList(index);
+    setState(() => legends = stringlist);
+  }
+
+  List<String> createLegendStringList(int index) {
+    List<String> legendStrings = [];
+
+    if (index >= 0 && index < completeLegend.length) {
+      List<LegendEntry> legends = completeLegend[index];
+      for (var legend in legends) {
+        legendStrings.add(legend.text);
+      }
+    } 
+    return legendStrings;
+  }
+    
+  void awaitDefaultFuture() async {
+    questions = await getDefaultQuestions();
+  }
+
+  void awaitAllLegendFuture() async {
+    completeLegend = await getAllLegends();
   }
 }

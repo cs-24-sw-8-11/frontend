@@ -26,6 +26,10 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void storeToken(String token) {
+    this.token = token;
+  }
+
   String fetchToken() {
     return token;
   }
