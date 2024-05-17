@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:frontend/login_screen/register.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -89,7 +92,19 @@ class LoginScreenState extends State<LoginScreen> {
                         dynamic httpResponse;
                         setState (() => isLoading = true);
                         if (context.mounted) {
-                          httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text);
+                          try{
+                            httpResponse = await executeLogin(loginUsernameController.text, loginPasswordController.text).timeout(const Duration (seconds:5), onTimeout: () {
+                              return Response('Unable to connect!', 408);
+                            });
+                          }
+                          on Exception catch(ex){
+                            if(ex is SocketException){
+                              httpResponse = Response('Unable to connect!\nHost not found or is unreachable', 408);
+                            }
+                            else{
+                              httpResponse = Response('Unable to connect!\n${ex.runtimeType}', 408);
+                            }
+                          }
                         }
                         if (httpResponse.statusCode == 200) {
                           setState (() => isLoading = false);
