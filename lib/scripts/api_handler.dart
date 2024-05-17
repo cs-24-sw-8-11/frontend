@@ -53,8 +53,8 @@ Future<https.Response> executeUpdateUserData(PostUserData data, String token) as
 }
 
 // Submit Prediction rating
-Future<https.Response> executeTestRating(String token, String pid, String rating, String expected) async {
-  final jsonString = {'token':token, 'id':pid, 'rating':rating, 'expected':expected};
+Future<https.Response> executeTestRating(String token, int pid, String rating, String expected) async {
+  final jsonString = {'token':token, 'id':pid.toString(), 'rating':rating, 'expected':expected};
   dynamic httpResponse = await handleTestRatingHttp(jsonEncode(jsonString));
   return httpResponse;
 }
@@ -163,7 +163,7 @@ Future<List<Prediction>> getPredictionData(String token) async {
   final data = jsonDecode(response.body) as dynamic;
   List<Prediction> predictions = [];
   for(Map<String, dynamic> d in data){
-    predictions.add(Prediction(d['id'], d['userId'], d['value']));
+    predictions.add(Prediction(int.parse(d['id']), d['userId'], d['value'], int.parse(d['timestamp'])));
   }
   return predictions;
 }

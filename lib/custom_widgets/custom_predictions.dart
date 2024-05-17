@@ -3,7 +3,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
 import 'package:frontend/custom_widgets/custom_slider_diag.dart';
-import 'package:frontend/data_structures/journal.dart';
 import 'package:frontend/login_screen/animation_route.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +25,7 @@ class PredictionPage extends StatefulWidget {
 
 class PredictionPageState extends State<PredictionPage> {
   List<double> predictionPoints = [];
-  List<double> journalTimestamps = [];
+  List<int> predictionTimeStamps = [];
   List<Mitigation> mitigations = [];
   List<Prediction> predictions = [];
   Mitigation mitigation = Mitigation.defaultMitigation();
@@ -35,7 +34,6 @@ class PredictionPageState extends State<PredictionPage> {
   double userPredictedStress = 0;
   bool hasMadeNewPrediction = false;
   bool isLoading = false;
-  int latestJournalTimestamp = 0;
 
   @override
   void initState(){
@@ -81,7 +79,7 @@ class PredictionPageState extends State<PredictionPage> {
                           ? mitigation
                           : Mitigation.defaultMitigation();
                     });
-                    await _showUserStressPredictionDialog(predictions.last.id);
+                    await _showUserStressPredictionDialog();
                   }
                   setState(() {
                     isLoading = false;
@@ -120,7 +118,7 @@ class PredictionPageState extends State<PredictionPage> {
           ),
           Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
           Container(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.only(top:15, left: 15, right: 15, bottom: 10),
             height: (MediaQuery.of(context).size.height) * 0.35,
             width: (MediaQuery.of(context).size.width) * 0.9,
             decoration: BoxDecoration(
@@ -133,21 +131,21 @@ class PredictionPageState extends State<PredictionPage> {
             ),
             child: LineChart(
               LineChartData(
+                minX: 0,
+                minY: 0,
+                maxX: 7,
                 maxY: 5,
                 borderData: FlBorderData(show: true),
                 titlesData: FlTitlesData(
                   bottomTitles: AxisTitles(
-                    axisNameWidget: const Text('Time',style: TextStyle(color: globalTextColor)),
+                    axisNameWidget: const Text('Time (Days)', style: TextStyle(color: globalTextColor)),
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, titleMeta) {
                         return SideTitleWidget(
                           axisSide: titleMeta.axisSide,
                           space: 4,
-                          child: Text(
-                            value % 1 == 0
-                                ? value.toStringAsFixed(0)
-                                : value.toStringAsFixed(1),
+                          child: Text(value.toStringAsFixed(0),
                             style: const TextStyle(
                                 color: globalTextColor,
                                 fontSize: 15
@@ -185,7 +183,7 @@ class PredictionPageState extends State<PredictionPage> {
                 ),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: _generatePoints(predictionPoints, journalTimestamps),
+                    spots: _generatePoints(predictions),
                   )
                 ]
               )
@@ -220,11 +218,14 @@ class PredictionPageState extends State<PredictionPage> {
 
   void _refreshPredictionChartData(List<Prediction> data) {
     predictionPoints.clear();
+    predictionTimeStamps.clear();
+    data.sort();
     for (Prediction prediction in data) {
       double? result = double.tryParse(prediction.value);
       if (result != null) {
         predictionPoints.add(result);
       }
+      predictionTimeStamps.add(prediction.timeStamp);
     }
   }
 
@@ -274,13 +275,14 @@ class PredictionPageState extends State<PredictionPage> {
     );
   }
 
-  List<FlSpot> _generatePoints(List<double> points, List<double> timeStamps) {
+  List<FlSpot> _generatePoints(List<Prediction> predictions) {
     List<FlSpot> spots = [];
-    spots.add(FlSpot.zero);
-    timeStamps = timeStamps.reversed.toList();
-    for (int i = 0; i < points.length && i < timeStamps.length; i++) {
-      int timestampOffset = timeStamps[0].floor() - timeStamps[0].floor() % 86400;
-      spots.add(FlSpot((timeStamps[i] - timestampOffset) / 86400, points[i]));
+    int oneWeekAgo = (DateTime.now().millisecondsSinceEpoch - 86400000 * 7) ~/ 1000;
+    predictions = predictions.where((x) => (x.timeStamp - x.timeStamp % 86400) >= oneWeekAgo && x.timeStamp <= DateTime.now().millisecondsSinceEpoch ~/ 1000).toList();
+    predictions.sort();
+    for (int i = 0; i < predictions.length; i++) {
+      int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
     }
     return spots;
   }
@@ -296,7 +298,7 @@ class PredictionPageState extends State<PredictionPage> {
     return 'No Stress';
   }
 
-  Future<void> _showUserStressPredictionDialog(String pid) async {
+  Future<void> _showUserStressPredictionDialog() async {
     final selectedUserStress = await showDialog<double>(
       context: context,
       builder: (context) => SliderDialog(stressLevel),
@@ -318,21 +320,17 @@ class PredictionPageState extends State<PredictionPage> {
   Future<void> _initializeData() async {
     final token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
 
-    final journalsFuture = getJournalsWithoutAnswers(token).then((data) {
-      journalTimestamps = data.map((journal) => double.tryParse(journal.timestamp)!).toList();
-    });
-
     final curatedMitigationFuture = getCuratedMitigation(token).then((data) {
       mitigation = data;
     });
 
     final predictionDataFuture = getPredictionData(token).then((data) {
-      _refreshPredictionChartData(data);
+      predictions = data;
       stressLevel = predictionPoints.isNotEmpty ? predictionPoints.last : 0;
     });
 
     // Wait for all futures to complete
-    await Future.wait([journalsFuture, curatedMitigationFuture, predictionDataFuture]);
+    await Future.wait([curatedMitigationFuture, predictionDataFuture]);
 
     // Update state after all futures have completed
     setState(() {});
