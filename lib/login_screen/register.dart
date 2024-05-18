@@ -102,14 +102,12 @@ class RegisterScreenState extends State<RegisterScreen> {
                       if (httpResponse.statusCode == 200) {
                         if (context.mounted) {
                           Provider.of<AuthProvider>(context, listen: false).storeToken(httpResponse.body);
+                          rpp.changeState(context);
                         }
-                        rpp.changeState();
-                        setState(() => isLoading = false);
-                        registerSuccess = true;
-                        await Future.delayed(const Duration(milliseconds: 1000));
-                        if (context.mounted) {
-                          // Navigator.of(context).pop();
-                        }
+                        setState(() {
+                          isLoading = false;
+                          registerSuccess = true;
+                        });
                       }
                       else {
                         setState(() => isLoading = false);

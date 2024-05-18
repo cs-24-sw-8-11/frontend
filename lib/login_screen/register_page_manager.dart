@@ -25,8 +25,11 @@ class RegisterProvider extends ChangeNotifier {
     return state;
   }
 
-  void changeState() {
+  void changeState(BuildContext context, {bool popFlag = false}) {
     state = !state;
+    if (popFlag == true) {
+      Navigator.of(context).pop();
+    }
     notifyListeners();
   }
 

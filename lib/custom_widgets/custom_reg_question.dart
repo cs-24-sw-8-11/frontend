@@ -25,6 +25,7 @@ class QuestionWidget extends StatefulWidget {
 class QuestionWidgetState extends State<QuestionWidget>{
   String? dropdownValue;
   int qlength = 9;
+  bool isPressed = false;
   TextEditingController txtController = TextEditingController();
 
   @override
@@ -118,7 +119,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                         rpp.incrementIndex();
                       }
                       else {
-                        dialogBuilder(context, "Error", "Please select an option from the dropdown before proceeding.");
+                        dialogBuilder(context, "Error", "Please answer the question before proceeding.");
                       }
                     }
                   )
@@ -131,10 +132,21 @@ class QuestionWidgetState extends State<QuestionWidget>{
                       ),
                     ),
                     onPressed: () async {
-                      rpp.updateCache(dropdownValue!, rpp.returnIndex());
-                      rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                      await Future.delayed(const Duration(milliseconds: 5000));
-                      rpp.changeState();
+                      if (dropdownValue != null) {
+                        if (isPressed != true) {
+                          isPressed = true;
+                          rpp.updateCache(dropdownValue!, rpp.returnIndex());
+                          rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                          await Future.delayed(const Duration(milliseconds: 4000));
+                          isPressed = false;
+                          if (context.mounted) {
+                            rpp.changeState(context, popFlag: true);
+                          }
+                        }
+                      }
+                      else {
+                        dialogBuilder(context, "Error", "Please answer the question before proceeding.");
+                      }
                     },
                     child: const Text(
                       "Submit",
