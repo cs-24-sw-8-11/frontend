@@ -34,9 +34,9 @@ Future<https.Response> executeRegister(String username, String password) async {
 // New Journal
 Future<https.Response> executePostJournal(PostJournal journal, String token) async {
   journal.addToken(token);
-  var jsonString;
+  var jsonString = [];
   for (var answer in journal.answers) {
-    jsonString += {'qid':answer.qid, 'meta':answer.meta, 'rating':answer.rating};
+    jsonString.add({'data': {'qid':answer.qid, 'meta':answer.meta, 'rating':answer.rating}});
   }
   dynamic httpResponse = await handleNewJournalHttp(jsonEncode({'token':token, 'data':jsonString}));
   return httpResponse;
