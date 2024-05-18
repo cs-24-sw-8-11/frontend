@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as https;
 import 'dart:convert';
 
@@ -36,7 +35,7 @@ Future<https.Response> executePostJournal(PostJournal journal, String token) asy
   journal.addToken(token);
   var jsonString = [];
   for (var answer in journal.answers) {
-    jsonString.add({'data': {'qid':answer.qid, 'meta':answer.meta, 'rating':answer.rating}});
+    jsonString.add({'qid':answer.qid, 'meta':answer.meta, 'rating':answer.rating});
   }
   dynamic httpResponse = await handleNewJournalHttp(jsonEncode({'token':token, 'data':jsonString}));
   return httpResponse;
