@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
+import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/user_data.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
@@ -11,6 +12,7 @@ import 'package:frontend/scripts/api_handler.dart';
 class RegisterCache {
   List<String> userData = [];
   Response? response;
+  List<List<LegendEntry>> completeLegend = [];
 
   void updateCache(String udata, int index) {
     if(userData.length <= index) {
@@ -40,6 +42,7 @@ class RegisterCache {
   }
 
   PostUserData buildDataObject(String token) {
+    dataIndexer();
     PostUserData postUserData = PostUserData(
       userData[0], // education
       userData[1], // urban
@@ -53,5 +56,20 @@ class RegisterCache {
     );
     postUserData.addToken(token);
     return postUserData;
+  }
+
+  void dataIndexer() {
+    for (int i = 0; i < userData.length; i++) {
+      List<LegendEntry> legends = completeLegend[i];
+      for (var legend in legends) {
+        if (legend.text == userData[i]) {
+          userData[i] = legend.legendId;
+        }
+      }
+    }
+  }
+
+  Future<void> storeDataIndexes(List<List<LegendEntry>> completeLegend) async {
+    this.completeLegend = completeLegend;
   }
 }

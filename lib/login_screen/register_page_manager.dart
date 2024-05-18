@@ -53,6 +53,11 @@ class RegisterProvider extends ChangeNotifier {
     registerCache.submitRegisterCache(context, token);
     notifyListeners();
   }
+
+  Future<void> storeDataIndex(List<List<LegendEntry>> completeLegend) async {
+    await registerCache.storeDataIndexes(completeLegend);
+    notifyListeners();
+  }
 }
 
 
@@ -81,20 +86,27 @@ class RegisterBody extends StatefulWidget {
 }
 
 class RegisterBodyState extends State<RegisterBody> {
-
   final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+
+  bool isDataLoading = true;
+  String meta = '';
+  List<String> legends = [];
+  List<List<LegendEntry>> completeLegend = [];
+   List<Question> questions = [];
 
   @override
   void initState() {
     super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
     awaitDefaultFuture();
     awaitAllLegendFuture();
+    setState(() {
+      isDataLoading = false;
+    });
   }
-  
-  String meta = '';
-  List<String> legends = [];
-  late List<List<LegendEntry>> completeLegend;
-  late List<Question> questions;
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +123,9 @@ class RegisterBodyState extends State<RegisterBody> {
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: rpp.state ? defaultQuestion() : const RegisterScreen()
+      body: isDataLoading
+      ? const Center(child: CircularProgressIndicator())
+      : rpp.state ? defaultQuestion() : const RegisterScreen()
     );
   }
 
@@ -141,7 +155,7 @@ class RegisterBodyState extends State<RegisterBody> {
     setState(() => meta = questions[index].question);
   }
 
-  void fetchLegend(int index) {
+  void fetchLegend(int index) async {
     var stringlist = createLegendStringList(index);
     setState(() => legends = stringlist);
   }
@@ -163,6 +177,8 @@ class RegisterBodyState extends State<RegisterBody> {
   }
 
   void awaitAllLegendFuture() async {
+    final rpp = Provider.of<RegisterProvider>(context, listen: false);
     completeLegend = await getAllLegends();
+    await rpp.storeDataIndex(completeLegend);
   }
 }

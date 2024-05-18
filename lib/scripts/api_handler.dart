@@ -47,8 +47,8 @@ Future<https.Response> executeNewPrediction(String token) async {
 
 // Update UserData
 Future<https.Response> executeUpdateUserData(PostUserData data) async {
-  final jsonString = {'token':data.token, 'education':data.education, 'urban':data.urban, 'gender':data.gender, 'religion':data.religion, 'orientation':data.orientation, 'race':data.race, 'married':data.married, 'age':data.age, 'pets':data.pets};
-  dynamic httpResponse = await handleUserDataUpdateHttp(jsonEncode({'data':jsonString}));
+  final jsonString = {'education':data.education, 'urban':data.urban, 'gender':data.gender, 'religion':data.religion, 'orientation':data.orientation, 'race':data.race, 'married':data.married, 'age':data.age, 'pets':data.pets};
+  dynamic httpResponse = await handleUserDataUpdateHttp(jsonEncode({'token':data.token, 'data':jsonString}));
   return httpResponse;
 }
 
