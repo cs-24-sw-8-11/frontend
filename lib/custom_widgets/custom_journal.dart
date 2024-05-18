@@ -11,6 +11,8 @@ import 'package:frontend/data_structures/enums.dart';
 
 import 'package:frontend/home_screen/home.dart';
 
+import 'package:frontend/main.dart';
+
 class JournalWidget extends StatefulWidget {
   final String header;
   final String metatext;
@@ -166,8 +168,13 @@ class JournalWidgetState extends State<JournalWidget>{
                     ),
                   ),
                   onPressed: () {
-                    hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
-                    hpp.submitJournalCache(context); //remove context later
+                    if (txtController.text != "" && _rating != JournalRating.none) {
+                      hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
+                      hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                    }
+                    else {
+                      dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
+                    }
                   },
                   child: const Text(
                     "Submit",

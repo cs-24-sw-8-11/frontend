@@ -48,8 +48,8 @@ class HomePageProvider extends ChangeNotifier {
   }
 
   //Remove context later
-  void submitJournalCache(BuildContext context) {
-    journalCache.submitJournalCache(context);
+  void submitJournalCache(BuildContext context, String token) {
+    journalCache.submitJournalCache(context, token);
     notifyListeners(); // Maybe keep, depends, we'll see
   }
 }
