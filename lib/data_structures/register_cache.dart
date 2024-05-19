@@ -1,12 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
+import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/user_data.dart';
 
-// yeet these two later
-import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:frontend/scripts/api_handler.dart';
+
 
 class RegisterCache {
   List<String> userData = [];
-  PostUserData? _postUserData;
+  List<List<LegendEntry>> completeLegend = [];
 
   void updateCache(String udata, int index) {
     if(userData.length <= index) {
@@ -21,15 +24,15 @@ class RegisterCache {
     userData.clear();
   }
 
-  void submitRegisterCache(BuildContext context, String token) {
-    // Await backend completion of data type before i can submit the cache - Delete soon when backend link is done
-    buildDataObject(token);
-    dialogBuilder(context, "Success", stringOfAnswers(userData));
-    clearCache();
+  Future<Response> submitRegisterCache(BuildContext context, String token) async {
+    PostUserData userDataObject = buildDataObject(token);
+    Response res = await executeUpdateUserData(userDataObject);
+    return res;
   }
 
-  void buildDataObject(String token) {
-    _postUserData = PostUserData(
+  PostUserData buildDataObject(String token) {
+    dataIndexer();
+    PostUserData postUserData = PostUserData(
       userData[0], // education
       userData[1], // urban
       userData[2], // gender
@@ -40,15 +43,22 @@ class RegisterCache {
       userData[7], // age
       userData[8], // pets
     );
-    _postUserData!.addToken(token);
+    postUserData.addToken(token);
+    return postUserData;
   }
 
-  //delete this soon
-  String stringOfAnswers(List<String> answerList) {
-    String result = "";
-    for (var answer in answerList) {
-      result += '$answer\n';
+  void dataIndexer() {
+    for (int i = 0; i < userData.length; i++) {
+      List<LegendEntry> legends = completeLegend[i];
+      for (var legend in legends) {
+        if (legend.text == userData[i]) {
+          userData[i] = legend.legendId;
+        }
+      }
     }
-    return result;
+  }
+
+  Future<void> storeDataIndexes(List<List<LegendEntry>> completeLegend) async {
+    this.completeLegend = completeLegend;
   }
 }

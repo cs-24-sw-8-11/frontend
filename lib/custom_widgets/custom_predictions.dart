@@ -5,6 +5,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart';
 
 import 'package:frontend/login_screen/animation_route.dart';
+import 'package:provider/provider.dart';
 
 import 'package:provider/provider.dart';
 

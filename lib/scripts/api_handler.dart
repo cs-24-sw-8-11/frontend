@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as https;
 import 'dart:convert';
 
+import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:frontend/data_structures/answer.dart';
 import 'package:frontend/data_structures/mitigation.dart';
@@ -32,8 +33,11 @@ Future<https.Response> executeRegister(String username, String password) async {
 // New Journal
 Future<https.Response> executePostJournal(PostJournal journal, String token) async {
   journal.addToken(token);
-  final jsonString = jsonEncode(journal);
-  dynamic httpResponse = await handleNewJournalHttp(jsonString);
+  var jsonString = [];
+  for (var answer in journal.answers) {
+    jsonString.add({'qid':answer.qid, 'meta':answer.meta, 'rating':answer.rating});
+  }
+  dynamic httpResponse = await handleNewJournalHttp(jsonEncode({'token':token, 'data':jsonString}));
   return httpResponse;
 }
 
@@ -45,10 +49,9 @@ Future<https.Response> executeNewPrediction(String token) async {
 }
 
 // Update UserData
-Future<https.Response> executeUpdateUserData(PostUserData data, String token) async {
-  data.addToken(token);
-  final jsonString = jsonEncode(data);
-  dynamic httpResponse = await handleUserDataUpdateHttp(jsonString);
+Future<https.Response> executeUpdateUserData(PostUserData data) async {
+  final jsonString = {'education':data.education, 'urban':data.urban, 'gender':data.gender, 'religion':data.religion, 'orientation':data.orientation, 'race':data.race, 'married':data.married, 'age':data.age, 'pets':data.pets};
+  dynamic httpResponse = await handleUserDataUpdateHttp(jsonEncode({'token':data.token, 'data':jsonString}));
   return httpResponse;
 }
 
@@ -187,6 +190,20 @@ Future<Mitigation> getCuratedMitigation(String token) async {
   List<String> tags = [data['data']['tags']];
   Mitigation mitigation = Mitigation(data['data']['id'], data['data']['title'], data['data']['description'], data['data']['type'], tags);
   return mitigation;
+}
+
+Future<List<List<LegendEntry>>> getAllLegends() async {
+  List<List<LegendEntry>> allLegends = [];
+  for (int i = 1; i < 10; i++) {
+    List<LegendEntry> legends = [];
+    var response = await handleQuestionLegend(i);
+    final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+    data.forEach((key, value) {
+      legends.add(LegendEntry(value, key));
+    });
+    allLegends.add(legends);
+  }
+  return allLegends;
 }
 
 //-----------------------------HTTP API CALLS-----------------------------------
@@ -335,7 +352,7 @@ Future<https.Response> handleCuratedMitigationsHttp(String token) async {
 }
 
 // Question Options (Legend) API GET
-Future<https.Response> handleQuestionLegend(String id) async {
+Future<https.Response> handleQuestionLegend(int id) async {
   https.Response response = await https.get(
     Uri.https('$addr:$port', '/questions/legend/$id')
   );

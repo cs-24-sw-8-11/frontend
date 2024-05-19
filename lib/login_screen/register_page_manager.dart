@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_reg_question.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
+import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/question.dart';
 import 'package:frontend/data_structures/register_cache.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
 
 import 'package:frontend/scripts/api_handler.dart';
-
-import 'package:frontend/main.dart';
 
 import 'package:frontend/login_screen/register.dart';
 
@@ -31,6 +31,11 @@ class RegisterProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void navigatorPop(BuildContext context) {
+    Navigator.of(context).pop();
+    notifyListeners();
+  }
+
   void incrementIndex() {
     rIndex += 1;
     notifyListeners();
@@ -49,10 +54,15 @@ class RegisterProvider extends ChangeNotifier {
     registerCache.clearCache();
   }
 
-  //Remove context later
-  void submitRegisterCache(BuildContext context) {
-    registerCache.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-    notifyListeners(); // Maybe keep, depends, we'll see
+  Future<Response> submitRegisterCache(BuildContext context, String token) async {
+    Response res = await registerCache.submitRegisterCache(context, token);
+    notifyListeners();
+    return res;
+  }
+
+  Future<void> storeDataIndex(List<List<LegendEntry>> completeLegend) async {
+    await registerCache.storeDataIndexes(completeLegend);
+    notifyListeners();
   }
 }
 
@@ -82,17 +92,27 @@ class RegisterBody extends StatefulWidget {
 }
 
 class RegisterBodyState extends State<RegisterBody> {
+  final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
+
+  bool isDataLoading = true;
+  String meta = '';
+  List<String> legends = [];
+  List<List<LegendEntry>> completeLegend = [];
+   List<Question> questions = [];
+
   @override
   void initState() {
     super.initState();
-    getDefaultQuestions().then((data) {
-      questions = data;
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    awaitDefaultFuture();
+    awaitAllLegendFuture();
+    setState(() {
+      isDataLoading = false;
     });
   }
-  
-  int _pageIndex = 0;
-  String meta = '';
-  late List<Question> questions;
 
   @override
   Widget build(BuildContext context) {
@@ -109,49 +129,62 @@ class RegisterBodyState extends State<RegisterBody> {
       ),
       backgroundColor: globalScaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
-      body: rpp.state ? _buildBody() : const RegisterScreen()
+      body: isDataLoading
+      ? const Center(child: CircularProgressIndicator())
+      : rpp.state ? defaultQuestion() : const RegisterScreen()
     );
-  }
-
-  Widget _buildBody() {
-    switch (_pageIndex) {
-      case 0:
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      case 6:
-      case 7:
-      case 8:
-        return defaultQuestion();
-      default:
-        return const SizedBox.shrink();
-    }
   }
 
   Widget defaultQuestion() {
     final rpp = Provider.of<RegisterProvider>(context);
     final int index = rpp.returnIndex();
+    fetchLegend(index);
     fetchQuestion(index);
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      questionWidgetKey.currentState?.resetState();
+    });
+
     return QuestionWidget(
+      key: questionWidgetKey,
       header: "Question ${index +1 }/9",
       metatext: meta,
       index: index,
       questionID: questions[index].id,
+      legends: legends,
     );
   }
 
 //-----------------------------FUNCTION CALLS-----------------------------------
 
   void fetchQuestion(int index) {
-      setState(() => meta = questions[index].question);
-    }
+    setState(() => meta = questions[index].question);
+  }
 
-  void changePage(int index) {
-    setState(() {
-      _pageIndex = index;
-    });
+  void fetchLegend(int index) async {
+    var stringlist = createLegendStringList(index);
+    setState(() => legends = stringlist);
+  }
+
+  List<String> createLegendStringList(int index) {
+    List<String> legendStrings = [];
+
+    if (index >= 0 && index < completeLegend.length) {
+      List<LegendEntry> legends = completeLegend[index];
+      for (var legend in legends) {
+        legendStrings.add(legend.text);
+      }
+    } 
+    return legendStrings;
+  }
+    
+  void awaitDefaultFuture() async {
+    questions = await getDefaultQuestions();
+  }
+
+  void awaitAllLegendFuture() async {
+    final rpp = Provider.of<RegisterProvider>(context, listen: false);
+    completeLegend = await getAllLegends();
+    await rpp.storeDataIndex(completeLegend);
   }
 }

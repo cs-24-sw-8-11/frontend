@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_iconbutton.dart';
@@ -11,13 +12,16 @@ import 'package:frontend/data_structures/enums.dart';
 
 import 'package:frontend/home_screen/home.dart';
 
+import 'package:frontend/main.dart';
+
 class JournalWidget extends StatefulWidget {
   final String header;
   final String metatext;
   final int index;
   final String questionID;
+  final Function resetQuestionsCallback;
 
-  const JournalWidget({super.key, required this.header, required this.metatext, required this.index, required this.questionID});
+  const JournalWidget({super.key, required this.header, required this.metatext, required this.index, required this.questionID, required this.resetQuestionsCallback});
 
   @override
   State<JournalWidget> createState() => JournalWidgetState();
@@ -26,8 +30,10 @@ class JournalWidget extends StatefulWidget {
 class JournalWidgetState extends State<JournalWidget>{
   List<JournalRating> opts = JournalRating.values;
   JournalRating _rating = JournalRating.none;
-  int count = 5;
+  int questionCount = 5;
+
   TextEditingController txtController = TextEditingController();
+  bool isPressed = false;
 
   @override
   void initState() {
@@ -121,7 +127,7 @@ class JournalWidgetState extends State<JournalWidget>{
                 Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(count-1, (index) => renderRadioButton(index+1, opts[index+1])),
+                  children: List.generate(questionCount-1, (index) => renderRadioButton(index+1, opts[index+1])),
                 ),
               ],
             )
@@ -143,7 +149,7 @@ class JournalWidgetState extends State<JournalWidget>{
                 )
                 : const SizedBox.shrink(),
                 const Spacer(),
-                hpp.returnIndex() != count-1
+                hpp.returnIndex() != questionCount-1
                 ? CustomIconButton(
                   icon: const Icon(Icons.arrow_forward),
                   tooltipstring: "Next",
@@ -165,9 +171,27 @@ class JournalWidgetState extends State<JournalWidget>{
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
-                  onPressed: () {
-                    hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
-                    hpp.submitJournalCache(context); //remove context later
+                  onPressed: () async {
+                    if (txtController.text != "" && _rating != JournalRating.none && isPressed != true) {
+                      isPressed = true;
+                      hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
+                      Response res = await hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                      if (context.mounted) {
+                        if (res.statusCode == 200) {
+                          await dialogBuilder(context, "Success", res.body);
+                        }
+                        else {
+                          await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                        }
+                        hpp.clearCache();
+                        widget.resetQuestionsCallback;
+                        isPressed = false;
+                        hpp.changeState();
+                      }
+                    }
+                    else {
+                      dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
+                    }
                   },
                   child: const Text(
                     "Submit",

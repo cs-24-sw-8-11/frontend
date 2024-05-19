@@ -1,8 +1,10 @@
-import 'package:frontend/data_structures/answer.dart';
-
-// yeet these two later
 import 'package:flutter/material.dart';
-import 'package:frontend/custom_widgets/custom_diag.dart';
+import 'package:http/http.dart';
+
+import 'package:frontend/data_structures/answer.dart';
+import 'package:frontend/data_structures/journal.dart';
+
+import 'package:frontend/scripts/api_handler.dart';
 
 class JournalCache {
   List<PostAnswer> answerData = [];
@@ -20,18 +22,8 @@ class JournalCache {
     answerData.clear();
   }
 
-  void submitJournalCache(BuildContext context) {
-    // Await backend completion of data type before i can submit the cache - Delete soon when backend link is done
-    dialogBuilder(context, "Success", stringOfAnswers(answerData));
-    clearCache();
-  }
-
-  //delete this soon
-  String stringOfAnswers(List<PostAnswer> answerList) {
-    String result = "";
-    for (var answer in answerList) {
-      result += '$answer\n';
-    }
-    return result;
+  Future<Response> submitJournalCache(BuildContext context, String token) async {
+    Response res = await executePostJournal(PostJournal(answerData), token);
+    return res;
   }
 }

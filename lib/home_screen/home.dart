@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/global_color.dart';
@@ -29,6 +30,11 @@ class HomePageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void resetState() {
+    state = false;
+    notifyListeners();
+  }
+
   void incrementIndex() {
     qIndex += 1;
     notifyListeners();
@@ -45,12 +51,13 @@ class HomePageProvider extends ChangeNotifier {
 
   void clearCache() {
     journalCache.clearCache();
+    qIndex = 0;
   }
 
-  //Remove context later
-  void submitJournalCache(BuildContext context) {
-    journalCache.submitJournalCache(context);
-    notifyListeners(); // Maybe keep, depends, we'll see
+  Future<Response> submitJournalCache(BuildContext context, String token) async {
+    Response res = await journalCache.submitJournalCache(context, token);
+    notifyListeners();
+    return res;
   }
 }
 
@@ -78,16 +85,9 @@ class HomeScreenState extends State<HomeScreen> {
   List<Question> questions = List.empty();
   int _pageIndex = 0;
   String meta = '';
-  late String _userName;
+  String _userName = '';
 
-  final GlobalKey<JournalWidgetState> questionWidgetKey = GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-    _userName = '';
-    awaitFuture();
-  }
+  final GlobalKey<JournalWidgetState> journalWidgetKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
@@ -168,6 +168,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget journalPage() {
+    awaitJournalQuestions();
     final hpp = Provider.of<HomePageProvider>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -196,25 +197,31 @@ class HomeScreenState extends State<HomeScreen> {
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      questionWidgetKey.currentState?.resetState();
+      journalWidgetKey.currentState?.resetState();
     });
 
     return JournalWidget(
-      key: questionWidgetKey,
+      key: journalWidgetKey,
       header: "Question ${currentIndex +1 }/5",
       metatext: meta,
       index: currentIndex,
       questionID: questions[currentIndex].id,
+      resetQuestionsCallback: resetQuestions,
     );
   }
 
 //-----------------------------FUNCTION CALLS-----------------------------------
 
+  void resetQuestions() {
+    questions = List.empty();
+  }
+
   void fetchQuestion(int index) {
     setState(() => meta = questions[index].question);
   }
 
-  void awaitFuture() async {
+  void awaitJournalQuestions() async {
+    //questions = await getTaggedQuestions('test');
     questions = await getDefaultQuestions();
   }
 
@@ -226,6 +233,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void changePage(int index) {
+    Provider.of<HomePageProvider>(context, listen: false).resetState();
     setState(() {
       _pageIndex = index;
     });
