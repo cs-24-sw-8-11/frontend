@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
-import 'package:frontend/custom_widgets/custom_slider_diag.dart';
-import 'package:frontend/login_screen/animation_route.dart';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart';
+
+import 'package:frontend/login_screen/animation_route.dart';
+
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
+import 'package:frontend/custom_widgets/custom_slider_diag.dart';
 
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:frontend/data_structures/mitigation.dart';
