@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_iconbutton.dart';
@@ -136,11 +137,20 @@ class QuestionWidgetState extends State<QuestionWidget>{
                         if (isPressed != true) {
                           isPressed = true;
                           rpp.updateCache(dropdownValue!, rpp.returnIndex());
-                          rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                          await Future.delayed(const Duration(milliseconds: 5000));
-                          isPressed = false;
+                          Response res = await rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
                           if (context.mounted) {
-                            rpp.changeState(context, popFlag: true);
+                            if (res.statusCode == 200) {
+                              await dialogBuilder(context, "Success", res.body);
+                            }
+                            else {
+                              await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                            }
+                            rpp.clearCache();
+                            isPressed = false;
+                            rpp.changeState();
+                            if (context.mounted) {
+                              rpp.navigatorPop(context);
+                            }
                           }
                         }
                       }

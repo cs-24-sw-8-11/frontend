@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_iconbutton.dart';
@@ -18,8 +19,9 @@ class JournalWidget extends StatefulWidget {
   final String metatext;
   final int index;
   final String questionID;
+  final Function resetQuestionsCallback;
 
-  const JournalWidget({super.key, required this.header, required this.metatext, required this.index, required this.questionID});
+  const JournalWidget({super.key, required this.header, required this.metatext, required this.index, required this.questionID, required this.resetQuestionsCallback});
 
   @override
   State<JournalWidget> createState() => JournalWidgetState();
@@ -172,11 +174,19 @@ class JournalWidgetState extends State<JournalWidget>{
                     if (txtController.text != "" && _rating != JournalRating.none && isPressed != true) {
                       isPressed = true;
                       hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
-                      hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                      await Future.delayed(const Duration(milliseconds: 4000));
-                      hpp.clearCache();
-                      isPressed = false;
-                      hpp.changeState();
+                      Response res = await hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                      if (context.mounted) {
+                        if (res.statusCode == 200) {
+                          await dialogBuilder(context, "Success", res.body);
+                        }
+                        else {
+                          await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                        }
+                        hpp.clearCache();
+                        widget.resetQuestionsCallback;
+                        isPressed = false;
+                        hpp.changeState();
+                      }
                     }
                     else {
                       dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");

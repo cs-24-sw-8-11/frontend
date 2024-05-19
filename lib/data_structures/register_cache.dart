@@ -4,14 +4,11 @@ import 'package:http/http.dart';
 import 'package:frontend/data_structures/legend.dart';
 import 'package:frontend/data_structures/user_data.dart';
 
-import 'package:frontend/custom_widgets/custom_diag.dart';
-
 import 'package:frontend/scripts/api_handler.dart';
 
 
 class RegisterCache {
   List<String> userData = [];
-  Response? response;
   List<List<LegendEntry>> completeLegend = [];
 
   void updateCache(String udata, int index) {
@@ -27,18 +24,10 @@ class RegisterCache {
     userData.clear();
   }
 
-  void submitRegisterCache(BuildContext context, String token) {
+  Future<Response> submitRegisterCache(BuildContext context, String token) async {
     PostUserData userDataObject = buildDataObject(token);
-    executeUpdateUserData(userDataObject).then((data) {
-      response = data;
-      if (response!.statusCode == 200) {
-        dialogBuilder(context, "Success", response!.body);
-      }
-      else {
-        dialogBuilder(context, "Unexpected Error - ${response!.statusCode}", response!.body);
-      }
-      clearCache();
-    });
+    Response res = await executeUpdateUserData(userDataObject);
+    return res;
   }
 
   PostUserData buildDataObject(String token) {

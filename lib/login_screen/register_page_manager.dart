@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/custom_widgets/custom_reg_question.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 import 'package:frontend/data_structures/legend.dart';
@@ -25,11 +26,13 @@ class RegisterProvider extends ChangeNotifier {
     return state;
   }
 
-  void changeState(BuildContext context, {bool popFlag = false}) {
+  void changeState() {
     state = !state;
-    if (popFlag == true) {
-      Navigator.of(context).pop();
-    }
+    notifyListeners();
+  }
+
+  void navigatorPop(BuildContext context) {
+    Navigator.of(context).pop();
     notifyListeners();
   }
 
@@ -51,10 +54,10 @@ class RegisterProvider extends ChangeNotifier {
     registerCache.clearCache();
   }
 
-  //Remove context later
-  void submitRegisterCache(BuildContext context, String token) {
-    registerCache.submitRegisterCache(context, token);
+  Future<Response> submitRegisterCache(BuildContext context, String token) async {
+    Response res = await registerCache.submitRegisterCache(context, token);
     notifyListeners();
+    return res;
   }
 
   Future<void> storeDataIndex(List<List<LegendEntry>> completeLegend) async {
