@@ -78,8 +78,8 @@ class PredictionPageState extends State<PredictionPage> {
                         hasMadeNewPrediction = true;
                         stressLevel = double.parse(predictions.last.value);
                         mitigation = stressLevel > 1
-                            ? mitigation
-                            : Mitigation.defaultMitigation();
+                          ? mitigation
+                          : Mitigation.defaultMitigation();
                       });
                       await _showUserStressPredictionDialog();
                     }
