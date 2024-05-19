@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
-import 'package:frontend/custom_widgets/custom_slider_diag.dart';
+
+import 'package:fl_chart/fl_chart.dart';
+import 'package:http/http.dart';
+
 import 'package:frontend/login_screen/animation_route.dart';
+import 'package:provider/provider.dart';
+
 import 'package:provider/provider.dart';
 
 import 'package:frontend/custom_widgets/custom_diag.dart';
 import 'package:frontend/custom_widgets/global_color.dart';
+import 'package:frontend/custom_widgets/custom_rate_prediction.dart';
+import 'package:frontend/custom_widgets/custom_slider_diag.dart';
 
 import 'package:frontend/data_structures/prediction.dart';
 import 'package:frontend/data_structures/mitigation.dart';
@@ -66,17 +71,24 @@ class PredictionPageState extends State<PredictionPage> {
                     }
                   }
                   else {
-                    await executeNewPrediction(token);
-                    predictions = await getPredictionData(token);
-                    mitigation = await getCuratedMitigation(token);
-                    setState(() {
-                      hasMadeNewPrediction = true;
-                      stressLevel = double.parse(predictions.last.value);
-                      mitigation = stressLevel > 1
+                    Response response = await executeNewPrediction(token);
+                    if(response.statusCode == 200){
+                      predictions = await getPredictionData(token);
+                      mitigation = await getCuratedMitigation(token);
+                      setState(() {
+                        hasMadeNewPrediction = true;
+                        stressLevel = double.parse(predictions.last.value);
+                        mitigation = stressLevel > 1
                           ? mitigation
                           : Mitigation.defaultMitigation();
-                    });
-                    await _showUserStressPredictionDialog();
+                      });
+                      await _showUserStressPredictionDialog();
+                    }
+                    else{
+                      if(context.mounted){
+                        await dialogBuilder(context, 'Error (${response.statusCode})', response.body == '' && response.statusCode == 500 ? 'Internal Server Error' : response.body);
+                      }
+                    }
                   }
                   setState(() {
                     isLoading = false;
@@ -318,6 +330,9 @@ class PredictionPageState extends State<PredictionPage> {
     // Wait for all futures to complete
     await Future.wait([curatedMitigationFuture, predictionDataFuture]);
 
+    if(stressLevel < 1){
+     mitigation = Mitigation.defaultMitigation();
+    }
     // Update state after all futures have completed
     setState(() {});
   }

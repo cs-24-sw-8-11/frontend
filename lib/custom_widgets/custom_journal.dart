@@ -31,6 +31,7 @@ class JournalWidgetState extends State<JournalWidget>{
   List<JournalRating> opts = JournalRating.values;
   JournalRating _rating = JournalRating.none;
   int questionCount = 5;
+
   TextEditingController txtController = TextEditingController();
   bool isPressed = false;
 
