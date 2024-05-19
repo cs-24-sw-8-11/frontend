@@ -23,7 +23,6 @@ class RegisterScreen extends StatefulWidget {
 class RegisterScreenState extends State<RegisterScreen> {
   bool isLoading = false;
   bool isTapped = false;
-  bool registerSuccess = false;
 
   final registerUsernameController = TextEditingController();
   final registerPasswordController = TextEditingController();
@@ -106,7 +105,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                         }
                         setState(() {
                           isLoading = false;
-                          registerSuccess = true;
                         });
                       }
                       else {
@@ -116,7 +114,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                         }
                       }
                       isTapped = false;
-                      registerSuccess = false;
                     }
                     else {
                       dialogBuilder(context, 'Failed', 'Passwords does not match!');
@@ -128,12 +125,6 @@ class RegisterScreenState extends State<RegisterScreen> {
                 },
               ),
             ),
-            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
-            Center(
-              child: registerSuccess
-              ? const Text("Successfully Registered!", style: TextStyle(color: Color.fromARGB(255, 50, 255, 50)))
-              : const Text('') 
-            )
           ]
         ),
       ), 

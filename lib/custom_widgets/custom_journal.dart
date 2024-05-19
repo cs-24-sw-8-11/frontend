@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
@@ -163,40 +164,49 @@ class JournalWidgetState extends State<JournalWidget>{
                     }
                   }
                 )
-                : ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: globalButtonBackgroundColor,
-                    disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
+                : SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  width: MediaQuery.of(context).size.width * 0.225,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: globalButtonBackgroundColor,
+                      disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                      ),
                     ),
-                  ),
-                  onPressed: () async {
-                    if (txtController.text != "" && _rating != JournalRating.none && isPressed != true) {
-                      isPressed = true;
-                      hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
-                      Response res = await hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                      if (context.mounted) {
-                        if (res.statusCode == 200) {
-                          await dialogBuilder(context, "Success", res.body);
+                    child: !isPressed
+                    ? const Text(
+                      "Submit",
+                      style: TextStyle(color: globalTextColor),
+                    )
+                    : const SpinKitSquareCircle(
+                      color: globalAnimationColor,
+                      size: 20,
+                    ),
+                    onPressed: () async {
+                      if (txtController.text != "" && _rating != JournalRating.none && isPressed != true) {
+                        setState(() => isPressed = true);
+                        hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
+                        Response res = await hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                        if (context.mounted) {
+                          if (res.statusCode == 200) {
+                            await dialogBuilder(context, "Success", res.body);
+                          }
+                          else {
+                            await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                          }
+                          hpp.clearCache();
+                          widget.resetQuestionsCallback;
+                          setState(() => isPressed = false);
+                          hpp.changeState();
                         }
-                        else {
-                          await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
-                        }
-                        hpp.clearCache();
-                        widget.resetQuestionsCallback;
-                        isPressed = false;
-                        hpp.changeState();
                       }
-                    }
-                    else {
-                      dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
-                    }
-                  },
-                  child: const Text(
-                    "Submit",
-                    style: TextStyle(color: globalTextColor),
-                  )
+                      else {
+                        dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");
+                      }
+                    },
+                  ),
                 ),
               ],
             )
