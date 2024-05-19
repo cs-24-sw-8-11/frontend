@@ -28,8 +28,9 @@ class JournalWidget extends StatefulWidget {
 class JournalWidgetState extends State<JournalWidget>{
   List<JournalRating> opts = JournalRating.values;
   JournalRating _rating = JournalRating.none;
-  int count = 5;
+  int questionCount = 5;
   TextEditingController txtController = TextEditingController();
+  bool isPressed = false;
 
   @override
   void initState() {
@@ -123,7 +124,7 @@ class JournalWidgetState extends State<JournalWidget>{
                 Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(count-1, (index) => renderRadioButton(index+1, opts[index+1])),
+                  children: List.generate(questionCount-1, (index) => renderRadioButton(index+1, opts[index+1])),
                 ),
               ],
             )
@@ -145,7 +146,7 @@ class JournalWidgetState extends State<JournalWidget>{
                 )
                 : const SizedBox.shrink(),
                 const Spacer(),
-                hpp.returnIndex() != count-1
+                hpp.returnIndex() != questionCount-1
                 ? CustomIconButton(
                   icon: const Icon(Icons.arrow_forward),
                   tooltipstring: "Next",
@@ -167,10 +168,15 @@ class JournalWidgetState extends State<JournalWidget>{
                       borderRadius: BorderRadius.circular(15.0),
                     ),
                   ),
-                  onPressed: () {
-                    if (txtController.text != "" && _rating != JournalRating.none) {
+                  onPressed: () async {
+                    if (txtController.text != "" && _rating != JournalRating.none && isPressed != true) {
+                      isPressed = true;
                       hpp.updateCache(PostAnswer(widget.questionID, txtController.text, _rating.index.toString()),hpp.returnIndex());
                       hpp.submitJournalCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
+                      await Future.delayed(const Duration(milliseconds: 4000));
+                      hpp.clearCache();
+                      isPressed = false;
+                      hpp.changeState();
                     }
                     else {
                       dialogBuilder(context, "Error", "Please give both an answer and a rating before proceeding");

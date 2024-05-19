@@ -137,7 +137,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                           isPressed = true;
                           rpp.updateCache(dropdownValue!, rpp.returnIndex());
                           rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                          await Future.delayed(const Duration(milliseconds: 4000));
+                          await Future.delayed(const Duration(milliseconds: 5000));
                           isPressed = false;
                           if (context.mounted) {
                             rpp.changeState(context, popFlag: true);
