@@ -195,7 +195,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     // If questions are empty, reset and fetch questions
-    if (questions.isEmpty) {
+    if (questions == []) {
       resetQuestions();
       awaitJournalQuestions();
       return const Center(
@@ -246,7 +246,7 @@ class HomeScreenState extends State<HomeScreen> {
       metatext: meta,
       index: currentIndex,
       questionID: questions[currentIndex].id,
-      resetQuestionsCallback: resetQuestions,
+      resetQuestionsCallback: resetQuestionsAndFetch,
     );
   }
 
@@ -257,7 +257,8 @@ class HomeScreenState extends State<HomeScreen> {
       _isLoadingJournals = true;
     });
     
-    questions = await getDefaultQuestions();
+    // questions = await getDefaultQuestions();
+    questions = await getTaggedQuestions('test');
     
     setState(() {
       _isLoadingJournals = false;
@@ -292,6 +293,11 @@ class HomeScreenState extends State<HomeScreen> {
 
   void fetchQuestion(int index) {
     setState(() => meta = questions[index].question);
+  }
+
+  void resetQuestionsAndFetch() {
+    resetQuestions();
+    awaitJournalQuestions();
   }
 
   void resetQuestions() {
