@@ -56,7 +56,7 @@ class JournalWidgetState extends State<JournalWidget>{
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1)),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
           SizedBox( // Question Container
             height: (MediaQuery.of(context).size.height)*0.2,
             width: (MediaQuery.of(context).size.width)*0.9,
@@ -168,7 +168,7 @@ class JournalWidgetState extends State<JournalWidget>{
                 )
                 : SizedBox(
                   height: MediaQuery.of(context).size.height * 0.05,
-                  width: MediaQuery.of(context).size.width * 0.225,
+                  width: MediaQuery.of(context).size.width * 0.3,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: globalButtonBackgroundColor,

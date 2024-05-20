@@ -129,7 +129,7 @@ class QuestionWidgetState extends State<QuestionWidget>{
                   )
                   : SizedBox(
                     height: MediaQuery.of(context).size.height * 0.05,
-                    width: MediaQuery.of(context).size.width * 0.25,
+                    width: MediaQuery.of(context).size.width * 0.3,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: globalButtonBackgroundColor,

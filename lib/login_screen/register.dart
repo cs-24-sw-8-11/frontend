@@ -73,7 +73,7 @@ class RegisterScreenState extends State<RegisterScreen> {
               Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.05,
-                width: MediaQuery.of(context).size.width * 0.25,
+                width: MediaQuery.of(context).size.width * 0.3,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: globalButtonBackgroundColor,

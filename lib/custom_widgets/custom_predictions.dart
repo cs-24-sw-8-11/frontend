@@ -57,183 +57,185 @@ class PredictionPageState extends State<PredictionPage> {
       );
     }
 
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: ElevatedButton(
-              onPressed: () async {
-                if(!isLoading){
-                  setState(() {
-                    isLoading = true;
-                  });
-                  token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
-                  int journals = await getJournalCount(token);
-                  if (journals < 3) {
-                    if (context.mounted) {
-                      await dialogBuilder(
-                          context.mounted ? context : context,
-                          "Not enough data!",
-                          "Please make sure you have made at least 3 journals. You currently have $journals journals."
-                      );
-                    }
-                  }
-                  else {
-                    Response response = await executeNewPrediction(token);
-                    if(response.statusCode == 200){
-                      predictions = await getPredictionData(token);
-                      mitigation = await getCuratedMitigation(token);
-                      setState(() {
-                        hasMadeNewPrediction = true;
-                        stressLevel = max(0, double.parse(predictions.last.value));
-                        mitigation = stressLevel > 1
-                          ? mitigation
-                          : Mitigation.defaultMitigation();
-                      });
-                      await _showUserStressPredictionDialog();
-                    }
-                    else{
-                      if(context.mounted){
-                        await dialogBuilder(context.mounted ? context : context, 'Error (${response.statusCode})', response.body == '' && response.statusCode == 500 ? 'Internal Server Error' : response.body);
+    return SingleChildScrollView(
+      child: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.45,
+              child: ElevatedButton(
+                onPressed: () async {
+                  if(!isLoading){
+                    setState(() {
+                      isLoading = true;
+                    });
+                    token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+                    int journals = await getJournalCount(token);
+                    if (journals < 3) {
+                      if (context.mounted) {
+                        await dialogBuilder(
+                            context.mounted ? context : context,
+                            "Not enough data!",
+                            "Please make sure you have made at least 3 journals. You currently have $journals journals."
+                        );
                       }
                     }
+                    else {
+                      Response response = await executeNewPrediction(token);
+                      if(response.statusCode == 200){
+                        predictions = await getPredictionData(token);
+                        mitigation = await getCuratedMitigation(token);
+                        setState(() {
+                          hasMadeNewPrediction = true;
+                          stressLevel = max(0, double.parse(predictions.last.value));
+                          mitigation = stressLevel > 1
+                            ? mitigation
+                            : Mitigation.defaultMitigation();
+                        });
+                        await _showUserStressPredictionDialog();
+                      }
+                      else{
+                        if(context.mounted){
+                          await dialogBuilder(context.mounted ? context : context, 'Error (${response.statusCode})', response.body == '' && response.statusCode == 500 ? 'Internal Server Error' : response.body);
+                        }
+                      }
+                    }
+                    setState(() {
+                      isLoading = false;
+                    });
                   }
-                  setState(() {
-                    isLoading = false;
-                  });
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: globalButtonBackgroundColor,
-                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: !isLoading ?
+                const Text('New Prediction', style: TextStyle(color: globalTextColor))
+                : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
+              ),
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+            mitigationBox(
+              context,
+              mitigation.title,
+              mitigation.description,
+              mitigation.type,
+              mitigation.tags,
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+            Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(_stressLevelToString(stressLevel), style: const TextStyle(color: globalTextColor)),
+                  Text('Predicted Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
+                ],
+              ),
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
+            Container(
+              padding: const EdgeInsets.only(top:15, left: 15, right: 15, bottom: 10),
+              height: (MediaQuery.of(context).size.height) * 0.35,
+              width: (MediaQuery.of(context).size.width) * 0.9,
+              decoration: BoxDecoration(
+                color: Colors.white10,
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                border: Border.all(
+                  color: Colors.black, // Border color
+                  width: 2, // Border width
                 ),
               ),
-              child: !isLoading ?
-              const Text('New Prediction', style: TextStyle(color: globalTextColor))
-              : const SpinKitSquareCircle(color: globalAnimationColor, size: 20),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-          mitigationBox(
-            context,
-            mitigation.title,
-            mitigation.description,
-            mitigation.type,
-            mitigation.tags,
-          ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(_stressLevelToString(stressLevel), style: const TextStyle(color: globalTextColor)),
-                Text('Predicted Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
-              ],
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.01)),
-          Container(
-            padding: const EdgeInsets.only(top:15, left: 15, right: 15, bottom: 10),
-            height: (MediaQuery.of(context).size.height) * 0.35,
-            width: (MediaQuery.of(context).size.width) * 0.9,
-            decoration: BoxDecoration(
-              color: Colors.white10,
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              border: Border.all(
-                color: Colors.black, // Border color
-                width: 2, // Border width
-              ),
-            ),
-            child: LineChart(
-              LineChartData(
-                minX: 0,
-                minY: 0,
-                maxX: 7,
-                maxY: 5,
-                borderData: FlBorderData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    axisNameSize: 20,
-                    axisNameWidget: const Text('Time (Days)', style: TextStyle(color: globalTextColor)),
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 30,
-                      getTitlesWidget: (value, titleMeta) {
+              child: LineChart(
+                LineChartData(
+                  minX: 0,
+                  minY: 0,
+                  maxX: 7,
+                  maxY: 5,
+                  borderData: FlBorderData(show: true),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      axisNameSize: 20,
+                      axisNameWidget: const Text('Time (Days)', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        getTitlesWidget: (value, titleMeta) {
+                          return SideTitleWidget(
+                            axisSide: titleMeta.axisSide,
+                            space: 4,
+                            child: Text(value.toStringAsFixed(0),
+                              style: const TextStyle(
+                                  color: globalTextColor,
+                                  fontSize: 15
+                              ),
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.center,
+                            )
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      axisNameWidget: const Text('Stress Level', style: TextStyle(color: globalTextColor)),
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, titleMeta) {
                         return SideTitleWidget(
                           axisSide: titleMeta.axisSide,
                           space: 4,
-                          child: Text(value.toStringAsFixed(0),
-                            style: const TextStyle(
-                                color: globalTextColor,
-                                fontSize: 15
-                            ),
+                          child: Text(
+                            value.toStringAsFixed(0),
+                            style: const TextStyle(color: globalTextColor),
                             textDirection: TextDirection.rtl,
                             textAlign: TextAlign.center,
-                          )
-                        );
-                      },
+                          ));
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  leftTitles: AxisTitles(
-                    axisNameWidget: const Text('Stress Level', style: TextStyle(color: globalTextColor)),
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, titleMeta) {
-                      return SideTitleWidget(
-                        axisSide: titleMeta.axisSide,
-                        space: 4,
-                        child: Text(
-                          value.toStringAsFixed(0),
-                          style: const TextStyle(color: globalTextColor),
-                          textDirection: TextDirection.rtl,
-                          textAlign: TextAlign.center,
-                        ));
-                      },
-                    ),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: _generatePoints(predictions),
-                  )
-                ]
-              )
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: ElevatedButton(
-              onPressed: ()  {
-                if(hasMadeNewPrediction){
-                  Navigator.of(context).push(createRoute(PredictionRatingPage(predictions, userPredictedStress)));
-                }
-                else{
-                  dialogBuilder(context, 'No Prediction to rate', 'Please make a new prediction before rating');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: globalButtonBackgroundColor,
-                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5.0),
-                ),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _generatePoints(predictions),
+                    )
+                  ]
+                )
               ),
-              child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
             ),
-          ),
-        ],
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height)*0.01),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 0.45,
+              child: ElevatedButton(
+                onPressed: ()  {
+                  if(hasMadeNewPrediction){
+                    Navigator.of(context).push(createRoute(PredictionRatingPage(predictions, userPredictedStress)));
+                  }
+                  else{
+                    dialogBuilder(context, 'No Prediction to rate', 'Please make a new prediction before rating');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                ),
+                child: const Text('Rate Prediction', style: TextStyle(color: globalTextColor)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
