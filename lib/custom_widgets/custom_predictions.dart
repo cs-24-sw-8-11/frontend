@@ -292,7 +292,7 @@ class PredictionPageState extends State<PredictionPage> {
     predictions.sort();
     for (int i = 0; i < predictions.length; i++) {
       int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
-      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, max(0, double.parse(predictions[i].value))));
     }
     return spots;
   }
