@@ -100,8 +100,10 @@ class QuestionWidgetState extends State<QuestionWidget>{
                     icon: const Icon(Icons.arrow_back),
                     tooltipstring: "Back",
                     onPressed: () {
-                      dropdownValue = null;
-                      rpp.decrementIndex();
+                      if (!isPressed) {
+                        dropdownValue = null;
+                        rpp.decrementIndex();
+                      }
                     }
                   )
                   : const SizedBox.shrink(),
