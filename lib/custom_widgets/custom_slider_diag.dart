@@ -32,9 +32,9 @@ class SliderDialogState extends State<SliderDialog> {
                 Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03)),
                 Slider(
                   value: stressLevelInput,
-                  min: -5,
+                  min: 0,
                   max: 5,
-                  divisions: 100,
+                  divisions: 50,
                   onChanged: (value) {
                     setState(() {
                       stressLevelInput = value;

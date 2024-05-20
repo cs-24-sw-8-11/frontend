@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -87,6 +89,7 @@ class PredictionPageState extends State<PredictionPage> {
                       setState(() {
                         hasMadeNewPrediction = true;
                         stressLevel = double.parse(predictions.last.value);
+                        stressLevel = max(0, stressLevel);
                         mitigation = stressLevel > 1
                           ? mitigation
                           : Mitigation.defaultMitigation();
@@ -130,7 +133,7 @@ class PredictionPageState extends State<PredictionPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_stressLevelToString(stressLevel), style: const TextStyle(color: globalTextColor)),
-                Text('Current Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
+                Text('Predicted Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
               ],
             ),
           ),
@@ -150,7 +153,7 @@ class PredictionPageState extends State<PredictionPage> {
             child: LineChart(
               LineChartData(
                 minX: 0,
-                minY: -1,
+                minY: 0,
                 maxX: 7,
                 maxY: 5,
                 borderData: FlBorderData(show: true),
@@ -338,6 +341,7 @@ class PredictionPageState extends State<PredictionPage> {
 
     // Wait for all futures to complete
     await Future.wait([curatedMitigationFuture, predictionDataFuture]);
+    stressLevel = max(0, stressLevel);
 
     if(stressLevel < 1){
      mitigation = Mitigation.defaultMitigation();
