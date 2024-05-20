@@ -145,7 +145,9 @@ class JournalWidgetState extends State<JournalWidget>{
                   icon: const Icon(Icons.arrow_back),
                   tooltipstring: "Back",
                   onPressed: () {
-                    hpp.decrementIndex();
+                    if (!isPressed) {
+                      hpp.decrementIndex();
+                    }
                   }
                 )
                 : const SizedBox.shrink(),
