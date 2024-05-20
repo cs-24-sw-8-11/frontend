@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -86,7 +88,7 @@ class PredictionPageState extends State<PredictionPage> {
                       mitigation = await getCuratedMitigation(token);
                       setState(() {
                         hasMadeNewPrediction = true;
-                        stressLevel = double.parse(predictions.last.value);
+                        stressLevel = max(0, double.parse(predictions.last.value));
                         mitigation = stressLevel > 1
                           ? mitigation
                           : Mitigation.defaultMitigation();
@@ -130,7 +132,7 @@ class PredictionPageState extends State<PredictionPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(_stressLevelToString(stressLevel), style: const TextStyle(color: globalTextColor)),
-                Text('Current Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
+                Text('Predicted Stress Level: $stressLevel', style: const TextStyle(color: globalTextColor)),
               ],
             ),
           ),
@@ -150,7 +152,7 @@ class PredictionPageState extends State<PredictionPage> {
             child: LineChart(
               LineChartData(
                 minX: 0,
-                minY: -1,
+                minY: 0,
                 maxX: 7,
                 maxY: 5,
                 borderData: FlBorderData(show: true),
@@ -289,7 +291,7 @@ class PredictionPageState extends State<PredictionPage> {
     predictions.sort();
     for (int i = 0; i < predictions.length; i++) {
       int timestampOffset = (predictions.first.timeStamp - predictions.first.timeStamp % 86400);
-      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, double.parse(predictions[i].value)));
+      spots.add(FlSpot((predictions[i].timeStamp - timestampOffset) / 86400, max(0, double.parse(predictions[i].value))));
     }
     return spots;
   }
@@ -338,6 +340,7 @@ class PredictionPageState extends State<PredictionPage> {
 
     // Wait for all futures to complete
     await Future.wait([curatedMitigationFuture, predictionDataFuture]);
+    stressLevel = max(0, stressLevel);
 
     if(stressLevel < 1){
      mitigation = Mitigation.defaultMitigation();
