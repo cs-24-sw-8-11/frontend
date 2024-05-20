@@ -150,7 +150,7 @@ class PredictionPageState extends State<PredictionPage> {
             child: LineChart(
               LineChartData(
                 minX: 0,
-                minY: 0,
+                minY: -1,
                 maxX: 7,
                 maxY: 5,
                 borderData: FlBorderData(show: true),

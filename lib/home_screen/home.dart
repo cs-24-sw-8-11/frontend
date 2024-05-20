@@ -86,6 +86,7 @@ class HomeScreenState extends State<HomeScreen> {
   int _pageIndex = 0;
   String meta = '';
   String _userName = '';
+  int journalCount = 0;
   bool _isLoadingJournals = true;
   bool _isLoadingHome = true;
 
@@ -194,24 +195,31 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
-        Center(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: globalButtonBackgroundColor,
-              disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0),
+    return Center(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          //Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05)),
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: globalButtonBackgroundColor,
+                disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
               ),
-            ),
-            onPressed: () => hpp.changeState(),
-            child: const Text("New Journal", style: TextStyle(color: globalTextColor)),
-          )
-        )
-      ],
+              onPressed: () => hpp.changeState(),
+              child: const Text("New Journal", style: TextStyle(color: globalTextColor)),
+            )
+          ),
+          Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+          Center(
+            child: Text('Current journal count: $journalCount', style: const TextStyle(color: globalTextColor)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -275,6 +283,9 @@ class HomeScreenState extends State<HomeScreen> {
     
     // questions = await getDefaultQuestions();
     questions = await getTaggedQuestions('test');
+    if (mounted) {
+      journalCount = await getJournalCount(Provider.of<AuthProvider>(context, listen: false).fetchToken());
+    }
     
     if(flag) {
       setState(() {
