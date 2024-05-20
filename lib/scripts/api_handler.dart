@@ -11,10 +11,17 @@ import 'package:frontend/data_structures/journal.dart';
 
 import 'package:frontend/scripts/json_handler.dart';
 
+// Test-server
+// String addr = "p8-test.skademaskinen.win";
+// String port = "11034";
+
+// Prod server
+String addr = "p8-prod.skademaskinen.win";
+String port = "11034";
+
+
 //--------------------------API OBJECT CALLS------------------------------------
 
-String addr = "p8-test.skademaskinen.win";
-String port = "11034";
 
 // Login
 Future<https.Response> executeLogin(String username, String password) async {
