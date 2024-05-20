@@ -194,15 +194,6 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // If questions are empty, reset and fetch questions
-    if (questions == []) {
-      resetQuestions();
-      awaitJournalQuestions();
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -228,12 +219,6 @@ class HomeScreenState extends State<HomeScreen> {
     final hpp = Provider.of<HomePageProvider>(context);
     final int currentIndex = hpp.returnIndex();
 
-    if (questions.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -251,18 +236,9 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   //-----------------------------FUNCTION CALLS-----------------------------------
-
-  void awaitJournalQuestions() async {
-    setState(() {
-      _isLoadingJournals = true;
-    });
-    
-    // questions = await getDefaultQuestions();
-    questions = await getTaggedQuestions('test');
-    
-    setState(() {
-      _isLoadingJournals = false;
-    });
+  
+  void fetchQuestion(int index) {
+    setState(() => meta = questions[index].question);
   }
 
   void awaitUserNameFuture(String token) async {
@@ -280,7 +256,6 @@ class HomeScreenState extends State<HomeScreen> {
 
   void changePage(int index) {
     Provider.of<HomePageProvider>(context, listen: false).resetState();
-    
     if (index == 1) {
       resetQuestions();
       awaitJournalQuestions();
@@ -291,20 +266,35 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void fetchQuestion(int index) {
-    setState(() => meta = questions[index].question);
+  void awaitJournalQuestions({bool flag = true}) async {
+    if(flag) {
+      setState(() {
+        _isLoadingJournals = true;
+      });
+    }
+    
+    // questions = await getDefaultQuestions();
+    questions = await getTaggedQuestions('test');
+    
+    if(flag) {
+      setState(() {
+        _isLoadingJournals = false;
+      });
+    }
+  }
+
+  void resetQuestions({bool flag = true}) {
+    questions = [];
+    if (flag) {
+      setState(() {
+        _isLoadingJournals = true;
+      });
+    }
   }
 
   void resetQuestionsAndFetch() {
-    resetQuestions();
-    awaitJournalQuestions();
-  }
-
-  void resetQuestions() {
-    setState(() {
-      questions = [];
-      _isLoadingJournals = true;
-    });
+    resetQuestions(flag: false);
+    awaitJournalQuestions(flag: false);
   }
 
   String homePageTextBody() {

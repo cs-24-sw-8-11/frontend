@@ -192,12 +192,13 @@ class JournalWidgetState extends State<JournalWidget>{
                         if (context.mounted) {
                           if (res.statusCode == 200) {
                             await dialogBuilder(context, "Success", res.body);
+                            widget.resetQuestionsCallback();
                           }
                           else {
                             await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                            widget.resetQuestionsCallback();
                           }
                           hpp.clearCache();
-                          widget.resetQuestionsCallback;
                           setState(() => isPressed = false);
                           hpp.changeState();
                         }

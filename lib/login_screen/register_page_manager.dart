@@ -94,11 +94,12 @@ class RegisterBody extends StatefulWidget {
 class RegisterBodyState extends State<RegisterBody> {
   final GlobalKey<QuestionWidgetState> questionWidgetKey = GlobalKey();
 
-  bool isDataLoading = true;
   String meta = '';
   List<String> legends = [];
   List<List<LegendEntry>> completeLegend = [];
-   List<Question> questions = [];
+  List<Question> questions = [];
+  bool isDataLoading = true;
+  bool isLegendLoading = true;
 
   @override
   void initState() {
@@ -138,6 +139,13 @@ class RegisterBodyState extends State<RegisterBody> {
   Widget defaultQuestion() {
     final rpp = Provider.of<RegisterProvider>(context);
     final int index = rpp.returnIndex();
+
+    if (isLegendLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     fetchLegend(index);
     fetchQuestion(index);
 
@@ -163,7 +171,9 @@ class RegisterBodyState extends State<RegisterBody> {
 
   void fetchLegend(int index) async {
     var stringlist = createLegendStringList(index);
-    setState(() => legends = stringlist);
+    setState((){
+      legends = stringlist;
+    });
   }
 
   List<String> createLegendStringList(int index) {
@@ -186,5 +196,6 @@ class RegisterBodyState extends State<RegisterBody> {
     final rpp = Provider.of<RegisterProvider>(context, listen: false);
     completeLegend = await getAllLegends();
     await rpp.storeDataIndex(completeLegend);
+    isLegendLoading = false;
   }
 }
