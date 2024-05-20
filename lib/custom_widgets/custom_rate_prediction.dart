@@ -42,7 +42,7 @@ class PredictionRatingPageState extends State<PredictionRatingPage> {
         iconTheme: const IconThemeData(
           color: globalnavigatorArrowColor,
         ),
-        title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
+        title: const Text('Stress Manager', style: TextStyle(color: globalTextColor)),
         centerTitle: true,
       ),
       backgroundColor: globalScaffoldBackgroundColor,

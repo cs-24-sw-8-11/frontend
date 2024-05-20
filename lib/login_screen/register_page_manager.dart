@@ -120,7 +120,7 @@ class RegisterBodyState extends State<RegisterBody> {
     final rpp = Provider.of<RegisterProvider>(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
+        title: const Text('Stress Manager', style: TextStyle(color: globalTextColor)),
         centerTitle: true,
         backgroundColor: globalAppBarColor,
         automaticallyImplyLeading: rpp.state ? false : true,

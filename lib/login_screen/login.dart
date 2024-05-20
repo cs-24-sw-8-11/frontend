@@ -37,7 +37,7 @@ class LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stress Handler', style: TextStyle(color: globalTextColor)),
+        title: const Text('Stress Manager', style: TextStyle(color: globalTextColor)),
         centerTitle: true,
         backgroundColor: globalAppBarColor,
       ),

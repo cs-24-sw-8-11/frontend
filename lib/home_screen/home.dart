@@ -106,7 +106,7 @@ class HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: globalAppBarColor,
         title: const Center(
-          child: Text('Stress Handler', style: TextStyle(color: globalTextColor))
+          child: Text('Stress Manager', style: TextStyle(color: globalTextColor))
         ),
       ),
       backgroundColor: globalScaffoldBackgroundColor,
