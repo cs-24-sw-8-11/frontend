@@ -195,7 +195,9 @@ class RegisterBodyState extends State<RegisterBody> {
   void awaitAllLegendFuture() async {
     final rpp = Provider.of<RegisterProvider>(context, listen: false);
     completeLegend = await getAllLegends();
-    await rpp.storeDataIndex(completeLegend);
+    if (mounted) {
+      await rpp.storeDataIndex(completeLegend);
+    }
     isLegendLoading = false;
   }
 }

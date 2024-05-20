@@ -343,8 +343,10 @@ class PredictionPageState extends State<PredictionPage> {
      mitigation = Mitigation.defaultMitigation();
     }
     // Update state after all futures have completed
-    setState(() {
-      _isLoadingPrediction = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoadingPrediction = false;
+      });
+    }
   }
 }
