@@ -88,8 +88,7 @@ class PredictionPageState extends State<PredictionPage> {
                       mitigation = await getCuratedMitigation(token);
                       setState(() {
                         hasMadeNewPrediction = true;
-                        stressLevel = double.parse(predictions.last.value);
-                        stressLevel = max(0, stressLevel);
+                        stressLevel = max(0, double.parse(predictions.last.value));
                         mitigation = stressLevel > 1
                           ? mitigation
                           : Mitigation.defaultMitigation();
