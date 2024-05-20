@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:http/http.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -125,21 +124,26 @@ class LoginScreenState extends State<LoginScreen> {
               ), 
             ),
             Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
-            Center(
-              child: RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Register',
-                      style: const TextStyle(decoration: TextDecoration.underline, color: globalUnderlineColor),
-                      recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.of(context).push(createRoute(const RegisterManager()));
-                      },
-                    ),
-                  ],
+            const Center(
+              child: Text('or', style: TextStyle(color: globalButtonBackgroundColor),),
+            ),
+            Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02)),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.05,
+              width: MediaQuery.of(context).size.width * 0.3,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: globalButtonBackgroundColor,
+                  disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
                 ),
-              ),
+                child: const Text('Register', style: TextStyle(color: globalTextColor)),
+                onPressed: () {
+                  Navigator.of(context).push(createRoute(const RegisterManager()));
+                }
+              ), 
             ),
           ]
         ),
