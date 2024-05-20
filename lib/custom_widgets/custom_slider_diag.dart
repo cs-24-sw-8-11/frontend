@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/custom_widgets/global_color.dart';
 
 class SliderDialog extends StatefulWidget {
   /// initial selection for the slider
@@ -11,14 +12,8 @@ class SliderDialog extends StatefulWidget {
 }
 
 class SliderDialogState extends State<SliderDialog> {
-  /// current selection of the slider
+  // current selection of the slider
   double stressLevelInput = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    stressLevelInput = widget.initialStress;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +22,19 @@ class SliderDialogState extends State<SliderDialog> {
         Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.2)),
         Center(
           child: AlertDialog(
-            backgroundColor: Colors.white70,
-            title: const Text('How stressed do you think you will be?'),
+            backgroundColor: globalScaffoldBackgroundColor,
+            surfaceTintColor: Colors.black,
+            title: const Text('How stressed do you think you will be?', style:TextStyle(color: globalTextColor)),
             content: Column(
               children: [
                 Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03)),
-                Text(stressLevelInput.toStringAsFixed(1), style: const TextStyle(color: Colors.black87, fontSize: 20)),
+                Text(stressLevelInput.toStringAsFixed(1), style: const TextStyle(color: globalTextColor, fontSize: 20)),
                 Padding(padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.03)),
                 Slider(
                   value: stressLevelInput,
-                  min: 0,
+                  min: -5,
                   max: 5,
-                  divisions: 50,
+                  divisions: 100,
                   onChanged: (value) {
                     setState(() {
                       stressLevelInput = value;
@@ -55,7 +51,7 @@ class SliderDialogState extends State<SliderDialog> {
                 onPressed: () {
                   Navigator.pop(context, stressLevelInput);
                 },
-                child: const Text('Submit'),
+                child: const Text('Submit', style:TextStyle(color: globalTextColor)),
               )
             ],
           ),

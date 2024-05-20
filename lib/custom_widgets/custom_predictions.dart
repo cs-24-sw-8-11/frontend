@@ -35,6 +35,7 @@ class PredictionPageState extends State<PredictionPage> {
   double userPredictedStress = 0;
   bool hasMadeNewPrediction = false;
   bool isLoading = false;
+  bool _isLoadingPrediction = true;
 
   @override
   void initState(){
@@ -44,6 +45,16 @@ class PredictionPageState extends State<PredictionPage> {
 
   @override
   Widget build(BuildContext context) {
+    return _predictionBody(); 
+  }
+
+  Widget _predictionBody() {
+    if (_isLoadingPrediction) {
+      return const Center(
+        child: CircularProgressIndicator()
+      );
+    }
+
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -62,7 +73,7 @@ class PredictionPageState extends State<PredictionPage> {
                   if (journals < 3) {
                     if (context.mounted) {
                       await dialogBuilder(
-                          context,
+                          context.mounted ? context : context,
                           "Not enough data!",
                           "Please make sure you have made at least 3 journals. You currently have $journals journals."
                       );
@@ -84,7 +95,7 @@ class PredictionPageState extends State<PredictionPage> {
                     }
                     else{
                       if(context.mounted){
-                        await dialogBuilder(context, 'Error (${response.statusCode})', response.body == '' && response.statusCode == 500 ? 'Internal Server Error' : response.body);
+                        await dialogBuilder(context.mounted ? context : context, 'Error (${response.statusCode})', response.body == '' && response.statusCode == 500 ? 'Internal Server Error' : response.body);
                       }
                     }
                   }
@@ -332,6 +343,10 @@ class PredictionPageState extends State<PredictionPage> {
      mitigation = Mitigation.defaultMitigation();
     }
     // Update state after all futures have completed
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        _isLoadingPrediction = false;
+      });
+    }
   }
 }

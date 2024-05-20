@@ -82,12 +82,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  List<Question> questions = List.empty();
+  List<Question> questions = [];
   int _pageIndex = 0;
   String meta = '';
   String _userName = '';
+  bool _isLoadingJournals = true;
+  bool _isLoadingHome = true;
 
   final GlobalKey<JournalWidgetState> journalWidgetKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    if (_pageIndex == 1) {
+      awaitJournalQuestions();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,9 +158,17 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget homePage() {
     String token = Provider.of<AuthProvider>(context, listen: false).fetchToken();
+    
     if (_userName == '') {
       awaitUserNameFuture(token);
     }
+
+    if (_isLoadingHome) {
+      return const Center(
+        child: CircularProgressIndicator()
+      );
+    }
+    
     return Center(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -168,8 +186,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget journalPage() {
-    awaitJournalQuestions();
     final hpp = Provider.of<HomePageProvider>(context);
+
+    if (_isLoadingJournals) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -194,6 +218,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget questionPage() {
     final hpp = Provider.of<HomePageProvider>(context);
     final int currentIndex = hpp.returnIndex();
+
     fetchQuestion(currentIndex);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -206,37 +231,70 @@ class HomeScreenState extends State<HomeScreen> {
       metatext: meta,
       index: currentIndex,
       questionID: questions[currentIndex].id,
-      resetQuestionsCallback: resetQuestions,
+      resetQuestionsCallback: resetQuestionsAndFetch,
     );
   }
 
-//-----------------------------FUNCTION CALLS-----------------------------------
-
-  void resetQuestions() {
-    questions = List.empty();
-  }
-
+  //-----------------------------FUNCTION CALLS-----------------------------------
+  
   void fetchQuestion(int index) {
     setState(() => meta = questions[index].question);
   }
 
-  void awaitJournalQuestions() async {
-    //questions = await getTaggedQuestions('test');
-    questions = await getDefaultQuestions();
-  }
-
   void awaitUserNameFuture(String token) async {
-    GetUserData data = await getUserData(token);
     setState(() {
-      _userName = data.userName;
+      _isLoadingHome = true;
+    });
+    
+    GetUserData data = await getUserData(token);
+    _userName = data.userName;
+    
+    setState(() {
+      _isLoadingHome = false;
     });
   }
 
   void changePage(int index) {
     Provider.of<HomePageProvider>(context, listen: false).resetState();
+    if (index == 1) {
+      resetQuestions();
+      awaitJournalQuestions();
+    }
+    
     setState(() {
       _pageIndex = index;
     });
+  }
+
+  void awaitJournalQuestions({bool flag = true}) async {
+    if(flag) {
+      setState(() {
+        _isLoadingJournals = true;
+      });
+    }
+    
+    // questions = await getDefaultQuestions();
+    questions = await getTaggedQuestions('test');
+    
+    if(flag) {
+      setState(() {
+        _isLoadingJournals = false;
+      });
+    }
+  }
+
+  void resetQuestions({bool flag = true}) {
+    questions = [];
+    if (flag) {
+      setState(() {
+        _isLoadingJournals = true;
+      });
+    }
+  }
+
+  void resetQuestionsAndFetch() {
+    resetQuestions(flag: false);
+    awaitJournalQuestions(flag: false);
   }
 
   String homePageTextBody() {

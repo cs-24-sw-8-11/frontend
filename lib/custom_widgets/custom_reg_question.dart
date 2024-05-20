@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
@@ -124,44 +125,53 @@ class QuestionWidgetState extends State<QuestionWidget>{
                       }
                     }
                   )
-                  : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: globalButtonBackgroundColor,
-                      disabledBackgroundColor: globalButtonDisabledBackgroundColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
+                  : SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    width: MediaQuery.of(context).size.width * 0.25,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: globalButtonBackgroundColor,
+                        disabledBackgroundColor: globalButtonDisabledBackgroundColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
                       ),
-                    ),
-                    onPressed: () async {
-                      if (dropdownValue != null) {
-                        if (isPressed != true) {
-                          isPressed = true;
-                          rpp.updateCache(dropdownValue!, rpp.returnIndex());
-                          Response res = await rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
-                          if (context.mounted) {
-                            if (res.statusCode == 200) {
-                              await dialogBuilder(context, "Success", res.body);
-                            }
-                            else {
-                              await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
-                            }
-                            rpp.clearCache();
-                            isPressed = false;
-                            rpp.changeState();
+                      child: !isPressed
+                      ? const Text(
+                        "Submit",
+                        style: TextStyle(color: globalTextColor),
+                      )
+                      : const SpinKitSquareCircle(
+                        color: globalAnimationColor,
+                        size: 20,
+                      ),
+                      onPressed: () async {
+                        if (dropdownValue != null) {
+                          if (isPressed != true) {
+                            setState(() => isPressed = true);
+                            rpp.updateCache(dropdownValue!, rpp.returnIndex());
+                            Response res = await rpp.submitRegisterCache(context, Provider.of<AuthProvider>(context, listen: false).fetchToken());
                             if (context.mounted) {
-                              rpp.navigatorPop(context);
+                              if (res.statusCode == 200) {
+                                await dialogBuilder(context, "Success", res.body);
+                              }
+                              else {
+                                await dialogBuilder(context, "Unexpected Error - ${res.statusCode}", res.body);
+                              }
+                              rpp.clearCache();
+                              setState(() => isPressed = false);
+                              rpp.changeState();
+                              if (context.mounted) {
+                                rpp.navigatorPop(context);
+                              }
                             }
                           }
                         }
-                      }
-                      else {
-                        dialogBuilder(context, "Error", "Please answer the question before proceeding.");
-                      }
-                    },
-                    child: const Text(
-                      "Submit",
-                      style: TextStyle(color: globalTextColor),
-                    )
+                        else {
+                          dialogBuilder(context, "Error", "Please answer the question before proceeding.");
+                        }
+                      },
+                    ),
                   ),
                 ],
               )
