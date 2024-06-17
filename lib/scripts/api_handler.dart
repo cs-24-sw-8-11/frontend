@@ -12,12 +12,10 @@ import 'package:frontend/data_structures/journal.dart';
 import 'package:frontend/scripts/json_handler.dart';
 
 // Test-server
-// String addr = "p8-test.skademaskinen.win";
-// String port = "11034";
+String addr = "p8-test.skade.dev";
 
 // Prod server
-String addr = "p8-prod.skademaskinen.win";
-String port = "11034";
+// String addr = "p8-prod.skade.dev";
 
 
 //--------------------------API OBJECT CALLS------------------------------------
@@ -218,7 +216,7 @@ Future<List<List<LegendEntry>>> getAllLegends() async {
 // Login API POST
 Future<https.Response> handleLoginHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/user/auth'),
+    Uri.https(addr, '/user/auth'),
     body: json
   );
   return response;
@@ -227,7 +225,7 @@ Future<https.Response> handleLoginHttp(String json) async {
 // Register API POST
 Future<https.Response> handleRegisterHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/user/register'),
+    Uri.https(addr, '/user/register'),
     body: json
   );
   return response;
@@ -236,7 +234,7 @@ Future<https.Response> handleRegisterHttp(String json) async {
 // New Journal API POST
 Future<https.Response> handleNewJournalHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/journals/new'),
+    Uri.https(addr, '/journals/new'),
     body: json
   );
   return response;
@@ -245,7 +243,7 @@ Future<https.Response> handleNewJournalHttp(String json) async {
 // New Prediction API POST
 Future<https.Response> handleNewPredictionHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/predictions/add'),
+    Uri.https(addr, '/predictions/add'),
     body: json
   );
   return response;
@@ -254,7 +252,7 @@ Future<https.Response> handleNewPredictionHttp(String json) async {
 // Update UserData API POST
 Future<https.Response> handleUserDataUpdateHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/user/data/update'),
+    Uri.https(addr, '/user/data/update'),
     body: json
   );
   return response;
@@ -263,7 +261,7 @@ Future<https.Response> handleUserDataUpdateHttp(String json) async {
 // Submit prediction rating API POST
 Future<https.Response> handleTestRatingHttp(String json) async {
   https.Response response = await https.post(
-    Uri.https('$addr:$port', '/tests/rate'),
+    Uri.https(addr, '/tests/rate'),
     body: json
   );
   return response;
@@ -272,7 +270,7 @@ Future<https.Response> handleTestRatingHttp(String json) async {
 // UserData API GET
 Future<https.Response> handleUserDataHttp(String token) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/user/get/$token')
+    Uri.https(addr, '/user/get/$token')
   );
   return response;
 }
@@ -280,7 +278,7 @@ Future<https.Response> handleUserDataHttp(String token) async {
 // User Ids API GET
 Future<https.Response> handleUserIdsHttp() async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/user/ids')
+    Uri.https(addr, '/user/ids')
   );
   return response;
 }
@@ -288,7 +286,7 @@ Future<https.Response> handleUserIdsHttp() async {
 // Answer API GET
 Future<https.Response> handleAnswerHttp(int answerId, String token) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/answers/get/$answerId/$token')
+    Uri.https(addr, '/answers/get/$answerId/$token')
   );
   return response;
 }
@@ -296,7 +294,7 @@ Future<https.Response> handleAnswerHttp(int answerId, String token) async {
 // Journal API GET
 Future<https.Response> handleJournalHttp(int journalId) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/journals/get/$journalId')
+    Uri.https(addr, '/journals/get/$journalId')
   );
   return response;
 }
@@ -304,7 +302,7 @@ Future<https.Response> handleJournalHttp(int journalId) async {
 // Journals from user API GET
 Future<https.Response> handleJournalsHttp(String token) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/journals/ids/$token')
+    Uri.https(addr, '/journals/ids/$token')
   );
   return response;
 }
@@ -312,7 +310,7 @@ Future<https.Response> handleJournalsHttp(String token) async {
 // Default Questions API GET
 Future<https.Response> handleDefaultQuestionsHttp() async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/questions/defaults')
+    Uri.https(addr, '/questions/defaults')
   );
   return response;
 }
@@ -320,7 +318,7 @@ Future<https.Response> handleDefaultQuestionsHttp() async {
 // Question with Tags API GET
 Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/questions/get/$tag')
+    Uri.https(addr, '/questions/get/$tag')
   );
   return response;
 }
@@ -328,7 +326,7 @@ Future<https.Response> handleQuestionsWithTagsHttp(String tag) async {
 // Predictions API GET
 Future<https.Response> handlePredictionHttp(String token) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/predictions/get/$token')
+    Uri.https(addr, '/predictions/get/$token')
   );
   return response;
 }
@@ -337,7 +335,7 @@ Future<https.Response> handlePredictionHttp(String token) async {
 // Mitigation API GET
 Future<https.Response> handleMitigationsTagHttp(String tag) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/mitigations/tags/$tag')
+    Uri.https(addr, '/mitigations/tags/$tag')
   );
   return response;
 }
@@ -345,7 +343,7 @@ Future<https.Response> handleMitigationsTagHttp(String tag) async {
 // Mitigation API GET
 Future<https.Response> handleMitigationsIdHttp(String id) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/mitigations/get/$id')
+    Uri.https(addr, '/mitigations/get/$id')
   );
   return response;
 }
@@ -353,7 +351,7 @@ Future<https.Response> handleMitigationsIdHttp(String id) async {
 // Mitigation API GET
 Future<https.Response> handleCuratedMitigationsHttp(String token) async {
   https.Response response = await https.get(
-      Uri.https('$addr:$port', '/mitigations/new/$token')
+      Uri.https(addr, '/mitigations/new/$token')
   );
   return response;
 }
@@ -361,7 +359,7 @@ Future<https.Response> handleCuratedMitigationsHttp(String token) async {
 // Question Options (Legend) API GET
 Future<https.Response> handleQuestionLegend(int id) async {
   https.Response response = await https.get(
-    Uri.https('$addr:$port', '/questions/legend/$id')
+    Uri.https(addr, '/questions/legend/$id')
   );
   return response;
 }
